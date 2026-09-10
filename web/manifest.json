@@ -1,0 +1,40 @@
+{
+  "name": "Damian Moliński — Tech Lead & Flutter Software Engineer",
+  "short_name": "Damian Moliński",
+  "description": "Portfolio, flutter software engineer deep-dives, and technical writing on Flutter, Dart by Damian Moliński.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b12",
+  "theme_color": "#0175c2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    },
+    {
+      "src": "/favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "48x48 32x32 16x16"
+    }
+  ],
+  "categories": [
+    "developer",
+    "portfolio",
+    "technology"
+  ],
+  "lang": "en-US"
+}

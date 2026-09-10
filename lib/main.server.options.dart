@@ -6,6 +6,7 @@
 
 import 'package:jaspr/server.dart';
 import 'package:portfolio/components/counter.dart' as _counter;
+import 'package:portfolio/components/icons.dart' as _icons;
 import 'package:portfolio/constants/theme.dart' as _theme;
 import 'package:portfolio/pages/about.dart' as _about;
 import 'package:portfolio/app.dart' as _app;
@@ -30,6 +31,7 @@ ServerOptions get defaultServerOptions => ServerOptions(
   clientId: 'main.client.dart.js',
   clients: {_app.App: ClientTarget<_app.App>('app')},
   styles: () => [
+    ..._icons.iconStyles,
     ..._theme.styles,
     ..._app.AppState.styles,
     ..._counter.CounterState.styles,

@@ -9,6 +9,10 @@ environment:
 
 dependencies:
   jaspr: ^0.23.4
+  # Browser APIs for the two @client components. The `universal_web` variant (not `web`) is what
+  # static mode needs: it stubs the same API on the VM, so `lib/app.dart`'s import graph still
+  # compiles for the server during pre-rendering.
+  universal_web: ^1.1.1
 
 dev_dependencies:
   build_runner: ^2.10.0
