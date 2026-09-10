@@ -40,8 +40,12 @@ abstract final class SiteIdentity {
   // was: an expiring lh3.googleusercontent.com portrait
   static const avatarAlt = '[[TODO: portrait]]';
 
-  /// The site's own emblem, archived out of the design before it was deleted.
-  static const emblem = '/images/emblem-1024.png';
+  /// The site's own emblem: the transparent crop of the tile archived out of the design.
+  ///
+  /// `emblem-1024.png` beside it is the opaque master the PWA icons and the favicon were generated
+  /// from. That master carries its own near-black ground, which would render as a dark square in the
+  /// header, so the header uses this cut-out instead.
+  static const emblem = '/images/emblem.png';
 
   // was: 'Brand logo. - Primary color: #0175c2 - Font: geist - Mode: dark - Roundness: rounded-sm'
   static const emblemAlt = '[[TODO: emblem alt text]]';
@@ -159,6 +163,12 @@ enum SiteSection {
 
   /// An optional right-aligned status note; hidden below 640px.
   final String? note;
+
+  /// The eyebrow as the design prints it, `01 • Core Competencies`.
+  String get eyebrowLine => '$ordinal • $eyebrow';
+
+  /// The `id` the section's element carries, which is [anchor] without its leading `#`.
+  String get id => anchor.substring(1);
 }
 
 /// The hero, section `00`.
@@ -296,10 +306,30 @@ enum IdentityNode {
   final String ariaLabel;
 }
 
+/// What the pillars and skills cards both render.
+///
+/// The two sections are the same card with different data: a glyph in a tile, an index opposite it,
+/// a heading, a paragraph, and a row of tags. Naming that shape lets one component draw both, and
+/// says the resemblance is intended rather than accidental.
+abstract interface class SpecEntry {
+  /// Where the card sits in its row. Both implementers are enums, so this comes for free, and the
+  /// accent ramp across the row is derived from it.
+  int get index;
+
+  AppIcon get icon;
+
+  /// The mono index printed opposite the glyph — `01/04` for a pillar, `STK/01` for a skill group.
+  String get indexLabel;
+
+  String get title;
+  String get body;
+  List<String> get tags;
+}
+
 /// Section `01` — the four competency cards.
 ///
 /// The `NN/04` index is structural. Everything else is a claim and stays a marker.
-enum Pillar {
+enum Pillar implements SpecEntry {
   first(
     icon: AppIcon.draw,
     indexLabel: '01/04',
@@ -353,18 +383,25 @@ enum Pillar {
     required this.tags,
   });
 
+  @override
   final AppIcon icon;
 
-  /// Printed on the card as `01/04`. Structural.
+  /// Structural: the card's position in the set, not copy.
+  @override
   final String indexLabel;
 
+  @override
   final String title;
+
+  @override
   final String body;
+
+  @override
   final List<String> tags;
 }
 
 /// Section `02` — the four capability groups, five tags each.
-enum SkillGroup {
+enum SkillGroup implements SpecEntry {
   first(
     icon: AppIcon.terminal,
     indexLabel: 'STK/01',
@@ -421,13 +458,20 @@ enum SkillGroup {
     required this.tags,
   });
 
+  @override
   final AppIcon icon;
 
-  /// Printed on the card as `STK/01`. Structural.
+  /// Structural: the card's position in the set, not copy.
+  @override
   final String indexLabel;
 
+  @override
   final String title;
+
+  @override
   final String body;
+
+  @override
   final List<String> tags;
 }
 
@@ -500,6 +544,10 @@ enum Project {
 
   final List<String> tags;
   final String href;
+
+  /// What the card's link is called out of context, where three identical "View Project" links are
+  /// indistinguishable.
+  String get linkAriaLabel => '${ProjectContent.viewLabel}: $title';
 }
 
 /// Copy shared by the projects section's cards.
@@ -543,6 +591,12 @@ enum ContactCard {
   final AppIcon icon;
   final String label;
   final String value;
+
+  /// Where the card's value points, for the one card whose value is an address. Null elsewhere.
+  String? get href => this == directMail ? 'mailto:$value' : null;
+
+  /// Whether the card offers the clipboard copy the hero's second call to action also offers.
+  bool get isCopyable => this == directMail;
 }
 
 /// The dispatch form's text controls.
@@ -694,6 +748,13 @@ abstract final class ChromeContent {
   /// Names the `<main>` landmark and is the skip link's target. Structural.
   static const mainId = 'main-content';
 
+  /// [mainId] as the skip link's `href`.
+  static const mainAnchor = '#$mainId';
+
   // was: 'About Damian Moliński'
   static const avatarAriaLabel = '[[TODO: avatar link accessible name]]';
+
+  /// Fills the empty avatar ring until a real portrait exists (D6). Structural rather than copy —
+  /// the marker that keeps this from shipping silently is [avatarAriaLabel], which names the slot.
+  static const avatarPlaceholder = '?';
 }

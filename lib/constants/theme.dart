@@ -211,6 +211,24 @@ abstract final class AppType {
   );
 }
 
+/// The accent ramp the design runs across a row of cards: primary, then secondary, then tertiary,
+/// and round again.
+///
+/// It is decoration keyed to position, not meaning, so a card derives its accent from where it sits
+/// rather than storing one — which is also why the same ramp fits rows of three and rows of four.
+enum AppAccent {
+  primary(AppColors.primary),
+  secondary(AppColors.secondary),
+  tertiary(AppColors.tertiary);
+
+  const AppAccent(this.color);
+
+  final Color color;
+
+  /// The accent for the card at [position] in its row, wrapping past the end of the ramp.
+  static AppAccent atPosition(int position) => values[position % values.length];
+}
+
 /// The 8pt spacing ramp and the container ceiling, from `DESIGN.md`'s frontmatter.
 abstract final class AppSpacing {
   static const xxs = Unit.rem(0.25);

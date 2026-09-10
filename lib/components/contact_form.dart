@@ -241,11 +241,24 @@ class ContactFormState extends State<ContactForm> {
         minHeight: 7.rem,
         raw: {'resize': 'none'},
       ),
-      css('.contact-form__control::placeholder').styles(color: AppColors.outline.alpha(0.7)),
+      // The design's `outline/70` measures 3.53:1 on this ground. Full opacity is 6.08:1 and the
+      // placeholder still reads as secondary to the value beside it.
+      css('.contact-form__control::placeholder').styles(color: AppColors.outline),
       css('.contact-form__control:focus').styles(
         border: .all(style: .solid, color: AppColors.tertiary, width: 1.px),
         outline: const Outline(style: .none),
         shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 16.px, color: AppColors.tertiary.alpha(0.15)),
+      ),
+
+      // `:focus` drops the outline for the design's border-and-glow treatment, which would take the
+      // ring away from keyboard users too. This puts it back for them alone.
+      css('.contact-form__control:focus-visible').styles(
+        outline: const Outline(
+          color: AppColors.tertiary,
+          style: .solid,
+          width: OutlineWidth(Unit.pixels(2)),
+          offset: Unit.pixels(2),
+        ),
       ),
 
       css('.contact-form__error').combine(AppType.labelMd).styles(color: AppColors.error),

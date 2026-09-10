@@ -126,7 +126,9 @@ class MonoButton extends StatelessComponent {
           blur: 20.px,
           color: AppColors.primaryContainer.alpha(0.35),
         ),
-        color: AppColors.onPrimary,
+        // `on-primary-container`, not `on-primary`: the fill is the primary *container* gradient, and
+        // the design's darker pairing measured 2.71:1 against it. See amendment A9.
+        color: AppColors.onPrimaryContainer,
         raw: {
           'background-image':
               'linear-gradient(to right, ${AppColors.primaryContainer.value}, ${AppColors.inversePrimary.value})',
@@ -135,7 +137,8 @@ class MonoButton extends StatelessComponent {
       css('&.mono-button--primary:hover').styles(
         border: .all(style: .solid, color: AppColors.tertiary, width: 1.px),
         shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 24.px, color: AppColors.tertiary.alpha(0.4)),
-        filter: .brightness(110),
+        // A multiplier, not a percentage: `brightness(110)` is 110x and renders the button white.
+        filter: .brightness(1.1),
       ),
 
       css('&.mono-button--ghost').styles(

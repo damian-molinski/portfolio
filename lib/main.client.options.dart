@@ -6,7 +6,10 @@
 
 import 'package:jaspr/client.dart';
 
-import 'package:portfolio/app.dart' deferred as _app;
+import 'package:portfolio/components/contact_form.dart'
+    deferred as _contact_form;
+import 'package:portfolio/components/copy_email_button.dart'
+    deferred as _copy_email_button;
 
 /// Default [ClientOptions] for use with your Jaspr project.
 ///
@@ -25,5 +28,19 @@ import 'package:portfolio/app.dart' deferred as _app;
 /// }
 /// ```
 ClientOptions get defaultClientOptions => ClientOptions(
-  clients: {'app': ClientLoader((p) => _app.App(), loader: _app.loadLibrary)},
+  clients: {
+    'contact_form': ClientLoader(
+      (p) => _contact_form.ContactForm(),
+      loader: _contact_form.loadLibrary,
+    ),
+    'copy_email_button': ClientLoader(
+      (p) => _copy_email_button.CopyEmailButton(
+        email: p['email'] as String,
+        successLabel: p['successLabel'] as String,
+        ariaLabel: p['ariaLabel'] as String,
+        label: p['label'] as String?,
+      ),
+      loader: _copy_email_button.loadLibrary,
+    ),
+  },
 );

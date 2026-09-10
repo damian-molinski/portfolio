@@ -49,10 +49,38 @@ diagnostics rather than suppressing them.
 `DESIGN.md` is the source of truth. Its YAML frontmatter carries the token values; the prose below
 describes intent.
 
-**Known conflict — read the frontmatter, not the prose.** The frontmatter sets `primary: '#9ecaff'`, the
-prose section names `#0175C2` as primary, and `lib/constants/theme.dart` hardcodes `#01589B`. New work
-takes token values from the frontmatter. `theme.dart` should eventually derive its colours from those
-tokens instead of hardcoding them; until it does, expect the mismatch.
+`lib/constants/theme.dart` declares those tokens as Dart — `AppColors`, `AppType`, `AppSpacing`,
+`AppRadius`, `AppBreakpoints`, `AppAccent` — taken verbatim from the frontmatter. Take colours, type
+steps and spacing from there; do not restate a hex value in a component. Translucent variants come
+from the `Color.alpha()` extension in the same file, so `AppColors.tertiary.alpha(0.4)` rather than a
+second literal palette.
+
+**Known conflict — read the frontmatter, not the prose.** The frontmatter sets `primary: '#9ecaff'`
+while the prose section names `#0175C2` as primary. The frontmatter wins; both roles exist and the
+design uses them correctly, `primary` for text accents and `primary-container` for button fills.
+
+`docs/reference/landing-page.html` is the design as rendered, archived before `design/` was deleted.
+Read it for layout, spacing and markup structure — never for colour. Its embedded Tailwind config
+overrides the frontmatter with a darker surface ramp, which this site deliberately does not use.
+
+## The site carries placeholder copy
+
+Every user-visible string is a literal `[[TODO: …]]` marker living in `lib/content/site_content.dart`,
+and no component declares copy of its own. This is deliberate: the design's wording asserts things
+that were never verified, so it ships as markers that cannot be mistaken for finished text. Add a
+string by adding a field there, not by writing it into a `build` method. **The site must not be
+deployed while `grep -rn '\[\[TODO:' lib/` returns anything.**
+
+## Two `@client` components, and one trap
+
+`CopyEmailButton` and `ContactForm` are the only JavaScript on the page; everything else is CSS.
+`app.dart` is deliberately not `@client` — annotating the root would compile every section to
+JavaScript and hydrate the whole document.
+
+**A `@client` component must have an unnamed constructor.** Jaspr's hydration codegen reconstructs it
+by calling one, so named constructors compile, analyze clean, pre-render correctly, and then fail the
+client build with `Couldn't find constructor`. Only `jaspr build` catches it, and only once the
+component is mounted somewhere.
 
 ## Skills
 

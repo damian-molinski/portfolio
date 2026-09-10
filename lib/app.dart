@@ -1,71 +1,63 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import 'pages/about.dart';
-import 'pages/home.dart';
+import 'constants/theme.dart';
+import 'content/site_content.dart';
+import 'sections/contact.dart';
+import 'sections/hero.dart';
+import 'sections/pillars.dart';
+import 'sections/projects.dart';
+import 'sections/signals_dock.dart';
+import 'sections/site_footer.dart';
+import 'sections/site_header.dart';
+import 'sections/skills.dart';
 
-// The main component of your application.
-//
-// By using the @client annotation this component will be automatically compiled to javascript and mounted
-// on the client. Therefore:
-// - this file and any imported file must be compilable for both server and client environments.
-// - this component and any child components will be built once on the server during pre-rendering and then
-//   again on the client during normal rendering.
-@client
-class App extends StatefulComponent {
+/// The whole page.
+///
+/// Not `@client`: decision D5 puts the only JavaScript on the site in `CopyEmailButton` and
+/// `ContactForm`, and `ClientApp` in `main.client.dart` finds and hydrates those two on its own.
+/// Annotating the root instead would compile every section to JavaScript and hydrate the entire
+/// document, which is the opposite of what a static build is for.
+///
+/// `padding-top` on `<main>` clears the fixed header, which is out of flow and would otherwise sit
+/// over the top of the hero.
+class App extends StatelessComponent {
   const App({super.key});
 
   @override
-  State<App> createState() => AppState();
-}
-
-class AppState extends State<App> {
-  @override
-  void initState() {
-    super.initState();
-    // Run code depending on the rendering environment.
-    if (kIsWeb) {
-      print("Hello client");
-      // When using @client components there is no default `main()` function on the client where you would normally
-      // run any client-side initialization logic. Instead you can put it here, considering this component is only
-      // mounted once at the root of your client-side component tree.
-    } else {
-      print("Hello server");
-    }
-  }
-
-  @override
   Component build(BuildContext context) {
-    // This method is rerun every time the component is rebuilt.
+    return Component.fragment([
+      a(classes: 'skip-link', href: ChromeContent.mainAnchor, [.text(ChromeContent.skipLink)]),
 
-    // Renders a <div class="main"> html element with children.
-    return div(classes: 'main', [
-      const Home(),
-      const About(),
+      const SiteHeader(),
+
+      main_(
+        classes: 'site-main',
+        id: ChromeContent.mainId,
+        // The skip link moves focus here, and `<main>` is not focusable without this.
+        attributes: const {'tabindex': '-1'},
+        [
+          const Hero(),
+          const SignalsDock(),
+          const Pillars(),
+          const Skills(),
+          const Projects(),
+          const Contact(),
+        ],
+      ),
+
+      const SiteFooter(),
     ]);
   }
 
-  // Defines the CSS styles for this component.
-  //
-  // By using the @css annotation, these will be rendered automatically to CSS and included in your page.
-  // Must be a variable or getter of type [List<StyleRule>].
   @css
   static List<StyleRule> get styles => [
-    css('.main', [
-      // The '&' refers to the parent selector of a nested style rules.
-      css('&').styles(
-        display: .flex,
-        height: 100.vh,
-        flexDirection: .row,
-        flexWrap: .wrap,
-      ),
-      css('section').styles(
-        display: .flex,
-        flexDirection: .column,
-        justifyContent: .center,
-        alignItems: .center,
-        flex: Flex(grow: 1, shrink: 0, basis: 400.px),
-      ),
-    ]),
+    css('.site-main').styles(
+      display: .block,
+      width: 100.percent,
+      padding: .only(top: 4.rem),
+      outline: const Outline(style: .none),
+      backgroundColor: AppColors.surface,
+    ),
   ];
 }
