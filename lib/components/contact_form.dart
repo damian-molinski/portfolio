@@ -157,17 +157,22 @@ class ContactFormState extends State<ContactForm> {
           label(classes: 'contact-form__label', htmlFor: ContactFormContent.scopeFieldId, [
             span([.text(ContactFormContent.scopeLabel)]),
           ]),
-          select(
-            classes: 'contact-form__control',
-            name: 'scope',
-            value: _scope.value,
-            onChange: (selected) => setState(() => _scope = ScopeOption.byValue(selected.first)),
-            id: ContactFormContent.scopeFieldId,
-            [
-              for (final option_ in ScopeOption.values)
-                option(value: option_.value, selected: option_ == _scope, [.text(option_.label)]),
-            ],
-          ),
+          // The native arrow is drawn against the border regardless of `padding-right`, so the
+          // control drops its platform appearance and this wrapper places the chevron itself.
+          div(classes: 'contact-form__select', [
+            select(
+              classes: 'contact-form__control contact-form__control--select',
+              name: 'scope',
+              value: _scope.value,
+              onChange: (selected) => setState(() => _scope = ScopeOption.byValue(selected.first)),
+              id: ContactFormContent.scopeFieldId,
+              [
+                for (final option_ in ScopeOption.values)
+                  option(value: option_.value, selected: option_ == _scope, [.text(option_.label)]),
+              ],
+            ),
+            AppIcon.expandMore(classes: 'contact-form__select-chevron'),
+          ]),
         ]),
 
         _field(ContactField.brief),
@@ -240,6 +245,25 @@ class ContactFormState extends State<ContactForm> {
       css('.contact-form__control--multiline').styles(
         minHeight: 7.rem,
         raw: {'resize': 'none'},
+      ),
+
+      css('.contact-form__select').styles(
+        display: .block,
+        position: .relative(),
+        width: 100.percent,
+      ),
+      // Room for the chevron, so a long option label cannot run under it.
+      css('.contact-form__control--select').styles(
+        padding: .only(right: AppSpacing.xl),
+        appearance: .none,
+      ),
+      // Centred by auto margins rather than a translate: the global reduced-motion rule drops every
+      // transform, and this one would take the chevron with it.
+      css('.contact-form__select-chevron').styles(
+        position: .absolute(top: .zero, bottom: .zero, right: AppSpacing.sm),
+        margin: .symmetric(vertical: .auto),
+        pointerEvents: .none,
+        color: AppColors.onSurfaceVariant,
       ),
       // The design's `outline/70` measures 3.53:1 on this ground. Full opacity is 6.08:1 and the
       // placeholder still reads as secondary to the value beside it.
