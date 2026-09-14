@@ -7,6 +7,10 @@ import '../components/section_heading.dart';
 import '../components/section_shell.dart';
 import '../constants/theme.dart';
 import '../content/site_content.dart';
+import '../data/site_content_repository.dart';
+import '../state/bloc_builder.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 
 /// Section `04` — the consultation panel.
 ///
@@ -32,17 +36,20 @@ class Contact extends StatelessComponent {
         else
           span(classes: 'contact__card-value', [.text(card.value)]),
       ]),
-      if (card.isCopyable)
-        const CopyEmailButton(
-          email: SiteIdentity.email,
-          successLabel: HeroContent.copyCtaSuccess,
-          ariaLabel: HeroContent.copyCtaAriaLabel,
-        ),
+      if (card.isCopyable) const CopyEmailButton(isIconOnly: true),
     ]);
   }
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _section(content),
+      },
+    );
+  }
+
+  Component _section(SiteContent content) {
     return SectionShell(
       siteSection: SiteSection.contact,
       hasDivider: false,
@@ -57,7 +64,7 @@ class Contact extends StatelessComponent {
           div(classes: 'contact__header', [
             SectionHeading.forSection(SiteSection.contact),
             div(classes: 'contact__cards', [
-              for (final card in ContactCard.values) _summaryCard(card),
+              for (final card in content.contactCards) _summaryCard(card),
             ]),
           ]),
 

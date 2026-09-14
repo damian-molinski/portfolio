@@ -11,6 +11,9 @@ import 'sections/signals_dock.dart';
 import 'sections/site_footer.dart';
 import 'sections/site_header.dart';
 import 'sections/skills.dart';
+import 'state/bloc_builder.dart';
+import 'state/site_content_cubit.dart';
+import 'state/site_content_state.dart';
 
 /// The whole page.
 ///
@@ -26,14 +29,22 @@ class App extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _page(content.chrome),
+      },
+    );
+  }
+
+  Component _page(ChromeContent chrome) {
     return Component.fragment([
-      a(classes: 'skip-link', href: ChromeContent.mainAnchor, [.text(ChromeContent.skipLink)]),
+      a(classes: 'skip-link', href: chrome.mainAnchor, [.text(chrome.skipLink)]),
 
       const SiteHeader(),
 
       main_(
         classes: 'site-main',
-        id: ChromeContent.mainId,
+        id: chrome.mainId,
         // The skip link moves focus here, and `<main>` is not focusable without this.
         attributes: const {'tabindex': '-1'},
         [

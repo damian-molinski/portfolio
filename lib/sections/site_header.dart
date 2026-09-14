@@ -2,7 +2,10 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
-import '../content/site_content.dart';
+import '../data/site_content_repository.dart';
+import '../state/bloc_builder.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 
 /// The fixed page header.
 ///
@@ -14,18 +17,30 @@ class SiteHeader extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _header(content),
+      },
+    );
+  }
+
+  Component _header(SiteContent content) {
     return header(classes: 'site-header', [
       div(classes: 'site-header__bar', [
         div(classes: 'site-header__brand', [
-          img(alt: SiteIdentity.emblemAlt, src: SiteIdentity.emblem, classes: 'site-header__emblem'),
+          img(
+            alt: content.identity.emblemAlt,
+            src: content.identity.emblem,
+            classes: 'site-header__emblem',
+          ),
           div(classes: 'site-header__wordmark', [
-            span(classes: 'site-header__name', [.text(SiteIdentity.name)]),
-            span(classes: 'site-header__role', [.text(SiteIdentity.role)]),
+            span(classes: 'site-header__name', [.text(content.identity.name)]),
+            span(classes: 'site-header__role', [.text(content.identity.role)]),
           ]),
         ]),
 
         nav(classes: 'site-header__nav', [
-          for (final section in SiteSection.values)
+          for (final section in content.sections)
             a(classes: 'site-header__link', href: section.anchor, [.text(section.navLabel)]),
         ]),
 
@@ -33,9 +48,9 @@ class SiteHeader extends StatelessComponent {
         // slot is unfilled; the accessible name carries the marker that keeps it from shipping quietly.
         div(
           classes: 'site-header__avatar',
-          attributes: {'role': 'img', 'aria-label': ChromeContent.avatarAriaLabel},
+          attributes: {'role': 'img', 'aria-label': content.chrome.avatarAriaLabel},
           [
-            .text(ChromeContent.avatarPlaceholder),
+            .text(content.chrome.avatarPlaceholder),
           ],
         ),
       ]),

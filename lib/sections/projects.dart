@@ -9,6 +9,10 @@ import '../components/status_dot.dart';
 import '../components/tag_pill.dart';
 import '../constants/theme.dart';
 import '../content/site_content.dart';
+import '../data/site_content_repository.dart';
+import '../state/bloc_builder.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 
 /// Section `03` — the three case-study cards.
 ///
@@ -17,7 +21,7 @@ import '../content/site_content.dart';
 class Projects extends StatelessComponent {
   const Projects({super.key});
 
-  Component _card(Project project) {
+  Component _card(Project project, ProjectContent labels) {
     return SpecCard(
       minHeight: 360.px,
       classes: 'project-card',
@@ -27,7 +31,7 @@ class Projects extends StatelessComponent {
             span(classes: 'project-card__category', [.text(project.category)]),
             span(classes: 'project-card__status', [
               const StatusDot(tone: StatusDotTone.pulse),
-              .text(ProjectContent.activeLabel),
+              .text(labels.activeLabel),
             ]),
           ]),
 
@@ -37,7 +41,7 @@ class Projects extends StatelessComponent {
           ]),
 
           div(classes: 'project-card__telemetry', [
-            span(classes: 'project-card__telemetry-label', [.text(ProjectContent.telemetryLabel)]),
+            span(classes: 'project-card__telemetry-label', [.text(labels.telemetryLabel)]),
             span(classes: 'project-card__telemetry-value', [.text(project.telemetry)]),
           ]),
         ]),
@@ -52,7 +56,7 @@ class Projects extends StatelessComponent {
             target: .blank,
             attributes: {'rel': 'noopener noreferrer', 'aria-label': project.linkAriaLabel},
             [
-              span([.text(ProjectContent.viewLabel)]),
+              span([.text(labels.viewLabel)]),
               AppIcon.northEast(classes: 'project-card__link-glyph'),
             ],
           ),
@@ -63,12 +67,20 @@ class Projects extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _section(content),
+      },
+    );
+  }
+
+  Component _section(SiteContent content) {
     return SectionShell(
       siteSection: SiteSection.projects,
       children: [
         SectionHeading.forSection(SiteSection.projects),
         div(classes: 'project-grid', [
-          for (final project in Project.values) _card(project),
+          for (final project in content.projects) _card(project, content.projectLabels),
         ]),
       ],
     );

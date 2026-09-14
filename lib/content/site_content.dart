@@ -19,55 +19,64 @@ import '../components/icons.dart';
 /// The marker every unwritten string wears. Grep for it before deploying: `grep -rn '\[\[TODO:' lib/`.
 const todoMarker = '[[TODO:';
 
+/// Read by both [SiteIdentity.email] and [ContactCard.directMail]. It is a top-level `const` rather
+/// than a member of [SiteIdentity] because an enum constant's arguments must be compile-time
+/// constants, and a getter is not one — this keeps the address in exactly one place regardless.
+// was: 'damian@molinski.dev'
+const _contactEmail = '[[TODO: contact email]]';
+
 /// Identity in the header and the footer.
-abstract final class SiteIdentity {
+final class SiteIdentity {
+  const SiteIdentity();
+
   // was: 'Damian Moliński'
-  static const name = '[[TODO: full name]]';
+  String get name => '[[TODO: full name]]';
 
   // was: 'Flutter & Dart Systems Architect'
-  static const role = '[[TODO: role strapline]]';
+  String get role => '[[TODO: role strapline]]';
 
   // was: '© Damian Moliński • Systems Architecture & Impeller Internals'
-  static const copyright = '[[TODO: copyright line]]';
+  String get copyright => '[[TODO: copyright line]]';
 
   /// The address both copy buttons write to the clipboard.
-  // was: 'damian@molinski.dev'
-  static const email = '[[TODO: contact email]]';
+  String get email => _contactEmail;
 
   /// The header's avatar. D6 keeps the slot and drops the image: the portrait shipped in the design
   /// was an AI-generated likeness of someone else, and no real one exists yet. Until it does, the
   /// slot renders its ring and initials rather than a face.
   // was: an expiring lh3.googleusercontent.com portrait
-  static const avatarAlt = '[[TODO: portrait]]';
+  String get avatarAlt => '[[TODO: portrait]]';
 
   /// The site's own emblem: the transparent crop of the tile archived out of the design.
   ///
   /// `emblem-1024.png` beside it is the opaque master the PWA icons and the favicon were generated
   /// from. That master carries its own near-black ground, which would render as a dark square in the
   /// header, so the header uses this cut-out instead.
-  static const emblem = '/images/emblem.png';
+  String get emblem => '/images/emblem.png';
 
   // was: 'Brand logo. - Primary color: #0175c2 - Font: geist - Mode: dark - Roundness: rounded-sm'
-  static const emblemAlt = '[[TODO: emblem alt text]]';
+  String get emblemAlt => '[[TODO: emblem alt text]]';
 }
 
 /// `<head>` metadata.
 ///
 /// The canonical domain is unresolved (an open question on the plan) and no social preview image
 /// exists, so those ship as markers too — see assumption A6.
-abstract final class SiteMeta {
-  static const title = '[[TODO: page title]]';
-  static const description = '[[TODO: meta description]]';
-  static const ogTitle = '[[TODO: og:title]]';
-  static const ogDescription = '[[TODO: og:description]]';
-  static const ogImage = '[[TODO: og:image absolute URL]]';
-  static const canonical = '[[TODO: canonical URL]]';
-  static const twitterSite = '[[TODO: @handle]]';
+final class SiteMeta {
+  const SiteMeta();
+
+  String get title => '[[TODO: page title]]';
+  String get description => '[[TODO: meta description]]';
+  String get ogTitle => '[[TODO: og:title]]';
+  String get ogDescription => '[[TODO: og:description]]';
+  String get ogImage => '[[TODO: og:image absolute URL]]';
+  String get canonical => '[[TODO: canonical URL]]';
+  String get twitterSite => '[[TODO: @handle]]';
 
   /// Structural, not copy: taken from the manifest archived out of the design.
-  static const themeColor = '#0175c2';
-  static const manifest = '/manifest.json';
-  static const locale = 'en';
+  String get themeColor => '#0175c2';
+  String get manifest => '/manifest.json';
+  String get locale => 'en';
 }
 
 /// The four numbered sections, in the order they appear.
@@ -172,62 +181,66 @@ enum SiteSection {
 }
 
 /// The hero, section `00`.
-abstract final class HeroContent {
+final class HeroContent {
+  const HeroContent();
+
   // was: 'Staff Flutter & Systems Architect'
-  static const statusPill = '[[TODO: role badge]]';
+  String get statusPill => '[[TODO: role badge]]';
 
   /// The headline is split so the second half can take the gradient treatment the design gives it.
   // was: 'Damian'
-  static const headlineLead = '[[TODO: first name]]';
+  String get headlineLead => '[[TODO: first name]]';
 
   // was: 'Moliński'
-  static const headlineAccent = '[[TODO: surname]]';
+  String get headlineAccent => '[[TODO: surname]]';
 
   // was: 'Architecting sub-millisecond render pipelines, cross-platform Dart FFI runtimes, and
   //       fault-tolerant graphics systems.'
-  static const tagline = '[[TODO: hero tagline — one sentence, what you build]]';
+  String get tagline => '[[TODO: hero tagline — one sentence, what you build]]';
 
   // was: 'Specialized in low-level Flutter Engine internals, Impeller custom fragment shaders,
   //       native C++ interop, and mission-critical multi-platform architectures deployed to tens of
   //       millions of devices.'
-  static const body = '[[TODO: hero paragraph — two or three lines of substantiated detail]]';
+  String get body => '[[TODO: hero paragraph — two or three lines of substantiated detail]]';
 
   // was: '[ start_inquiry() ]'
-  static const primaryCta = '[[TODO: primary CTA label]]';
+  String get primaryCta => '[[TODO: primary CTA label]]';
 
   // was: 'Start consultation inquiry, jump to contact section'
-  static const primaryCtaAriaLabel = '[[TODO: primary CTA accessible name]]';
+  String get primaryCtaAriaLabel => '[[TODO: primary CTA accessible name]]';
 
   // was: 'copy damian@molinski.dev'
-  static const copyCta = '[[TODO: copy-email CTA label]]';
+  String get copyCta => '[[TODO: copy-email CTA label]]';
 
   // was: 'Copy email address damian@molinski.dev to clipboard'
-  static const copyCtaAriaLabel = '[[TODO: copy-email accessible name]]';
+  String get copyCtaAriaLabel => '[[TODO: copy-email accessible name]]';
 
   /// Shown for two seconds after a successful clipboard write.
   // was: 'copied!'
-  static const copyCtaSuccess = '[[TODO: copied confirmation]]';
+  String get copyCtaSuccess => '[[TODO: copied confirmation]]';
 
   // was: 'Status: Q3/Q4 Advisory Slots Open'
-  static const availability = '[[TODO: availability status]]';
+  String get availability => '[[TODO: availability status]]';
 
   // was: 'Remote / EMEA / US PST'
-  static const locations = '[[TODO: working timezones]]';
+  String get locations => '[[TODO: working timezones]]';
 }
 
 /// The frosted identity dock that overlaps the bottom of the hero.
-abstract final class SignalsContent {
+final class SignalsContent {
+  const SignalsContent();
+
   // was: 'Identity & Signals'
-  static const title = '[[TODO: dock heading]]';
+  String get title => '[[TODO: dock heading]]';
 
   // was: 'verified_nodes'
-  static const subtitle = '[[TODO: dock subtitle]]';
+  String get subtitle => '[[TODO: dock subtitle]]';
 
   // was: 'PGP: 4A8F B12D 99C3 0E1F'
-  static const pgpFingerprint = '[[TODO: PGP fingerprint, or delete this chip]]';
+  String get pgpFingerprint => '[[TODO: PGP fingerprint, or delete this chip]]';
 
   // was: 'ED25519'
-  static const pgpAlgorithm = '[[TODO: PGP key algorithm]]';
+  String get pgpAlgorithm => '[[TODO: PGP key algorithm]]';
 }
 
 /// The verified identity links in the signals dock.
@@ -547,19 +560,21 @@ enum Project {
 
   /// What the card's link is called out of context, where three identical "View Project" links are
   /// indistinguishable.
-  String get linkAriaLabel => '${ProjectContent.viewLabel}: $title';
+  String get linkAriaLabel => '${const ProjectContent().viewLabel}: $title';
 }
 
 /// Copy shared by the projects section's cards.
-abstract final class ProjectContent {
+final class ProjectContent {
+  const ProjectContent();
+
   // was: 'Active'
-  static const activeLabel = '[[TODO: status label]]';
+  String get activeLabel => '[[TODO: status label]]';
 
   // was: 'Telemetry & Target'
-  static const telemetryLabel = '[[TODO: telemetry box label]]';
+  String get telemetryLabel => '[[TODO: telemetry box label]]';
 
   // was: 'View Project'
-  static const viewLabel = '[[TODO: project link label]]';
+  String get viewLabel => '[[TODO: project link label]]';
 }
 
 /// Section `04` — the three summary cards above the form.
@@ -568,8 +583,8 @@ enum ContactCard {
     icon: AppIcon.mail,
     // was: 'Direct Mail'
     label: '[[TODO: direct mail card label]]',
-    // was: 'damian@molinski.dev' — rendered from SiteIdentity.email, which the copy button also uses
-    value: SiteIdentity.email,
+    // Rendered from the same address SiteIdentity.email and the copy button use.
+    value: _contactEmail,
   ),
   responseSla(
     icon: AppIcon.timer,
@@ -690,29 +705,31 @@ enum ScopeOption {
 }
 
 /// The dispatch form's own chrome.
-abstract final class ContactFormContent {
-  static const fieldId = 'contact-form';
-  static const scopeFieldId = 'contact-scope';
+final class ContactFormContent {
+  const ContactFormContent();
+
+  String get fieldId => 'contact-form';
+  String get scopeFieldId => 'contact-scope';
 
   // was: 'Engagement Scope'
-  static const scopeLabel = '[[TODO: scope field label]]';
+  String get scopeLabel => '[[TODO: scope field label]]';
 
   // was: '(required)'
-  static const requiredHint = '[[TODO: required marker]]';
+  String get requiredHint => '[[TODO: required marker]]';
 
   // was: '[ dispatch_message() ]'
-  static const submitLabel = '[[TODO: submit button label]]';
+  String get submitLabel => '[[TODO: submit button label]]';
 
   /// Shown while the submit sequence runs.
   // was: 'Transmitting...'
-  static const submittingLabel = '[[TODO: submitting label]]';
+  String get submittingLabel => '[[TODO: submitting label]]';
 
   /// Shown once the sequence finishes.
   // was: '[ sent_successfully ]'
-  static const submittedLabel = '[[TODO: sent confirmation]]';
+  String get submittedLabel => '[[TODO: sent confirmation]]';
 
   /// Shown when a required field is empty on submit.
-  static const validationMessage = '[[TODO: validation message]]';
+  String get validationMessage => '[[TODO: validation message]]';
 }
 
 /// The footer's link row.
@@ -741,20 +758,22 @@ enum FooterLink {
 }
 
 /// Strings that belong to the page frame rather than to any one section.
-abstract final class ChromeContent {
+final class ChromeContent {
+  const ChromeContent();
+
   // was: 'Skip to main content'
-  static const skipLink = '[[TODO: skip link label]]';
+  String get skipLink => '[[TODO: skip link label]]';
 
   /// Names the `<main>` landmark and is the skip link's target. Structural.
-  static const mainId = 'main-content';
+  String get mainId => 'main-content';
 
   /// [mainId] as the skip link's `href`.
-  static const mainAnchor = '#$mainId';
+  String get mainAnchor => '#$mainId';
 
   // was: 'About Damian Moliński'
-  static const avatarAriaLabel = '[[TODO: avatar link accessible name]]';
+  String get avatarAriaLabel => '[[TODO: avatar link accessible name]]';
 
   /// Fills the empty avatar ring until a real portrait exists (D6). Structural rather than copy —
   /// the marker that keeps this from shipping silently is [avatarAriaLabel], which names the slot.
-  static const avatarPlaceholder = '?';
+  String get avatarPlaceholder => '?';
 }

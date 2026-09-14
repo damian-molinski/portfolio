@@ -7,6 +7,9 @@ import '../components/mono_button.dart';
 import '../components/status_dot.dart';
 import '../constants/theme.dart';
 import '../content/site_content.dart';
+import '../state/bloc_builder.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 
 /// The opening screen.
 ///
@@ -19,6 +22,14 @@ class Hero extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _section(content.hero),
+      },
+    );
+  }
+
+  Component _section(HeroContent hero) {
     return section(classes: 'hero', [
       div(
         classes: 'hero__ambient',
@@ -34,42 +45,37 @@ class Hero extends StatelessComponent {
         div(classes: 'hero__content animate-fade-in-up', [
           div(classes: 'hero__pill', [
             const StatusDot(),
-            span(classes: 'hero__pill-label', [.text(HeroContent.statusPill)]),
+            span(classes: 'hero__pill-label', [.text(hero.statusPill)]),
           ]),
 
           div(classes: 'hero__headline', [
             h1(classes: 'hero__title', [
-              .text('${HeroContent.headlineLead} '),
-              span(classes: 'hero__title-accent', [.text(HeroContent.headlineAccent)]),
+              .text('${hero.headlineLead} '),
+              span(classes: 'hero__title-accent', [.text(hero.headlineAccent)]),
             ]),
-            p(classes: 'hero__tagline', [.text(HeroContent.tagline)]),
+            p(classes: 'hero__tagline', [.text(hero.tagline)]),
           ]),
 
-          p(classes: 'hero__body', [.text(HeroContent.body)]),
+          p(classes: 'hero__body', [.text(hero.body)]),
 
           div(classes: 'hero__actions', [
             MonoButton.link(
-              label: HeroContent.primaryCta,
+              label: hero.primaryCta,
               href: SiteSection.contact.anchor,
               icon: AppIcon.send,
-              ariaLabel: HeroContent.primaryCtaAriaLabel,
+              ariaLabel: hero.primaryCtaAriaLabel,
             ),
-            const CopyEmailButton(
-              email: SiteIdentity.email,
-              successLabel: HeroContent.copyCtaSuccess,
-              ariaLabel: HeroContent.copyCtaAriaLabel,
-              label: HeroContent.copyCta,
-            ),
+            const CopyEmailButton(isIconOnly: false),
           ]),
 
           div(classes: 'hero__telemetry', [
             span(classes: 'hero__availability', [
               const StatusDot(),
               AppIcon.schedule(),
-              span([.text(HeroContent.availability)]),
+              span([.text(hero.availability)]),
             ]),
             span(attributes: const {'aria-hidden': 'true'}, [.text('•')]),
-            span([.text(HeroContent.locations)]),
+            span([.text(hero.locations)]),
           ]),
         ]),
       ]),

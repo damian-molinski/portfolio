@@ -1,34 +1,27 @@
-import 'dart:async';
-
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:universal_web/web.dart' as web;
 
 import '../constants/theme.dart';
 import '../content/site_content.dart';
+import '../data/site_content_repository.dart';
+import '../di/injector.dart';
+import '../state/bloc_builder.dart';
+import '../state/contact_cubit.dart';
+import '../state/contact_state.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 import 'icons.dart';
 import 'mono_button.dart';
 
-/// Where the submit button is in its sequence.
-enum DispatchStatus {
-  idle,
-  transmitting,
-  sent;
-
-  /// The button is inert while the sequence runs, so a second press cannot start it again.
-  bool get blocksSubmit => this != idle;
-}
-
 /// The consultation form.
 ///
-/// **This form does not send anything.** Decision D5: the design's `handleSend` was a 900ms
-/// `setTimeout` that reported success without a request behind it, and reproducing that would mean
-/// telling a visitor their message arrived when nothing received it. The sequence below is the
-/// design's, minus the lie — [_dispatch] is a documented no-op, and wiring a real endpoint is
-/// explicitly out of scope for this plan.
+/// **This form does not send anything.** [ContactCubit] holds the sequence and says why; nothing
+/// here reports a delivery that did not happen.
 ///
-/// Validation runs in Dart as well as through the native `required` attributes, so the message is the
-/// same whether or not the browser gets there first.
+/// Like [CopyEmailButton], this hydrates as its own component tree and so cannot see the
+/// [BlocProvider] above `App`. It resolves both cubits from `get_it` instead, and owns the
+/// [ContactCubit] it is given — a factory registration, closed in [dispose].
 @client
 class ContactForm extends StatefulComponent {
   const ContactForm({super.key});
@@ -38,67 +31,38 @@ class ContactForm extends StatefulComponent {
 }
 
 class ContactFormState extends State<ContactForm> {
-  static const _transmitDuration = Duration(milliseconds: 900);
-  static const _confirmationDuration = Duration(seconds: 3);
+  late final SiteContentCubit _siteContent;
+  late final ContactCubit _contact;
 
-  final Map<ContactField, String> _values = {for (final field in ContactField.values) field: ''};
+  @override
+  void initState() {
+    super.initState();
 
-  ScopeOption _scope = ScopeOption.values.first;
-  DispatchStatus _status = DispatchStatus.idle;
-  bool _showValidationError = false;
-  Timer? _sequence;
-
-  Iterable<ContactField> get _emptyRequiredFields =>
-      ContactField.values.where((field) => field.isRequired && _values[field]!.trim().isEmpty);
+    _siteContent = getIt<SiteContentCubit>();
+    _contact = getIt<ContactCubit>();
+  }
 
   @override
   void dispose() {
-    _sequence?.cancel();
+    // Only the cubit this island owns. [SiteContentCubit] is a lazy singleton shared with the page.
+    _contact.close();
     super.dispose();
   }
 
-  /// Where a real submission would go.
-  ///
-  /// [[TODO: dispatch endpoint]] — until one exists, everything the visitor typed stays in the
-  /// browser and is discarded on reset.
-  void _dispatch() {}
-
   void _onSubmit(web.Event event) {
     event.preventDefault();
-    if (_status.blocksSubmit) return;
-
-    if (_emptyRequiredFields.isNotEmpty) {
-      setState(() => _showValidationError = true);
-      return;
-    }
-
-    _dispatch();
-    setState(() {
-      _showValidationError = false;
-      _status = DispatchStatus.transmitting;
-    });
-
-    _sequence = Timer(_transmitDuration, () {
-      if (!mounted) return;
-      setState(() {
-        _status = DispatchStatus.sent;
-        _values.updateAll((_, __) => '');
-        _scope = ScopeOption.values.first;
-      });
-
-      _sequence = Timer(_confirmationDuration, () {
-        if (mounted) setState(() => _status = DispatchStatus.idle);
-      });
-    });
+    _contact.submit();
   }
 
-  String get _submitLabel => switch (_status) {
-    DispatchStatus.idle => ContactFormContent.submitLabel,
-    DispatchStatus.transmitting => ContactFormContent.submittingLabel,
-    DispatchStatus.sent => ContactFormContent.submittedLabel,
+  String _submitLabel(ContactFormContent copy, DispatchStatus status) => switch (status) {
+    DispatchStatus.idle => copy.submitLabel,
+    DispatchStatus.transmitting => copy.submittingLabel,
+    DispatchStatus.sent => copy.submittedLabel,
   };
 
-  Component _field(ContactField field) {
+  Component _field(ContactField field, ContactFormContent copy, ContactState formState) {
+    final value = formState.values[field]!;
+
     return div(classes: 'contact-form__field', [
       label(classes: 'contact-form__label', htmlFor: field.id, [
         span([.text(field.label)]),
@@ -107,7 +71,7 @@ class ContactFormState extends State<ContactForm> {
             classes: 'contact-form__required',
             attributes: const {'aria-hidden': 'true'},
             [
-              .text(ContactFormContent.requiredHint),
+              .text(copy.requiredHint),
             ],
           ),
       ]),
@@ -118,18 +82,18 @@ class ContactFormState extends State<ContactForm> {
           placeholder: field.placeholder,
           required: true,
           rows: 4,
-          onInput: (value) => setState(() => _values[field] = value),
+          onInput: (updated) => _contact.updateField(field, updated),
           id: field.id,
           attributes: {'aria-required': 'true', 'autocomplete': field.autocomplete},
-          [.text(_values[field]!)],
+          [.text(value)],
         )
       else
         input(
           classes: 'contact-form__control',
           type: field.isEmail ? .email : .text,
           name: field.name,
-          value: _values[field],
-          onInput: (value) => setState(() => _values[field] = value as String),
+          value: value,
+          onInput: (updated) => _contact.updateField(field, updated as String),
           id: field.id,
           attributes: {
             'placeholder': field.placeholder,
@@ -141,21 +105,22 @@ class ContactFormState extends State<ContactForm> {
     ]);
   }
 
-  @override
-  Component build(BuildContext context) {
+  Component _form(SiteContent content, ContactState formState) {
+    final copy = content.contactForm;
+
     return form(
       classes: 'contact-form',
-      id: ContactFormContent.fieldId,
+      id: copy.fieldId,
       events: {'submit': _onSubmit},
       [
         div(classes: 'contact-form__row', [
-          _field(ContactField.name),
-          _field(ContactField.email),
+          _field(ContactField.name, copy, formState),
+          _field(ContactField.email, copy, formState),
         ]),
 
         div(classes: 'contact-form__field', [
-          label(classes: 'contact-form__label', htmlFor: ContactFormContent.scopeFieldId, [
-            span([.text(ContactFormContent.scopeLabel)]),
+          label(classes: 'contact-form__label', htmlFor: copy.scopeFieldId, [
+            span([.text(copy.scopeLabel)]),
           ]),
           // The native arrow is drawn against the border regardless of `padding-right`, so the
           // control drops its platform appearance and this wrapper places the chevron itself.
@@ -163,36 +128,53 @@ class ContactFormState extends State<ContactForm> {
             select(
               classes: 'contact-form__control contact-form__control--select',
               name: 'scope',
-              value: _scope.value,
-              onChange: (selected) => setState(() => _scope = ScopeOption.byValue(selected.first)),
-              id: ContactFormContent.scopeFieldId,
+              value: formState.scope.value,
+              onChange: (selected) => _contact.updateScope(ScopeOption.byValue(selected.first)),
+              id: copy.scopeFieldId,
               [
-                for (final option_ in ScopeOption.values)
-                  option(value: option_.value, selected: option_ == _scope, [.text(option_.label)]),
+                for (final option_ in content.scopeOptions)
+                  option(
+                    value: option_.value,
+                    selected: option_ == formState.scope,
+                    [.text(option_.label)],
+                  ),
               ],
             ),
             AppIcon.expandMore(classes: 'contact-form__select-chevron'),
           ]),
         ]),
 
-        _field(ContactField.brief),
+        _field(ContactField.brief, copy, formState),
 
         // Announced when it appears, so a screen reader hears the rejection rather than only seeing it.
-        if (_showValidationError)
+        if (formState.showValidationError)
           p(
             classes: 'contact-form__error',
             attributes: const {'role': 'alert'},
             [
-              .text(ContactFormContent.validationMessage),
+              .text(copy.validationMessage),
             ],
           ),
 
         MonoButton.submit(
-          label: _submitLabel,
+          label: _submitLabel(copy, formState.status),
           icon: AppIcon.send,
-          isDisabled: _status.blocksSubmit,
+          isDisabled: formState.status.blocksSubmit,
         ),
       ],
+    );
+  }
+
+  @override
+  Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      bloc: _siteContent,
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => BlocBuilder<ContactCubit, ContactState>(
+          bloc: _contact,
+          builder: (context, formState) => _form(content, formState),
+        ),
+      },
     );
   }
 

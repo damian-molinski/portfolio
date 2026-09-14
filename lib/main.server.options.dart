@@ -79,9 +79,4 @@ ServerOptions get defaultServerOptions => ServerOptions(
 
 Map<String, Object?> __copy_email_buttonCopyEmailButton(
   _copy_email_button.CopyEmailButton c,
-) => {
-  'email': c.email,
-  'successLabel': c.successLabel,
-  'ariaLabel': c.ariaLabel,
-  'label': c.label,
-};
+) => {'isIconOnly': c.isIconOnly};

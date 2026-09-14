@@ -2,7 +2,10 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
-import '../content/site_content.dart';
+import '../data/site_content_repository.dart';
+import '../state/bloc_builder.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 
 /// The page footer.
 ///
@@ -13,12 +16,20 @@ class SiteFooter extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _footer(content),
+      },
+    );
+  }
+
+  Component _footer(SiteContent content) {
     return footer(classes: 'site-footer', [
       div(classes: 'site-footer__bar', [
         nav(classes: 'site-footer__links', [
-          for (final link in FooterLink.values) a(classes: 'site-footer__link', href: link.href, [.text(link.label)]),
+          for (final link in content.footerLinks) a(classes: 'site-footer__link', href: link.href, [.text(link.label)]),
         ]),
-        span(classes: 'site-footer__copyright', [.text(SiteIdentity.copyright)]),
+        span(classes: 'site-footer__copyright', [.text(content.identity.copyright)]),
       ]),
     ]);
   }

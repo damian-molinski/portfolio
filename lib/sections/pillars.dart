@@ -6,6 +6,10 @@ import '../components/section_shell.dart';
 import '../components/spec_entry_card.dart';
 import '../components/tag_pill.dart';
 import '../content/site_content.dart';
+import '../data/site_content_repository.dart';
+import '../state/bloc_builder.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 
 /// Section `01` — the four competency cards.
 ///
@@ -16,12 +20,20 @@ class Pillars extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _section(content),
+      },
+    );
+  }
+
+  Component _section(SiteContent content) {
     return SectionShell(
       siteSection: SiteSection.pillars,
       children: [
         SectionHeading.forSection(SiteSection.pillars),
         div(classes: 'spec-entry-grid', [
-          for (final pillar in Pillar.values)
+          for (final pillar in content.pillars)
             SpecEntryCard(
               pillar,
               tagVariant: TagPillVariant.accent,

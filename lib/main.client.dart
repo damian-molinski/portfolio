@@ -7,6 +7,7 @@ library;
 // Client-specific Jaspr import.
 import 'package:jaspr/client.dart';
 
+import 'di/injector.dart';
 // This file is generated automatically by Jaspr, do not remove or edit.
 import 'main.client.options.dart';
 
@@ -15,6 +16,9 @@ void main() {
   Jaspr.initializeApp(
     options: defaultClientOptions,
   );
+
+  // The islands hydrate as separate trees and resolve their own cubits from here.
+  configureDependencies();
 
   // Starts the app.
   //

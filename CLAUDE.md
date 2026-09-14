@@ -13,6 +13,7 @@ jaspr serve     # dev server on http://localhost:8080, builder in watch mode
 jaspr build     # static output in build/jaspr/
 dart analyze
 dart format .
+dart test     # cubits and the repository; pure Dart, no browser
 ```
 
 The Jaspr CLI is a global activation (`dart pub global activate jaspr_cli`), not a dev dependency.
@@ -71,6 +72,11 @@ that were never verified, so it ships as markers that cannot be mistaken for fin
 string by adding a field there, not by writing it into a `build` method. **The site must not be
 deployed while `grep -rn '\[\[TODO:' lib/` returns anything.**
 
+The holders in that file are `const`-constructible classes with getters, not `static const`, so they
+can travel through a bloc state. One value does not fit that shape: `ContactCard.directMail` is an
+enum constant and its argument must be a compile-time constant, so the address lives in the private
+top-level `_contactEmail` that both it and `SiteIdentity.email` read.
+
 ## Two `@client` components, and one trap
 
 `CopyEmailButton` and `ContactForm` are the only JavaScript on the page; everything else is CSS.
@@ -81,6 +87,38 @@ JavaScript and hydrate the whole document.
 by calling one, so named constructors compile, analyze clean, pre-render correctly, and then fail the
 client build with `Couldn't find constructor`. Only `jaspr build` catches it, and only once the
 component is mounted somewhere.
+
+An island hydrates as its **own component tree**. It cannot see the `BlocProvider` above `App`, so
+both islands resolve their cubits from `get_it` rather than from context — see below.
+
+## State management
+
+`bloc` for state, `get_it` for dependencies, and a hand-rolled binding between them in `lib/state/`
+(`BlocProvider`, `MultiBlocProvider`, `context.read<B>()`, `BlocBuilder`). `jaspr_bloc` exists but
+pins `jaspr: ^0.22.0`; this project is on `^0.23.4`.
+
+- `lib/data/site_content_repository.dart` wraps `lib/content/site_content.dart` and returns one
+  `SiteContent` value. It is **synchronous and cannot fail** — there is no I/O behind `const` data,
+  and a `Future` here would buy a loading state the page can never be in.
+- `lib/state/` holds three Cubits: `SiteContentCubit` (the page's copy), `ContactCubit` (the form),
+  `CopyCubit` (the clipboard button). Their states use `equatable`.
+- `lib/di/injector.dart` registers everything. `configureDependencies()` is idempotent and is called
+  from **both** entrypoints.
+
+**`BlocBuilder` must pass `stream: kIsWeb ? bloc.stream : null`.** Jaspr's `StreamBuilderBase`
+asserts the stream is null on the server, because subscribing during pre-rendering schedules rebuilds
+the static renderer does not allow. `kIsWeb` is a `bool.fromEnvironment` constant, so the server
+build drops the subscription at compile time. A regression here fails `jaspr build`, not
+`dart analyze`.
+
+**`CopyCubit` must stay `registerFactory`.** The page renders `CopyEmailButton` twice — once in the
+hero, once on the contact card — and a singleton would make both confirm on a single click.
+
+Every section reads its copy through a `BlocBuilder<SiteContentCubit, SiteContentState>`, including
+the ones that pre-render once and freeze. That is a deliberate uniformity, not an oversight: on a
+static build the server tree emits exactly one state and never re-emits. The single exception is
+`main.server.dart`, where the `<head>` is built outside the component tree and reads the repository
+directly.
 
 ## Skills
 

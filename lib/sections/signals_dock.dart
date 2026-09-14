@@ -4,7 +4,10 @@ import 'package:jaspr/jaspr.dart';
 import '../components/icons.dart';
 import '../components/node_link.dart';
 import '../constants/theme.dart';
-import '../content/site_content.dart';
+import '../data/site_content_repository.dart';
+import '../state/bloc_builder.dart';
+import '../state/site_content_cubit.dart';
+import '../state/site_content_state.dart';
 
 /// The frosted identity dock that overlaps the bottom of the hero.
 ///
@@ -16,15 +19,23 @@ class SignalsDock extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    return BlocBuilder<SiteContentCubit, SiteContentState>(
+      builder: (context, state) => switch (state) {
+        SiteContentLoaded(:final content) => _section(content),
+      },
+    );
+  }
+
+  Component _section(SiteContent content) {
     return section(
       classes: 'signals-dock',
       id: 'signals',
-      attributes: const {'aria-label': SignalsContent.title},
+      attributes: {'aria-label': content.signals.title},
       [
         div(classes: 'signals-dock__container', [
           div(classes: 'signals-dock__panel animate-fade-in-up delay-100', [
             div(classes: 'signals-dock__heading', [
-              span(classes: 'signals-dock__title', [.text(SignalsContent.title)]),
+              span(classes: 'signals-dock__title', [.text(content.signals.title)]),
               span(
                 classes: 'signals-dock__separator',
                 attributes: const {'aria-hidden': 'true'},
@@ -32,17 +43,17 @@ class SignalsDock extends StatelessComponent {
                   .text('•'),
                 ],
               ),
-              span(classes: 'signals-dock__subtitle', [.text(SignalsContent.subtitle)]),
+              span(classes: 'signals-dock__subtitle', [.text(content.signals.subtitle)]),
             ]),
 
             div(classes: 'signals-dock__pgp', [
               AppIcon.fingerprint(classes: 'signals-dock__pgp-glyph'),
-              span(classes: 'signals-dock__fingerprint', [.text(SignalsContent.pgpFingerprint)]),
-              span(classes: 'signals-dock__algorithm', [.text(SignalsContent.pgpAlgorithm)]),
+              span(classes: 'signals-dock__fingerprint', [.text(content.signals.pgpFingerprint)]),
+              span(classes: 'signals-dock__algorithm', [.text(content.signals.pgpAlgorithm)]),
             ]),
 
             div(classes: 'signals-dock__grid', [
-              for (final node in IdentityNode.values) NodeLink(node),
+              for (final node in content.identityNodes) NodeLink(node),
             ]),
           ]),
         ]),

@@ -35,10 +35,7 @@ ClientOptions get defaultClientOptions => ClientOptions(
     ),
     'copy_email_button': ClientLoader(
       (p) => _copy_email_button.CopyEmailButton(
-        email: p['email'] as String,
-        successLabel: p['successLabel'] as String,
-        ariaLabel: p['ariaLabel'] as String,
-        label: p['label'] as String?,
+        isIconOnly: p['isIconOnly'] as bool,
       ),
       loader: _copy_email_button.loadLibrary,
     ),
