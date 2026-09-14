@@ -18,9 +18,7 @@ class SiteHeader extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => switch (state) {
-        SiteContentLoaded(:final content) => _header(content),
-      },
+      builder: (context, state) => _header(state.content),
     );
   }
 

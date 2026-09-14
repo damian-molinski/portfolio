@@ -169,12 +169,10 @@ class ContactFormState extends State<ContactForm> {
   Component build(BuildContext context) {
     return BlocBuilder<SiteContentCubit, SiteContentState>(
       bloc: _siteContent,
-      builder: (context, state) => switch (state) {
-        SiteContentLoaded(:final content) => BlocBuilder<ContactCubit, ContactState>(
-          bloc: _contact,
-          builder: (context, formState) => _form(content, formState),
-        ),
-      },
+      builder: (context, state) => BlocBuilder<ContactCubit, ContactState>(
+        bloc: _contact,
+        builder: (context, formState) => _form(state.content, formState),
+      ),
     );
   }
 

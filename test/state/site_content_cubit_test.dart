@@ -12,7 +12,7 @@ void main() {
       final cubit = SiteContentCubit(repository);
       addTearDown(cubit.close);
 
-      expect(cubit.state, SiteContentLoaded(repository.load()));
+      expect(cubit.state, SiteContentState(repository.load()));
     });
 
     blocTest<SiteContentCubit, SiteContentState>(

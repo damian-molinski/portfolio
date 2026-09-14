@@ -21,6 +21,10 @@ dependencies:
   # Value equality for the cubit states. `ContactState` carries a Map, and without it `emit` fires
   # on every keystroke.
   equatable: ^2.0.7
+  # The contact form's POST to `/api/contact`. Safe in the dual-compiled graph: `package:http`
+  # resolves `Client()` through a conditional import, so the server build takes `io_client` and the
+  # browser build takes `browser_client` — neither half ever sees the other's `dart:` import.
+  http: ^1.6.0
 
 dev_dependencies:
   bloc_test: ^10.0.0

@@ -10,5 +10,5 @@ import 'site_content_state.dart';
 /// them to receive; the cubit exists so that every section reads its copy the same way the two
 /// hydrated islands do.
 final class SiteContentCubit extends Cubit<SiteContentState> {
-  SiteContentCubit(SiteContentRepository repository) : super(SiteContentLoaded(repository.load()));
+  SiteContentCubit(SiteContentRepository repository) : super(SiteContentState(repository.load()));
 }

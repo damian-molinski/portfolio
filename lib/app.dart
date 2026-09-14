@@ -30,9 +30,7 @@ class App extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => switch (state) {
-        SiteContentLoaded(:final content) => _page(content.chrome),
-      },
+      builder: (context, state) => _page(state.content.chrome),
     );
   }
 

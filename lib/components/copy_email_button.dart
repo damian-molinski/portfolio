@@ -93,12 +93,10 @@ class CopyEmailButtonState extends State<CopyEmailButton> {
   Component build(BuildContext context) {
     return BlocBuilder<SiteContentCubit, SiteContentState>(
       bloc: _siteContent,
-      builder: (context, state) => switch (state) {
-        SiteContentLoaded(:final content) => BlocBuilder<CopyCubit, CopyState>(
-          bloc: _copy,
-          builder: (context, copyState) => _button(content, copyState),
-        ),
-      },
+      builder: (context, state) => BlocBuilder<CopyCubit, CopyState>(
+        bloc: _copy,
+        builder: (context, copyState) => _button(state.content, copyState),
+      ),
     );
   }
 

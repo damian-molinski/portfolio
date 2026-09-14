@@ -68,9 +68,7 @@ class Projects extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => switch (state) {
-        SiteContentLoaded(:final content) => _section(content),
-      },
+      builder: (context, state) => _section(state.content),
     );
   }
 

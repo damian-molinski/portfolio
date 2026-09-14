@@ -17,9 +17,7 @@ class SiteFooter extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => switch (state) {
-        SiteContentLoaded(:final content) => _footer(content),
-      },
+      builder: (context, state) => _footer(state.content),
     );
   }
 
