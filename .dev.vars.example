@@ -1,0 +1,7 @@
+# Copy to `.dev.vars` and fill in before `npm run dev`. Never commit the filled copy.
+#
+# On the deployed site these are set on the Pages project, not in a file.
+
+RESEND_API_KEY=
+CONTACT_TO=
+CONTACT_FROM=

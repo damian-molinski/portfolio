@@ -1,0 +1,14 @@
+{
+  "name": "portfolio-functions",
+  "private": true,
+  "description": "Node tooling for the Cloudflare Pages Functions in functions/. The site itself is Dart.",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "dev": "wrangler pages dev build/jaspr"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260914.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.0.0"
+  }
+}

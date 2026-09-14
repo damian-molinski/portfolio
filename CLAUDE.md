@@ -16,6 +16,11 @@ dart format .
 dart test     # cubits and the repository; pure Dart, no browser
 ```
 
+```bash
+npm run dev       # wrangler pages dev build/jaspr — the only way to exercise /api/contact
+npm run check     # tsc --noEmit over functions/
+```
+
 The Jaspr CLI is a global activation (`dart pub global activate jaspr_cli`), not a dev dependency.
 
 ## Code runs in two environments
@@ -72,6 +77,14 @@ that were never verified, so it ships as markers that cannot be mistaken for fin
 string by adding a field there, not by writing it into a `build` method. **The site must not be
 deployed while `grep -rn '\[\[TODO:' lib/` returns anything.**
 
+Not everything in that file is copy. `ContactFormContent.fieldId`, `scopeFieldId`, `endpoint`,
+`honeypotName` and `honeypotFieldId` are structural — ids, a route and a trap's name — so they hold
+real values and carry no marker. The trap has a second reason: one carrying a placeholder marker
+would announce itself to the scraper it is set for.
+
+Plans live in `docs/plans/`, never in `lib/`. A plan that quotes marker strings inside `lib/` makes
+the grep above count prose.
+
 The holders in that file are `const`-constructible classes with getters, not `static const`, so they
 can travel through a bloc state. One value does not fit that shape: `ContactCard.directMail` is an
 enum constant and its argument must be a compile-time constant, so the address lives in the private
@@ -97,6 +110,10 @@ both islands resolve their cubits from `get_it` rather than from context — see
 (`BlocProvider`, `MultiBlocProvider`, `context.read<B>()`, `BlocBuilder`). `jaspr_bloc` exists but
 pins `jaspr: ^0.22.0`; this project is on `^0.23.4`.
 
+- `lib/data/contact_dispatcher.dart` posts the form to `/api/contact`. Same seam as `Clipboard`,
+  and for the same reason — the cubit has to be testable under `dart test` with no browser — but
+  with no `kIsWeb` guard: `package:http` resolves `Client()` through a conditional import and works
+  on both halves of the dual compilation.
 - `lib/data/site_content_repository.dart` wraps `lib/content/site_content.dart` and returns one
   `SiteContent` value. It is **synchronous and cannot fail** — there is no I/O behind `const` data,
   and a `Future` here would buy a loading state the page can never be in.
@@ -111,6 +128,14 @@ the static renderer does not allow. `kIsWeb` is a `bool.fromEnvironment` constan
 build drops the subscription at compile time. A regression here fails `jaspr build`, not
 `dart analyze`.
 
+**`ContactCubit` owns a mutable `ContactDraftBuilder` and never hands it out.** The state carries a
+snapshot of it instead, taken in `_emitDraft` — the one place the cubit emits. A mutable builder
+stored *in* an `Equatable` state would hand the same instance to its successor, `props` would compare
+equal, and the emit would be suppressed on every keystroke. That is also why `ContactState` has no
+`copyWith`: a copy would carry a field forward from the previous state and let the two drift apart.
+The trap field is the exception that proves it — it is on the builder, not the state, so typing into
+it re-renders nothing.
+
 **`CopyCubit` must stay `registerFactory`.** The page renders `CopyEmailButton` twice — once in the
 hero, once on the contact card — and a singleton would make both confirm on a single click.
 
@@ -119,6 +144,29 @@ the ones that pre-render once and freeze. That is a deliberate uniformity, not a
 static build the server tree emits exactly one state and never re-emits. The single exception is
 `main.server.dart`, where the `<head>` is built outside the component tree and reads the repository
 directly.
+
+## The contact endpoint
+
+`functions/api/contact.ts` is a Cloudflare Pages Function serving `/api/contact`. It takes the form's
+JSON, relays it through Resend, and forgets it.
+
+- **`functions/` is a sibling of `build/jaspr/`, never inside it.** Cloudflare reads it from the repo
+  root; moving it into the static output stops it being a function at all.
+- **`jaspr serve` does not serve it.** Only `npm run dev` (`wrangler pages dev build/jaspr`, on
+  :8788) runs the function, and it serves the *built* output — so `jaspr build` first. There is no
+  single command that watches Dart and runs the endpoint.
+- **The secrets are `RESEND_API_KEY`, `CONTACT_TO` and `CONTACT_FROM`**, on the Pages project in
+  production and in a local `.dev.vars` otherwise. `.dev.vars.example` records the names; the filled
+  copy is gitignored. `CONTACT_TO` is an env var rather than a literal so the address is not in git
+  history. Without a key the endpoint answers `502` and the form reports the failure, which is the
+  correct behaviour rather than a broken one.
+- **It answers with a status and no body** — `204` accepted, `400` malformed or incomplete, `502`
+  Resend refused. A tripped honeypot gets the same `204` a real send does, so a bot learns nothing
+  from the difference.
+- **The honeypot is weaker here than on an ordinary form.** This form never natively submits — the
+  cubit builds the JSON — so a bot posting straight to the endpoint never sees the trap. What it
+  catches is the scraper that fills every input in the rendered HTML and replays it. If real abuse
+  arrives, the answer is a challenge at the edge, not more of this.
 
 ## Skills
 

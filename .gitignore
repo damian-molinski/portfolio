@@ -26,3 +26,9 @@ migrate_working_dir/
 
 # Plans
 /docs/plans
+
+# Functions
+/node_modules/
+/package-lock.json
+/.wrangler/
+.dev.vars
