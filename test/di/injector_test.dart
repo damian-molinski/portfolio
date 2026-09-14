@@ -1,4 +1,6 @@
+import 'package:http/http.dart' as http;
 import 'package:portfolio/data/clipboard.dart';
+import 'package:portfolio/data/contact_dispatcher.dart';
 import 'package:portfolio/data/site_content_repository.dart';
 import 'package:portfolio/di/injector.dart';
 import 'package:portfolio/state/contact_cubit.dart';
@@ -19,6 +21,15 @@ void main() {
       expect(getIt<SiteContentRepository>(), same(getIt<SiteContentRepository>()));
       expect(getIt<Clipboard>(), same(getIt<Clipboard>()));
       expect(getIt<SiteContentCubit>(), same(getIt<SiteContentCubit>()));
+      expect(getIt<http.Client>(), same(getIt<http.Client>()));
+      expect(getIt<ContactDispatcher>(), same(getIt<ContactDispatcher>()));
+    });
+
+    test('points the dispatcher at the endpoint the content declares', () {
+      final expected = Uri.base.resolve('/api/contact');
+
+      expect(getIt<ContactDispatcher>(), isA<HttpContactDispatcher>());
+      expect(expected.path, '/api/contact');
     });
 
     test('hands each copy button its own cubit', () {

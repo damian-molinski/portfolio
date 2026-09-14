@@ -16,8 +16,8 @@ import 'mono_button.dart';
 
 /// The consultation form.
 ///
-/// **This form does not send anything.** [ContactCubit] holds the sequence and says why; nothing
-/// here reports a delivery that did not happen.
+/// [ContactCubit] owns the draft and the request; this only renders it and reports back what the
+/// visitor typed. The one thing here the visitor never sees is the trap input — see [_honeypot].
 ///
 /// Like [CopyEmailButton], this hydrates as its own component tree and so cannot see the
 /// [BlocProvider] above `App`. It resolves both cubits from `get_it` instead, and owns the
@@ -44,7 +44,6 @@ class ContactFormState extends State<ContactForm> {
 
   @override
   void dispose() {
-    // Only the cubit this island owns. [SiteContentCubit] is a lazy singleton shared with the page.
     _contact.close();
     super.dispose();
   }
@@ -58,10 +57,23 @@ class ContactFormState extends State<ContactForm> {
     DispatchStatus.idle => copy.submitLabel,
     DispatchStatus.transmitting => copy.submittingLabel,
     DispatchStatus.sent => copy.submittedLabel,
+    DispatchStatus.failed => copy.submitLabel,
   };
 
-  Component _field(ContactField field, ContactFormContent copy, ContactState formState) {
-    final value = formState.values[field]!;
+  String? _errorMessage(ContactFormContent copy, ContactState formState) {
+    if (formState.showValidationError) return copy.validationMessage;
+    if (formState.status == DispatchStatus.failed) return copy.failureMessage;
+
+    return null;
+  }
+
+  Component _field(
+    ContactField field,
+    ContactFormContent copy,
+    String? current,
+    ValueChanged<String> onChanged,
+  ) {
+    final value = current ?? '';
 
     return div(classes: 'contact-form__field', [
       label(classes: 'contact-form__label', htmlFor: field.id, [
@@ -82,7 +94,7 @@ class ContactFormState extends State<ContactForm> {
           placeholder: field.placeholder,
           required: true,
           rows: 4,
-          onInput: (updated) => _contact.updateField(field, updated),
+          onInput: onChanged,
           id: field.id,
           attributes: {'aria-required': 'true', 'autocomplete': field.autocomplete},
           [.text(value)],
@@ -93,7 +105,7 @@ class ContactFormState extends State<ContactForm> {
           type: field.isEmail ? .email : .text,
           name: field.name,
           value: value,
-          onInput: (updated) => _contact.updateField(field, updated as String),
+          onInput: (updated) => onChanged(updated as String),
           id: field.id,
           attributes: {
             'placeholder': field.placeholder,
@@ -105,6 +117,29 @@ class ContactFormState extends State<ContactForm> {
     ]);
   }
 
+  /// A field no person sees, and no person fills.
+  ///
+  /// It is uncontrolled — its value is recorded on the draft but never enters [ContactState], so
+  /// typing into it re-renders nothing and the text a bot enters stays put. What it catches is the
+  /// scraper that fills every input in the rendered HTML and replays it; a bot posting straight to
+  /// the endpoint never sees it. That is the limit of it, and the answer if abuse arrives anyway is
+  /// a challenge at the edge, not more of this.
+  Component _honeypot(ContactFormContent copy) {
+    return div(
+      classes: 'contact-form__honeypot',
+      attributes: const {'aria-hidden': 'true'},
+      [
+        input(
+          type: .text,
+          name: copy.honeypotName,
+          onInput: (updated) => _contact.updateHoneypot(updated as String),
+          id: copy.honeypotFieldId,
+          attributes: const {'tabindex': '-1', 'autocomplete': 'off'},
+        ),
+      ],
+    );
+  }
+
   Component _form(SiteContent content, ContactState formState) {
     final copy = content.contactForm;
 
@@ -114,8 +149,8 @@ class ContactFormState extends State<ContactForm> {
       events: {'submit': _onSubmit},
       [
         div(classes: 'contact-form__row', [
-          _field(ContactField.name, copy, formState),
-          _field(ContactField.email, copy, formState),
+          _field(ContactField.name, copy, formState.name, _contact.updateName),
+          _field(ContactField.email, copy, formState.email, _contact.updateEmail),
         ]),
 
         div(classes: 'contact-form__field', [
@@ -144,15 +179,18 @@ class ContactFormState extends State<ContactForm> {
           ]),
         ]),
 
-        _field(ContactField.brief, copy, formState),
+        _field(ContactField.brief, copy, formState.brief, _contact.updateBrief),
 
-        // Announced when it appears, so a screen reader hears the rejection rather than only seeing it.
-        if (formState.showValidationError)
+        _honeypot(copy),
+
+        // Announced when it appears, so a screen reader hears the rejection rather than only seeing
+        // it. One paragraph serves both causes; the message says which.
+        if (_errorMessage(copy, formState) case final message?)
           p(
             classes: 'contact-form__error',
             attributes: const {'role': 'alert'},
             [
-              .text(copy.validationMessage),
+              .text(message),
             ],
           ),
 
@@ -266,6 +304,15 @@ class ContactFormState extends State<ContactForm> {
       ),
 
       css('.contact-form__error').combine(AppType.labelMd).styles(color: AppColors.error),
+
+      // Off-screen rather than `display: none`: a bot worth catching skips inputs it can tell are
+      // hidden, and this one is only worth having if it gets filled.
+      css('.contact-form__honeypot').styles(
+        position: .absolute(left: (-9999).px),
+        width: 1.px,
+        height: 1.px,
+        overflow: .hidden,
+      ),
     ]),
 
     // From 768px the name and email fields share a row.

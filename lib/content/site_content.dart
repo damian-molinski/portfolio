@@ -730,6 +730,15 @@ final class ContactFormContent {
 
   /// Shown when a required field is empty on submit.
   String get validationMessage => '[[TODO: validation message]]';
+
+  /// Shown when the send itself failed. The design had no failure state at all — its submit always
+  /// succeeded, because nothing was behind it.
+  String get failureMessage => '[[TODO: send failure message]]';
+
+  /// The trap field's `name` and `id`. Structural for the same reason, and unmarked for a second
+  /// one: a trap carrying a placeholder marker would announce itself to the scraper it is set for.
+  String get honeypotName => 'company';
+  String get honeypotFieldId => 'contact-company';
 }
 
 /// The footer's link row.
