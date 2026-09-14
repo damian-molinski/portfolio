@@ -1,175 +1,99 @@
 # CLAUDE.md
 
-## What this is
-
-A personal static portfolio site built with Jaspr (`mode: static` in `pubspec.yaml`). Pages are
-pre-rendered to HTML during `jaspr build`; components annotated `@client` are compiled to JavaScript and
-hydrated in the browser.
+A personal static portfolio site in Jaspr (`mode: static`). Pages pre-render to HTML during
+`jaspr build`; `@client` components compile to JavaScript and hydrate in the browser.
+Consult `.claude/skills/`'s Jaspr packs before applying habits from other web frameworks.
 
 ## Commands
 
 ```bash
-jaspr serve     # dev server on http://localhost:8080, builder in watch mode
-jaspr build     # static output in build/jaspr/
-dart analyze
-dart format .
-dart test     # cubits and the repository; pure Dart, no browser
+just              # list every recipe, grouped
+just check        # dart analyze + format + test + tsc --noEmit
+just dev          # jaspr build, then wrangler pages dev on :8788
+just markers      # the deploy gate
 ```
 
-```bash
-npm run dev       # wrangler pages dev build/jaspr — the only way to exercise /api/contact
-npm run check     # tsc --noEmit over functions/
-```
-
-The Jaspr CLI is a global activation (`dart pub global activate jaspr_cli`), not a dev dependency.
+`just` and the Jaspr CLI are global installs, not repo dependencies; each recipe is one line of the
+`justfile`. `just dev` rebuilds first because `wrangler pages dev` serves the *built* output.
 
 ## Code runs in two environments
 
-`lib/app.dart` and every file it imports are compiled **twice** — once for the server during
-pre-rendering, once for the client. A `dart:io` or `dart:html` import anywhere in that graph breaks one of
-the two builds. Branch with `kIsWeb` instead, as `AppState.initState` already does, or split the
-environment-specific half behind a conditional import.
-
-This is the constraint that breaks builds here most often.
-
-## Generated files
-
-`lib/main.client.options.dart` and `lib/main.server.options.dart` are written by `jaspr_builder`. Never
-edit them; they regenerate on `jaspr serve` / `jaspr build`.
+`lib/app.dart` and every file it imports compile **twice** — server (pre-rendering) and client. A
+`dart:io` or `dart:html` import anywhere in that graph breaks one of the two builds, which breaks
+builds here more often than anything else; branch with `kIsWeb` or split behind a conditional import.
+`lib/main.client.options.dart` and `lib/main.server.options.dart` are `jaspr_builder` output — never
+edit them.
 
 ## Styling
 
-CSS is written in Dart, not in stylesheets.
+CSS is written in Dart: component-scoped rules in a `@css static List<StyleRule> get styles` getter,
+global rules in `lib/constants/theme.dart`. Use the type-safe `css(...)` bindings and shorthand enums
+(`display: .flex`), not raw strings, and satisfy `jaspr_lints` rather than suppressing it.
 
-- Component-scoped rules go in a `@css static List<StyleRule> get styles` getter on the component itself
-  (see `Counter` in `lib/components/counter.dart`).
-- Global rules live in `lib/constants/theme.dart`.
-- Use the type-safe `css(...)` bindings and the shorthand enum syntax (`display: .flex`) rather than raw
-  CSS strings.
-
-`jaspr_lints` enforces `prefer_html_components`, `sort_children_last` and `styles_ordering`. Satisfy those
-diagnostics rather than suppressing them.
-
-## Design system
-
-`DESIGN.md` is the source of truth. Its YAML frontmatter carries the token values; the prose below
-describes intent.
-
-`lib/constants/theme.dart` declares those tokens as Dart — `AppColors`, `AppType`, `AppSpacing`,
-`AppRadius`, `AppBreakpoints`, `AppAccent` — taken verbatim from the frontmatter. Take colours, type
-steps and spacing from there; do not restate a hex value in a component. Translucent variants come
-from the `Color.alpha()` extension in the same file, so `AppColors.tertiary.alpha(0.4)` rather than a
-second literal palette.
-
-**Known conflict — read the frontmatter, not the prose.** The frontmatter sets `primary: '#9ecaff'`
-while the prose section names `#0175C2` as primary. The frontmatter wins; both roles exist and the
-design uses them correctly, `primary` for text accents and `primary-container` for button fills.
-
-`docs/reference/landing-page.html` is the design as rendered, archived before `design/` was deleted.
-Read it for layout, spacing and markup structure — never for colour. Its embedded Tailwind config
-overrides the frontmatter with a darker surface ramp, which this site deliberately does not use.
+`DESIGN.md`'s YAML frontmatter is the source of truth for tokens; its prose is intent only.
+`lib/constants/theme.dart` declares them verbatim (`AppColors`, `AppType`, `AppSpacing`, …). Never
+restate a hex value in a component; translucent variants come from `Color.alpha()`.
+**Known conflict — the frontmatter wins.** It sets `primary: '#9ecaff'`, the prose names `#0175C2`;
+both roles exist, `primary` for text accents and `primary-container` for button fills. And
+`docs/reference/landing-page.html`, the archived render, is for layout — **never for colour**.
 
 ## The site carries placeholder copy
 
-Every user-visible string is a literal `[[TODO: …]]` marker living in `lib/content/site_content.dart`,
-and no component declares copy of its own. This is deliberate: the design's wording asserts things
-that were never verified, so it ships as markers that cannot be mistaken for finished text. Add a
-string by adding a field there, not by writing it into a `build` method. **The site must not be
-deployed while `grep -rn '\[\[TODO:' lib/` returns anything.**
+Every user-visible string is a `[[TODO: …]]` marker in `lib/content/site_content.dart`; no component
+declares copy of its own, so add a string by adding a field there, not in a `build` method.
+**The site must not be deployed while `grep -rn '\[\[TODO:' lib/` returns anything.** Plans live in
+`docs/plans/`, never `lib/` — a plan quoting markers makes that gate count prose.
 
-Not everything in that file is copy. `ContactFormContent.fieldId`, `scopeFieldId`, `endpoint`,
-`honeypotName` and `honeypotFieldId` are structural — ids, a route and a trap's name — so they hold
-real values and carry no marker. The trap has a second reason: one carrying a placeholder marker
-would announce itself to the scraper it is set for.
+Not everything there is copy: `ContactFormContent`'s `fieldId`, `scopeFieldId`, `endpoint`,
+`honeypotName` and `honeypotFieldId` are structural and hold real values — and a trap carrying a
+placeholder marker would announce itself to the scraper it is set for.
 
-Plans live in `docs/plans/`, never in `lib/`. A plan that quotes marker strings inside `lib/` makes
-the grep above count prose.
+## Islands
 
-The holders in that file are `const`-constructible classes with getters, not `static const`, so they
-can travel through a bloc state. One value does not fit that shape: `ContactCard.directMail` is an
-enum constant and its argument must be a compile-time constant, so the address lives in the private
-top-level `_contactEmail` that both it and `SiteIdentity.email` read.
-
-## Two `@client` components, and one trap
-
-`CopyEmailButton` and `ContactForm` are the only JavaScript on the page; everything else is CSS.
-`app.dart` is deliberately not `@client` — annotating the root would compile every section to
-JavaScript and hydrate the whole document.
-
-**A `@client` component must have an unnamed constructor.** Jaspr's hydration codegen reconstructs it
-by calling one, so named constructors compile, analyze clean, pre-render correctly, and then fail the
-client build with `Couldn't find constructor`. Only `jaspr build` catches it, and only once the
-component is mounted somewhere.
-
-An island hydrates as its **own component tree**. It cannot see the `BlocProvider` above `App`, so
-both islands resolve their cubits from `get_it` rather than from context — see below.
+`CopyEmailButton` and `ContactForm` are the only JavaScript on the page; `app.dart` is deliberately
+not `@client`, since annotating the root would compile and hydrate every section.
+**A `@client` component must have an unnamed constructor.** Jaspr's hydration codegen calls one, so a
+named one analyzes clean, pre-renders correctly, then fails the client build with `Couldn't find
+constructor` — only `jaspr build` catches it. An island also hydrates as its **own tree** and cannot
+see the `BlocProvider` above `App`, so both resolve their cubits from `get_it`.
 
 ## State management
 
-`bloc` for state, `get_it` for dependencies, and a hand-rolled binding between them in `lib/state/`
-(`BlocProvider`, `MultiBlocProvider`, `context.read<B>()`, `BlocBuilder`). `jaspr_bloc` exists but
-pins `jaspr: ^0.22.0`; this project is on `^0.23.4`.
+`bloc` + `get_it`, with a hand-rolled binding in `lib/state/` (`BlocProvider`, `BlocBuilder`,
+`context.read<B>()`). `jaspr_bloc` pins `jaspr: ^0.22.0`; this project is on `^0.23.4`.
 
-- `lib/data/contact_dispatcher.dart` posts the form to `/api/contact`. Same seam as `Clipboard`,
-  and for the same reason — the cubit has to be testable under `dart test` with no browser — but
-  with no `kIsWeb` guard: `package:http` resolves `Client()` through a conditional import and works
-  on both halves of the dual compilation.
-- `lib/data/site_content_repository.dart` wraps `lib/content/site_content.dart` and returns one
-  `SiteContent` value. It is **synchronous and cannot fail** — there is no I/O behind `const` data,
-  and a `Future` here would buy a loading state the page can never be in.
-- `lib/state/` holds three Cubits: `SiteContentCubit` (the page's copy), `ContactCubit` (the form),
-  `CopyCubit` (the clipboard button). Their states use `equatable`.
-- `lib/di/injector.dart` registers everything. `configureDependencies()` is idempotent and is called
-  from **both** entrypoints.
+- `site_content_repository.dart` is **synchronous and cannot fail** — no I/O behind `const` data, and
+  a `Future` would buy a loading state the page can never be in.
+- `contact_dispatcher.dart` posts to `/api/contact`: the `Clipboard` seam again, keeping the cubit
+  testable on the VM, but with no `kIsWeb` guard — `package:http` uses a conditional import.
+- `lib/di/injector.dart` registers everything; `configureDependencies()` is idempotent and runs from
+  **both** entrypoints.
 
-**`BlocBuilder` must pass `stream: kIsWeb ? bloc.stream : null`.** Jaspr's `StreamBuilderBase`
-asserts the stream is null on the server, because subscribing during pre-rendering schedules rebuilds
-the static renderer does not allow. `kIsWeb` is a `bool.fromEnvironment` constant, so the server
-build drops the subscription at compile time. A regression here fails `jaspr build`, not
-`dart analyze`.
+**`BlocBuilder` must pass `stream: kIsWeb ? bloc.stream : null`.** `StreamBuilderBase` asserts the
+stream is null on the server, where subscribing would schedule rebuilds the static renderer forbids.
+A regression fails `jaspr build`, not `dart analyze`.
 
 **`ContactCubit` owns a mutable `ContactDraftBuilder` and never hands it out.** The state carries a
-snapshot of it instead, taken in `_emitDraft` — the one place the cubit emits. A mutable builder
-stored *in* an `Equatable` state would hand the same instance to its successor, `props` would compare
-equal, and the emit would be suppressed on every keystroke. That is also why `ContactState` has no
-`copyWith`: a copy would carry a field forward from the previous state and let the two drift apart.
-The trap field is the exception that proves it — it is on the builder, not the state, so typing into
-it re-renders nothing.
+snapshot taken in `_emitDraft`, its one emit path; a mutable builder held *in* an `Equatable` state
+would compare equal on every keystroke and suppress the emit — also why `ContactState` has no
+`copyWith`. The trap field lives on the builder alone, so typing into it re-renders nothing.
 
-**`CopyCubit` must stay `registerFactory`.** The page renders `CopyEmailButton` twice — once in the
-hero, once on the contact card — and a singleton would make both confirm on a single click.
+**`CopyCubit` must stay `registerFactory`** — the page renders `CopyEmailButton` twice, and a
+singleton would make both confirm on one click.
 
-Every section reads its copy through a `BlocBuilder<SiteContentCubit, SiteContentState>`, including
-the ones that pre-render once and freeze. That is a deliberate uniformity, not an oversight: on a
-static build the server tree emits exactly one state and never re-emits. The single exception is
-`main.server.dart`, where the `<head>` is built outside the component tree and reads the repository
-directly.
+Every section reads copy through a `BlocBuilder`, deliberately including ones that freeze at build
+time. `main.server.dart`'s `<head>` is the exception.
 
 ## The contact endpoint
 
-`functions/api/contact.ts` is a Cloudflare Pages Function serving `/api/contact`. It takes the form's
-JSON, relays it through Resend, and forgets it.
+`functions/api/contact.ts` is a Cloudflare Pages Function relaying the form's JSON through Resend.
 
-- **`functions/` is a sibling of `build/jaspr/`, never inside it.** Cloudflare reads it from the repo
-  root; moving it into the static output stops it being a function at all.
-- **`jaspr serve` does not serve it.** Only `npm run dev` (`wrangler pages dev build/jaspr`, on
-  :8788) runs the function, and it serves the *built* output — so `jaspr build` first. There is no
-  single command that watches Dart and runs the endpoint.
-- **The secrets are `RESEND_API_KEY`, `CONTACT_TO` and `CONTACT_FROM`**, on the Pages project in
-  production and in a local `.dev.vars` otherwise. `.dev.vars.example` records the names; the filled
-  copy is gitignored. `CONTACT_TO` is an env var rather than a literal so the address is not in git
-  history. Without a key the endpoint answers `502` and the form reports the failure, which is the
-  correct behaviour rather than a broken one.
-- **It answers with a status and no body** — `204` accepted, `400` malformed or incomplete, `502`
-  Resend refused. A tripped honeypot gets the same `204` a real send does, so a bot learns nothing
-  from the difference.
-- **The honeypot is weaker here than on an ordinary form.** This form never natively submits — the
-  cubit builds the JSON — so a bot posting straight to the endpoint never sees the trap. What it
-  catches is the scraper that fills every input in the rendered HTML and replays it. If real abuse
-  arrives, the answer is a challenge at the edge, not more of this.
-
-## Skills
-
-`.claude/skills/` carries the Jaspr packs — `jaspr-fundamentals`, `jaspr-styling`, `jaspr-js-interop`,
-`jaspr-pre-rendering-and-hydration`, `jaspr-convert-html`. Consult them before applying habits from other
-web frameworks; Jaspr's component and styling APIs look familiar but differ in the details.
+- **`functions/` is a sibling of `build/jaspr/`, never inside it**, or it stops being a function.
+- **`jaspr serve` does not serve it** — only `just dev` does, on :8788.
+- **Secrets are `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM`** — on the Pages project, in a
+  gitignored `.dev.vars` locally, named in `.dev.vars.example`. With no key it answers `502` and the
+  form reports the failure, which is correct rather than broken.
+- **Status only, no body**: `204` accepted, `400` malformed, `502` Resend refused. A tripped honeypot
+  also gets `204`, so a bot learns nothing from the difference.
+- **The honeypot is weak here** — the form never natively submits, so a bot posting straight to the
+  endpoint never sees it; real abuse needs a challenge at the edge, not more of this.
