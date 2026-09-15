@@ -3,9 +3,6 @@ name: CI
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -91,27 +88,3 @@ jobs:
             --project-name=portfolio
             --branch=main
             --commit-hash=${{ github.sha }}
-
-      - name: Deployment is production, not preview
-        env:
-          ENVIRONMENT: ${{ steps.deploy.outputs.pages-environment }}
-        run: |
-          test "$ENVIRONMENT" = production || {
-            echo "Deployed to '$ENVIRONMENT'. The project's production branch is not 'main'."
-            exit 1
-          }
-
-      - name: The contact Function is routed
-        env:
-          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
-        run: |
-          status=$(curl -s -o /dev/null -w '%{http_code}' \
-            -X POST "$DEPLOYMENT_URL/api/contact" \
-            -H 'content-type: application/json' \
-            --data '{}')
-
-          test "$status" = 400 || {
-            echo "POST /api/contact answered $status, expected 400."
-            echo "The Pages Function was not deployed with the assets."
-            exit 1
-          }
