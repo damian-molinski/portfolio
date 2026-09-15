@@ -53,7 +53,18 @@ class ContactFormState extends State<ContactForm> {
   Future<void> _onSubmit(web.Event event) async {
     event.preventDefault();
     await _contact.submit();
+
+    if (_contact.state.status == DispatchStatus.sent) _clearMultilineControls();
     _focusFirstProblem();
+  }
+
+  void _clearMultilineControls() {
+    final multilineFields = ContactField.values.where((field) => field.isMultiline);
+
+    for (final field in multilineFields) {
+      final control = web.document.getElementById(field.id) as web.HTMLTextAreaElement?;
+      control?.value = '';
+    }
   }
 
   void _focusFirstProblem() {
