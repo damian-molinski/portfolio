@@ -45,8 +45,9 @@ declares copy of its own, so add a string by adding a field there, not in a `bui
 `docs/plans/`, never `lib/` — a plan quoting markers makes that gate count prose.
 
 Not everything there is copy: `ContactFormContent`'s `fieldId`, `scopeFieldId`, `endpoint`,
-`errorId`, `honeypotName` and `honeypotFieldId` are structural and hold real values — and a trap
-carrying a placeholder marker would announce itself to the scraper it is set for.
+`honeypotName` and `honeypotFieldId` are structural and hold real values, as is `ContactField`'s
+`errorId` — and a trap carrying a placeholder marker would announce itself to the scraper it is set
+for.
 
 ## Islands
 
@@ -56,6 +57,19 @@ not `@client`, since annotating the root would compile and hydrate every section
 named one analyzes clean, pre-renders correctly, then fails the client build with `Couldn't find
 constructor` — only `jaspr build` catches it. An island also hydrates as its **own tree** and cannot
 see the `BlocProvider` above `App`, so both resolve their cubits from `get_it`.
+
+## The contact form owns its own validation
+
+**The `<form>` is `noValidate`, and must stay that way.** Native constraint validation runs *before*
+the `submit` event and cancels it, so with `required` fields blank the browser draws its own bubble
+and `_onSubmit` never fires — putting validation back would silently disable every message the form
+renders. `required`, `aria-required` and `type="email"` stay on the controls: they are the semantics,
+nothing styles `:invalid`, and `type="email"` is what gives a phone the `@` key.
+
+Each blocked control carries its own message beneath it, points at it with `aria-describedby`, and a
+refused press moves focus to the first one — which is how those messages are announced, and why they
+are not live regions. The paragraph above the button is only ever about a failed *send*, and is the
+one `role="alert"` on the form.
 
 ## State management
 

@@ -3,17 +3,10 @@ extension IterableMapEntryExtension<K, V> on Iterable<MapEntry<K, V>> {
   Map<K, V> toMap() => Map.fromEntries(this);
 }
 
-/// Joins the items the way a sentence does.
-extension IterableSentenceExtension on Iterable<String> {
-  /// `'a'`, `'a and b'`, `'a, b and c'`.
-  ///
-  /// No serial comma, which matches the rest of the site's copy.
-  String toSentence() {
-    final items = toList();
-    if (items.length < 2) return items.join();
-
-    final lead = items.take(items.length - 1);
-
-    return '${lead.join(', ')} and ${items.last}';
-  }
+/// The first element, or null when there is none.
+///
+/// `package:collection` supplies this, and one getter is not worth a dependency in a graph that
+/// compiles twice.
+extension IterableFirstOrNullExtension<E> on Iterable<E> {
+  E? get firstOrNull => isEmpty ? null : first;
 }

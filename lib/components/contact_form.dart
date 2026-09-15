@@ -12,6 +12,7 @@ import '../state/contact_draft.dart';
 import '../state/contact_state.dart';
 import '../state/site_content_cubit.dart';
 import '../state/site_content_state.dart';
+import '../utils/iterable_extensions.dart';
 import 'icons.dart';
 import 'mono_button.dart';
 
@@ -49,9 +50,17 @@ class ContactFormState extends State<ContactForm> {
     super.dispose();
   }
 
-  void _onSubmit(web.Event event) {
+  Future<void> _onSubmit(web.Event event) async {
     event.preventDefault();
-    _contact.submit();
+    await _contact.submit();
+    _focusFirstProblem();
+  }
+
+  void _focusFirstProblem() {
+    final blocked = _contact.state.problems.keys.firstOrNull;
+    if (blocked == null) return;
+
+    (web.document.getElementById(blocked.id) as web.HTMLElement?)?.focus();
   }
 
   String _submitLabel(ContactFormContent copy, DispatchStatus status) => switch (status) {
@@ -68,20 +77,10 @@ class ContactFormState extends State<ContactForm> {
     DispatchFailure.mailer => copy.mailerFailureMessage,
   };
 
-  String? _errorMessage(ContactFormContent copy, ContactState formState) {
-    final missingNouns = formState.problems.entries
-        .where((entry) => entry.value == FieldProblem.missing)
-        .map((entry) => entry.key.noun)
-        .toList();
-
-    final sentences = [
-      if (missingNouns.isNotEmpty) copy.missingMessage(missingNouns),
-      if (formState.problems.containsValue(FieldProblem.malformed)) copy.malformedEmailMessage,
-      if (formState.failure case final failure?) _failureMessage(copy, failure),
-    ];
-
-    return sentences.isEmpty ? null : sentences.join(' ');
-  }
+  String _fieldMessage(ContactFormContent copy, ContactField field, FieldProblem problem) => switch (problem) {
+    FieldProblem.missing => copy.missingMessage(field.noun),
+    FieldProblem.malformed => copy.malformedEmailMessage,
+  };
 
   String _controlClasses(FieldProblem? problem, {bool isMultiline = false}) {
     return [
@@ -91,13 +90,12 @@ class ContactFormState extends State<ContactForm> {
     ].join(' ');
   }
 
-  /// The control's share of the rejection: it is marked, and it points at the paragraph that says
-  /// what is wrong with it, so a screen reader hears the reason on focus rather than only when the
-  /// alert first appeared.
-  Map<String, String> _problemAttributes(ContactFormContent copy, FieldProblem? problem) {
+  /// The control's share of the rejection: it is marked, and it points at the line beneath it that
+  /// says what is wrong, so a screen reader hears the reason on focus.
+  Map<String, String> _problemAttributes(ContactField field, FieldProblem? problem) {
     if (problem == null) return const {};
 
-    return {'aria-invalid': 'true', 'aria-describedby': copy.errorId};
+    return {'aria-invalid': 'true', 'aria-describedby': field.errorId};
   }
 
   Component _field(
@@ -133,7 +131,7 @@ class ContactFormState extends State<ContactForm> {
           attributes: {
             'aria-required': 'true',
             'autocomplete': field.autocomplete,
-            ..._problemAttributes(copy, problem),
+            ..._problemAttributes(field, problem),
           },
           [.text(current)],
         )
@@ -150,9 +148,16 @@ class ContactFormState extends State<ContactForm> {
             'required': '',
             'aria-required': 'true',
             'autocomplete': field.autocomplete,
-            ..._problemAttributes(copy, problem),
+            ..._problemAttributes(field, problem),
           },
         ),
+      // Beneath the control it belongs to rather than pooled above the button, and deliberately not
+      // a live region: three of these appearing at once would be read as three interruptions. The
+      // focus move in `_focusFirstProblem` is what announces them, one at a time.
+      if (problem case final problem?)
+        p(classes: 'contact-form__error', id: field.errorId, [
+          .text(_fieldMessage(copy, field, problem)),
+        ]),
     ]);
   }
 
@@ -185,6 +190,7 @@ class ContactFormState extends State<ContactForm> {
     return form(
       classes: 'contact-form',
       id: copy.fieldId,
+      noValidate: true,
       events: {'submit': _onSubmit},
       [
         div(classes: 'contact-form__row', [
@@ -240,16 +246,14 @@ class ContactFormState extends State<ContactForm> {
 
         _honeypot(copy),
 
-        // Announced when it appears, so a screen reader hears the rejection rather than only seeing
-        // it. One paragraph serves every cause; the message says which, and each marked control
-        // points back at it.
-        if (_errorMessage(copy, formState) case final message?)
+        // Why the send failed, which is no field's fault and so belongs beside the button rather
+        // than under a control. Nothing focuses it, so `role="alert"` is the only way it is heard.
+        if (formState.failure case final failure?)
           p(
             classes: 'contact-form__error',
-            id: copy.errorId,
             attributes: const {'role': 'alert'},
             [
-              .text(message),
+              .text(_failureMessage(copy, failure)),
             ],
           ),
 

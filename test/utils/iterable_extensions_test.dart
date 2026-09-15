@@ -3,25 +3,28 @@ import 'package:portfolio/utils/iterable_extensions.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('IterableSentenceExtension', () {
-    group('toSentence', () {
-      test('is empty for nothing', () {
-        expect(const <String>[].toSentence(), isEmpty);
+  // Named by string rather than by the extension, which is not an expression and cannot be passed
+  // here the way a class can.
+  group('IterableFirstOrNullExtension', () {
+    group('firstOrNull', () {
+      test('is null for nothing', () {
+        expect(const <String>[].firstOrNull, isNull);
       });
 
-      test('leaves a single item alone', () {
-        expect(['your name'].toSentence(), 'your name');
+      test('is the only item when there is one', () {
+        expect(['your name'].firstOrNull, 'your name');
       });
 
-      test('joins a pair with and, and no comma', () {
-        expect(['your name', 'a project brief'].toSentence(), 'your name and a project brief');
+      test('is the first of many, in iteration order', () {
+        expect(ContactField.values.map((field) => field.noun).firstOrNull, 'your name');
       });
 
-      test('separates the rest with commas', () {
-        expect(
-          ContactField.values.map((field) => field.noun).toSentence(),
-          'your name, your email address and a project brief',
-        );
+      // How `_focusFirstProblem` picks the control to focus: the map is built by mapping over
+      // `ContactField.values`, so its keys stay in the order the controls appear.
+      test('keeps a map\'s key order', () {
+        final problems = {ContactField.email: 1, ContactField.brief: 2};
+
+        expect(problems.keys.firstOrNull, ContactField.email);
       });
     });
   });

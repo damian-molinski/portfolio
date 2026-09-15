@@ -1,7 +1,6 @@
 library;
 
 import '../components/icons.dart';
-import '../utils/iterable_extensions.dart';
 
 const _contactEmail = 'contact@damian-molinski.dev';
 
@@ -449,6 +448,13 @@ enum ContactField {
 
   bool get isEmail => type == 'email';
 
+  /// The id of the paragraph naming what is wrong with this field, for `aria-describedby`.
+  ///
+  /// Structural, like [id] it is derived from, and it must be unique per field: pointing every
+  /// blocked control at one shared paragraph would have a screen reader read the other fields'
+  /// problems as this one's.
+  String get errorId => '$id-error';
+
   bool get isMultiline => type == 'textarea';
 }
 
@@ -479,9 +485,9 @@ final class ContactFormContent {
   String get submittingLabel => 'Transmitting...';
   String get submittedLabel => '[ sent_successfully ]';
 
-  String get errorId => 'contact-form-error';
-
-  String missingMessage(Iterable<String> nouns) => 'Add ${nouns.toSentence()}.';
+  /// Named by [ContactField.noun] rather than [ContactField.label], which is a heading above the
+  /// control and reads wrong mid-clause.
+  String missingMessage(String noun) => 'Add $noun.';
 
   String get malformedEmailMessage => "That email address doesn't look right.";
 
