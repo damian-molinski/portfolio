@@ -8,6 +8,7 @@ import '../data/site_content_repository.dart';
 import '../di/injector.dart';
 import '../state/bloc_builder.dart';
 import '../state/contact_cubit.dart';
+import '../state/contact_draft.dart';
 import '../state/contact_state.dart';
 import '../state/site_content_cubit.dart';
 import '../state/site_content_state.dart';
@@ -60,20 +61,53 @@ class ContactFormState extends State<ContactForm> {
     DispatchStatus.failed => copy.submitLabel,
   };
 
-  String? _errorMessage(ContactFormContent copy, ContactState formState) {
-    if (formState.showValidationError) return copy.validationMessage;
-    if (formState.status == DispatchStatus.failed) return copy.failureMessage;
+  String _failureMessage(ContactFormContent copy, DispatchFailure failure) => switch (failure) {
+    DispatchFailure.network => copy.networkFailureMessage,
+    DispatchFailure.rejected => copy.rejectedFailureMessage,
+    DispatchFailure.rateLimited => copy.rateLimitedFailureMessage,
+    DispatchFailure.mailer => copy.mailerFailureMessage,
+  };
 
-    return null;
+  String? _errorMessage(ContactFormContent copy, ContactState formState) {
+    final missingNouns = formState.problems.entries
+        .where((entry) => entry.value == FieldProblem.missing)
+        .map((entry) => entry.key.noun)
+        .toList();
+
+    final sentences = [
+      if (missingNouns.isNotEmpty) copy.missingMessage(missingNouns),
+      if (formState.problems.containsValue(FieldProblem.malformed)) copy.malformedEmailMessage,
+      if (formState.failure case final failure?) _failureMessage(copy, failure),
+    ];
+
+    return sentences.isEmpty ? null : sentences.join(' ');
+  }
+
+  String _controlClasses(FieldProblem? problem, {bool isMultiline = false}) {
+    return [
+      'contact-form__control',
+      if (isMultiline) 'contact-form__control--multiline',
+      if (problem != null) 'contact-form__control--invalid',
+    ].join(' ');
+  }
+
+  /// The control's share of the rejection: it is marked, and it points at the paragraph that says
+  /// what is wrong with it, so a screen reader hears the reason on focus rather than only when the
+  /// alert first appeared.
+  Map<String, String> _problemAttributes(ContactFormContent copy, FieldProblem? problem) {
+    if (problem == null) return const {};
+
+    return {'aria-invalid': 'true', 'aria-describedby': copy.errorId};
   }
 
   Component _field(
     ContactField field,
-    ContactFormContent copy,
-    String? current,
-    ValueChanged<String> onChanged,
-  ) {
-    final value = current ?? '';
+    ContactFormContent copy, {
+    required String? value,
+    required FieldProblem? problem,
+    required ValueChanged<String> onChanged,
+  }) {
+    final current = value ?? '';
 
     return div(classes: 'contact-form__field', [
       label(classes: 'contact-form__label', htmlFor: field.id, [
@@ -89,22 +123,26 @@ class ContactFormState extends State<ContactForm> {
       ]),
       if (field.isMultiline)
         textarea(
-          classes: 'contact-form__control contact-form__control--multiline',
+          classes: _controlClasses(problem, isMultiline: true),
           name: field.name,
           placeholder: field.placeholder,
           required: true,
           rows: 4,
           onInput: onChanged,
           id: field.id,
-          attributes: {'aria-required': 'true', 'autocomplete': field.autocomplete},
-          [.text(value)],
+          attributes: {
+            'aria-required': 'true',
+            'autocomplete': field.autocomplete,
+            ..._problemAttributes(copy, problem),
+          },
+          [.text(current)],
         )
       else
         input(
-          classes: 'contact-form__control',
+          classes: _controlClasses(problem),
           type: field.isEmail ? .email : .text,
           name: field.name,
-          value: value,
+          value: current,
           onInput: (updated) => onChanged(updated as String),
           id: field.id,
           attributes: {
@@ -112,6 +150,7 @@ class ContactFormState extends State<ContactForm> {
             'required': '',
             'aria-required': 'true',
             'autocomplete': field.autocomplete,
+            ..._problemAttributes(copy, problem),
           },
         ),
     ]);
@@ -149,8 +188,20 @@ class ContactFormState extends State<ContactForm> {
       events: {'submit': _onSubmit},
       [
         div(classes: 'contact-form__row', [
-          _field(ContactField.name, copy, formState.name, _contact.updateName),
-          _field(ContactField.email, copy, formState.email, _contact.updateEmail),
+          _field(
+            ContactField.name,
+            copy,
+            value: formState.name,
+            problem: formState.problems[ContactField.name],
+            onChanged: _contact.updateName,
+          ),
+          _field(
+            ContactField.email,
+            copy,
+            value: formState.email,
+            problem: formState.problems[ContactField.email],
+            onChanged: _contact.updateEmail,
+          ),
         ]),
 
         div(classes: 'contact-form__field', [
@@ -179,15 +230,23 @@ class ContactFormState extends State<ContactForm> {
           ]),
         ]),
 
-        _field(ContactField.brief, copy, formState.brief, _contact.updateBrief),
+        _field(
+          ContactField.brief,
+          copy,
+          value: formState.brief,
+          problem: formState.problems[ContactField.brief],
+          onChanged: _contact.updateBrief,
+        ),
 
         _honeypot(copy),
 
         // Announced when it appears, so a screen reader hears the rejection rather than only seeing
-        // it. One paragraph serves both causes; the message says which.
+        // it. One paragraph serves every cause; the message says which, and each marked control
+        // points back at it.
         if (_errorMessage(copy, formState) case final message?)
           p(
             classes: 'contact-form__error',
+            id: copy.errorId,
             attributes: const {'role': 'alert'},
             [
               .text(message),
@@ -301,6 +360,17 @@ class ContactFormState extends State<ContactForm> {
           width: OutlineWidth(Unit.pixels(2)),
           offset: Unit.pixels(2),
         ),
+      ),
+
+      // Both rules, because `.contact-form__control:focus` above is a pseudo-class and outranks a
+      // plain class: focusing a field the summary named must not make it look accepted. The second
+      // matches that specificity and wins on source order.
+      css('.contact-form__control--invalid').styles(
+        border: .all(style: .solid, color: AppColors.error, width: 1.px),
+      ),
+      css('.contact-form__control--invalid:focus').styles(
+        border: .all(style: .solid, color: AppColors.error, width: 1.px),
+        shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 16.px, color: AppColors.error.alpha(0.15)),
       ),
 
       css('.contact-form__error').combine(AppType.labelMd).styles(color: AppColors.error),

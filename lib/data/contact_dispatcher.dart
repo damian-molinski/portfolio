@@ -1,51 +1,64 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
 import '../state/contact_draft.dart';
+import '../state/contact_state.dart';
 
 /// Sends a completed enquiry to the site's own contact endpoint.
 abstract interface class ContactDispatcher {
-  /// Posts [draft], reporting whether it was accepted.
+  /// Posts [draft], answering with the reason it did not arrive — or null when it did.
   ///
-  /// Unlike [Clipboard.write], a false here **is** shown to the visitor: a copy that did not happen
-  /// leaves the address on screen beside the button, but a message that did not arrive leaves
-  /// nothing, so the form says so and keeps what was typed.
-  Future<bool> send(ContactDraft draft);
+  /// Unlike [Clipboard.write], a refusal here **is** shown to the visitor: a copy that did not
+  /// happen leaves the address on screen beside the button, but a message that did not arrive
+  /// leaves nothing, so the form says so, says which of the four things went wrong, and keeps what
+  /// was typed.
+  Future<DispatchFailure?> send(ContactDraft draft);
 }
 
 /// Posts the draft as JSON to a Cloudflare Pages Function on the site's own origin.
-///
-/// No [kIsWeb] guard, unlike [BrowserClipboard]: `package:http` resolves `Client()` through a
-/// conditional import and works on both halves of the dual compilation, and `send` is only ever
-/// reached from a click on the hydrated island — never during pre-rendering.
 final class HttpContactDispatcher implements ContactDispatcher {
   const HttpContactDispatcher({
     required final http.Client client,
     required Uri base,
+    Duration timeout = const Duration(seconds: 20),
   }) : _client = client,
-       _base = base;
+       _base = base,
+       _timeout = timeout;
 
   final http.Client _client;
   final Uri _base;
+  final Duration _timeout;
 
   @override
-  Future<bool> send(ContactDraft draft) async {
+  Future<DispatchFailure?> send(ContactDraft draft) async {
     final body = jsonEncode(draft.toJson());
     final http.Response response;
 
     try {
-      response = await _client.post(
-        _base.resolve('/api/contact'),
-        headers: const {'content-type': 'application/json'},
-        body: body,
-      );
+      response = await _client
+          .post(
+            _base.resolve('/api/contact'),
+            headers: const {'content-type': 'application/json'},
+            body: body,
+          )
+          .timeout(_timeout);
     } on http.ClientException {
-      // Offline, a refused connection, or a request that never reached the function. The visitor is
-      // told the send failed, which is true, rather than being given the reason.
-      return false;
+      return DispatchFailure.network;
+    } on TimeoutException {
+      return DispatchFailure.network;
     }
 
-    return response.statusCode >= 200 && response.statusCode < 300;
+    return _failureFor(response.statusCode);
   }
+
+  DispatchFailure? _failureFor(int statusCode) => switch (statusCode) {
+    >= 200 && < 300 => null,
+    400 => DispatchFailure.rejected,
+    429 => DispatchFailure.rateLimited,
+    // 502 and 503 from the function, and anything else the edge answers with: a 404 means the
+    // function is not deployed, which is as far outside the visitor's control as Resend being down.
+    _ => DispatchFailure.mailer,
+  };
 }

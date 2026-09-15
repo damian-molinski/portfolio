@@ -1,6 +1,16 @@
 import 'package:equatable/equatable.dart';
 
 import '../content/site_content.dart';
+import '../utils/iterable_extensions.dart';
+
+/// What is wrong with one field's value.
+enum FieldProblem {
+  /// Required, and blank.
+  missing,
+
+  /// Filled, but not in a shape the field accepts.
+  malformed,
+}
 
 /// A completed consultation enquiry, ready to post.
 final class ContactDraft extends Equatable {
@@ -36,23 +46,28 @@ final class ContactDraft extends Equatable {
 final class ContactDraftBuilder {
   ContactDraftBuilder();
 
+  /// Deliberately loose: an `@` with something either side of it and a dot in the domain.
+  static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+
   String? name;
   String? email;
   String? brief;
   String? honeypot;
   ScopeOption scope = ScopeOption.values.first;
 
-  Iterable<ContactField> get missingFields => ContactField.values.where(_isMissing);
+  /// What blocks the submit, by field. Empty when the draft is ready to post.
+  Map<ContactField, FieldProblem> get problems =>
+      ContactField.values.map(_entryFor).whereType<MapEntry<ContactField, FieldProblem>>().toMap();
 
-  bool get isComplete => missingFields.isEmpty;
+  bool get isComplete => problems.isEmpty;
 
   /// The draft as it stands.
   ContactDraft build() {
-    final blankFields = missingFields;
+    final blockingFields = problems;
 
-    if (blankFields.isNotEmpty) {
-      final blankNames = blankFields.map((field) => field.name).join(', ');
-      throw StateError('Cannot build a ContactDraft while $blankNames is blank.');
+    if (blockingFields.isNotEmpty) {
+      final blocking = blockingFields.entries.map((entry) => '${entry.key.name} is ${entry.value.name}');
+      throw StateError('Cannot build a ContactDraft while ${blocking.join(', ')}.');
     }
 
     return ContactDraft(
@@ -73,11 +88,19 @@ final class ContactDraftBuilder {
     scope = ScopeOption.values.first;
   }
 
-  bool _isMissing(ContactField field) {
-    if (!field.isRequired) return false;
+  MapEntry<ContactField, FieldProblem>? _entryFor(ContactField field) {
+    final problem = _problemWith(field);
 
-    final value = _valueOf(field);
-    return value == null || value.trim().isEmpty;
+    return problem == null ? null : MapEntry(field, problem);
+  }
+
+  FieldProblem? _problemWith(ContactField field) {
+    final value = _valueOf(field)?.trim();
+
+    if (value == null || value.isEmpty) return field.isRequired ? FieldProblem.missing : null;
+    if (field.isEmail && !_emailPattern.hasMatch(value)) return FieldProblem.malformed;
+
+    return null;
   }
 
   /// The one place the enum and the named fields meet. Exhaustive, so a new [ContactField] member is

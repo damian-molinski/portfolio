@@ -45,8 +45,8 @@ declares copy of its own, so add a string by adding a field there, not in a `bui
 `docs/plans/`, never `lib/` — a plan quoting markers makes that gate count prose.
 
 Not everything there is copy: `ContactFormContent`'s `fieldId`, `scopeFieldId`, `endpoint`,
-`honeypotName` and `honeypotFieldId` are structural and hold real values — and a trap carrying a
-placeholder marker would announce itself to the scraper it is set for.
+`errorId`, `honeypotName` and `honeypotFieldId` are structural and hold real values — and a trap
+carrying a placeholder marker would announce itself to the scraper it is set for.
 
 ## Islands
 
@@ -91,9 +91,15 @@ time. `main.server.dart`'s `<head>` is the exception.
 - **`functions/` is a sibling of `build/jaspr/`, never inside it**, or it stops being a function.
 - **`jaspr serve` does not serve it** — only `just dev` does, on :8788.
 - **Secrets are `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM`** — on the Pages project, in a
-  gitignored `.dev.vars` locally, named in `.dev.vars.example`. With no key it answers `502` and the
-  form reports the failure, which is correct rather than broken.
-- **Status only, no body**: `204` accepted, `400` malformed, `502` Resend refused. A tripped honeypot
-  also gets `204`, so a bot learns nothing from the difference.
+  gitignored `.dev.vars` locally, named in `.dev.vars.example`. With any of them missing it answers
+  `503` and the form reports the failure, which is correct rather than broken.
+- **Status only, no body**: `204` accepted, `400` malformed or a bad address, `429` rate limited,
+  `502` Resend refused or timed out, `503` secrets missing. A tripped honeypot also gets `204`, so a
+  bot learns nothing from the difference. `HttpContactDispatcher._failureFor` maps each to a
+  `DispatchFailure`, which is what the form turns into a sentence — a new status needs a case there
+  or it reads as "delivery is down".
+- **The reason exists only in the logs.** Failures are `console.error`ed for
+  `wrangler pages deployment tail`; the enquiry never is, so nothing in a log line carries the
+  visitor's address or their brief.
 - **The honeypot is weak here** — the form never natively submits, so a bot posting straight to the
   endpoint never sees it; real abuse needs a challenge at the edge, not more of this.

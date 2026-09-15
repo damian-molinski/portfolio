@@ -11,18 +11,23 @@ extension on ContactDraftBuilder {
   }
 }
 
+/// Every field blank, which is what an untouched builder reports.
+final _everyFieldMissing = {
+  for (final field in ContactField.values) field: FieldProblem.missing,
+};
+
 void main() {
   group(ContactDraftBuilder, () {
     test('starts empty, on the first scope', () {
       final builder = ContactDraftBuilder();
 
-      expect(builder.missingFields, ContactField.values);
+      expect(builder.problems, _everyFieldMissing);
       expect(builder.scope, ScopeOption.values.first);
     });
 
-    group('missingFields', () {
-      test('lists every required field while the form is untouched', () {
-        expect(ContactDraftBuilder().missingFields, ContactField.values);
+    group('problems', () {
+      test('marks every required field missing while the form is untouched', () {
+        expect(ContactDraftBuilder().problems, _everyFieldMissing);
       });
 
       test('counts a field holding only whitespace as missing', () {
@@ -30,19 +35,65 @@ void main() {
           ..fillRequiredFields()
           ..brief = '   ';
 
-        expect(builder.missingFields, [ContactField.brief]);
+        expect(builder.problems, {ContactField.brief: FieldProblem.missing});
       });
 
       test('is empty once every required field carries something', () {
         final builder = ContactDraftBuilder()..fillRequiredFields();
 
-        expect(builder.missingFields, isEmpty);
+        expect(builder.problems, isEmpty);
+      });
+
+      test('marks an address with no domain malformed rather than missing', () {
+        final builder = ContactDraftBuilder()
+          ..fillRequiredFields()
+          ..email = 'ada';
+
+        expect(builder.problems, {ContactField.email: FieldProblem.malformed});
+      });
+
+      // The browser's own `type="email"` check accepts this one, so the form is the only thing
+      // between a visitor's typo and a reply that goes nowhere.
+      test('marks a dotless domain malformed', () {
+        final builder = ContactDraftBuilder()
+          ..fillRequiredFields()
+          ..email = 'ada@localhost';
+
+        expect(builder.problems, {ContactField.email: FieldProblem.malformed});
+      });
+
+      test('accepts an address once it has a dotted domain', () {
+        final builder = ContactDraftBuilder()
+          ..fillRequiredFields()
+          ..email = 'ada.lovelace+notes@sub.example.co.uk';
+
+        expect(builder.problems, isEmpty);
+      });
+
+      test('reports a blank name and a malformed address together', () {
+        final builder = ContactDraftBuilder()
+          ..fillRequiredFields()
+          ..name = ''
+          ..email = 'ada';
+
+        expect(builder.problems, {
+          ContactField.name: FieldProblem.missing,
+          ContactField.email: FieldProblem.malformed,
+        });
       });
     });
 
     group('isComplete', () {
       test('is false while a required field is blank', () {
         final builder = ContactDraftBuilder()..name = 'Ada Lovelace';
+
+        expect(builder.isComplete, isFalse);
+      });
+
+      test('is false while the address is malformed, blank or not', () {
+        final builder = ContactDraftBuilder()
+          ..fillRequiredFields()
+          ..email = 'ada';
 
         expect(builder.isComplete, isFalse);
       });
@@ -104,7 +155,7 @@ void main() {
 
         builder.clear();
 
-        expect(builder.missingFields, ContactField.values);
+        expect(builder.problems, _everyFieldMissing);
         expect(builder.honeypot, isNull);
         expect(builder.scope, ScopeOption.values.first);
       });

@@ -6,17 +6,17 @@ import 'package:portfolio/state/contact_draft.dart';
 import 'package:portfolio/state/contact_state.dart';
 import 'package:test/test.dart';
 
-/// Accepts or refuses whatever it is handed, and keeps it for inspection.
+/// Accepts whatever it is handed, or refuses it for [failure], and keeps it for inspection.
 final class _FakeContactDispatcher implements ContactDispatcher {
-  _FakeContactDispatcher({this.accepts = true});
+  _FakeContactDispatcher({this.failure});
 
-  final bool accepts;
+  final DispatchFailure? failure;
   final List<ContactDraft> sent = [];
 
   @override
-  Future<bool> send(ContactDraft draft) async {
+  Future<DispatchFailure?> send(ContactDraft draft) async {
     sent.add(draft);
-    return accepts;
+    return failure;
   }
 }
 
@@ -30,28 +30,34 @@ extension on ContactCubit {
 }
 
 extension on ContactState {
-  /// The same state with its rejection flag raised.
-  ContactState withValidationError() {
+  /// The same state, reporting [problems].
+  ContactState reporting(Map<ContactField, FieldProblem> problems) {
     return ContactState(
       name: name,
       email: email,
       brief: brief,
       scope: scope,
       status: status,
-      showValidationError: true,
+      problems: problems,
     );
   }
 }
 
+/// Every field blank, which is what a press on an untouched form reports.
+final _everyFieldMissing = {
+  for (final field in ContactField.values) field: FieldProblem.missing,
+};
+
 /// The state a filled form is in.
-ContactState filledState({required DispatchStatus status}) {
+ContactState filledState({required DispatchStatus status, DispatchFailure? failure}) {
   return ContactState(
     name: 'Ada Lovelace',
     email: 'ada@example.com',
     brief: 'A note about the engine.',
     scope: ScopeOption.values.first,
     status: status,
-    showValidationError: false,
+    problems: const {},
+    failure: failure,
   );
 }
 
@@ -63,7 +69,7 @@ ContactState clearedState({required DispatchStatus status}) {
     brief: null,
     scope: ScopeOption.values.first,
     status: status,
-    showValidationError: false,
+    problems: const {},
   );
 }
 
@@ -75,8 +81,8 @@ void main() {
 
     ContactCubit buildCubit() => ContactCubit(dispatcher: dispatcher, confirmationDuration: Duration.zero);
 
-    ContactCubit buildRefusingCubit() => ContactCubit(
-      dispatcher: _FakeContactDispatcher(accepts: false),
+    ContactCubit buildRefusingCubit({DispatchFailure failure = DispatchFailure.mailer}) => ContactCubit(
+      dispatcher: _FakeContactDispatcher(failure: failure),
       confirmationDuration: Duration.zero,
     );
 
@@ -97,7 +103,7 @@ void main() {
         build: buildCubit,
         act: (cubit) => cubit.submit(),
         wait: settle,
-        expect: () => [clearedState(status: DispatchStatus.idle).withValidationError()],
+        expect: () => [clearedState(status: DispatchStatus.idle).reporting(_everyFieldMissing)],
         verify: (cubit) {
           expect(cubit.state.status, DispatchStatus.idle);
           expect(dispatcher.sent, isEmpty);
@@ -153,7 +159,7 @@ void main() {
         wait: settle,
         expect: () => [
           filledState(status: DispatchStatus.transmitting),
-          filledState(status: DispatchStatus.failed),
+          filledState(status: DispatchStatus.failed, failure: DispatchFailure.mailer),
         ],
         verify: (cubit) {
           // Losing the message to a failed send would cost the visitor the whole thing.
@@ -161,6 +167,58 @@ void main() {
           // And the button is pressable again, which a blocking status would not allow.
           expect(cubit.state.status.blocksSubmit, isFalse);
         },
+      );
+
+      blocTest<ContactCubit, ContactState>(
+        "carries the dispatcher's reason through, so the form can say which one it was",
+        build: () => buildRefusingCubit(failure: DispatchFailure.rateLimited),
+        act: (cubit) async {
+          cubit.fillRequiredFields();
+          await cubit.submit();
+        },
+        skip: fillEmits + 1,
+        wait: settle,
+        expect: () => [filledState(status: DispatchStatus.failed, failure: DispatchFailure.rateLimited)],
+      );
+
+      blocTest<ContactCubit, ContactState>(
+        'drops the reason once the next attempt starts, rather than showing it under the spinner',
+        build: () => buildRefusingCubit(failure: DispatchFailure.network),
+        act: (cubit) async {
+          cubit.fillRequiredFields();
+          await cubit.submit();
+          await cubit.submit();
+        },
+        skip: fillEmits + 2,
+        wait: settle,
+        expect: () => [
+          filledState(status: DispatchStatus.transmitting),
+          filledState(status: DispatchStatus.failed, failure: DispatchFailure.network),
+        ],
+      );
+
+      blocTest<ContactCubit, ContactState>(
+        'narrows the report as the visitor fills the fields it named',
+        build: buildCubit,
+        act: (cubit) async {
+          await cubit.submit();
+          cubit.updateName('Ada Lovelace');
+          cubit.updateEmail('ada@example.com');
+        },
+        wait: settle,
+        expect: () => [
+          clearedState(status: DispatchStatus.idle).reporting(_everyFieldMissing),
+          isA<ContactState>().having(
+            (state) => state.problems.keys,
+            'problems',
+            [ContactField.email, ContactField.brief],
+          ),
+          isA<ContactState>().having(
+            (state) => state.problems.keys,
+            'problems',
+            [ContactField.brief],
+          ),
+        ],
       );
 
       blocTest<ContactCubit, ContactState>(

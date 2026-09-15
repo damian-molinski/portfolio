@@ -7,21 +7,6 @@ import '../data/contact_dispatcher.dart';
 import 'contact_draft.dart';
 import 'contact_state.dart';
 
-/// The consultation form's state, and the request behind it.
-///
-/// The design's `handleSend` was a 900ms `setTimeout` that reported success with nothing behind it.
-/// Reproducing it would have meant telling a visitor their message arrived when nothing received it,
-/// so this cubit refused to and shipped a documented no-op instead. It now waits on
-/// [ContactDispatcher.send]: `transmitting` lasts exactly as long as the POST does, and
-/// [DispatchStatus.failed] is a state the form can actually reach.
-///
-/// [ContactDraftBuilder] is private here and is never handed out. It is mutable, so a state holding
-/// it would hand the same instance to its successor and `Equatable` would suppress the emit on every
-/// keystroke; instead every [ContactState] is a fresh snapshot of it, taken in the one place that
-/// emits. That is what keeps the two from drifting apart.
-///
-/// Validation runs here as well as through the native `required` attributes, so the message is the
-/// same whether or not the browser gets there first.
 final class ContactCubit extends Cubit<ContactState> {
   ContactCubit({
     required ContactDispatcher dispatcher,
@@ -35,6 +20,7 @@ final class ContactCubit extends Cubit<ContactState> {
 
   final ContactDraftBuilder _draft = ContactDraftBuilder();
 
+  bool _isValidated = false;
   Timer? _confirmation;
 
   void updateName(String value) {
@@ -68,20 +54,20 @@ final class ContactCubit extends Cubit<ContactState> {
     if (state.status.blocksSubmit) return;
 
     if (!_draft.isComplete) {
-      _emitDraft(showValidationError: true);
+      _emitDraft(isValidated: true);
       return;
     }
 
     final draft = _draft.build();
-    _emitDraft(status: DispatchStatus.transmitting, showValidationError: false);
+    _emitDraft(status: DispatchStatus.transmitting);
 
-    final wasAccepted = await _dispatcher.send(draft);
+    final failure = await _dispatcher.send(draft);
     if (isClosed) return;
 
-    if (!wasAccepted) {
+    if (failure case final failure?) {
       // What the visitor typed stays in the fields. Losing it to a failed send would cost them the
       // whole message.
-      _emitDraft(status: DispatchStatus.failed);
+      _emitDraft(status: DispatchStatus.failed, failure: failure);
       return;
     }
 
@@ -93,19 +79,18 @@ final class ContactCubit extends Cubit<ContactState> {
     });
   }
 
-  /// The only place this cubit emits.
-  ///
-  /// Every field the builder owns is read from it here, so a state can never carry a stale value
-  /// forward. [status] and [showValidationError] are the two the builder does not own; omitting
-  /// either keeps what the current state holds.
-  void _emitDraft({DispatchStatus? status, bool? showValidationError}) {
+  void _emitDraft({DispatchStatus? status, bool? isValidated, DispatchFailure? failure}) {
+    final nextStatus = status ?? state.status;
+    if (isValidated != null) _isValidated = isValidated;
+
     final snapshot = ContactState(
       name: _draft.name,
       email: _draft.email,
       brief: _draft.brief,
       scope: _draft.scope,
-      status: status ?? state.status,
-      showValidationError: showValidationError ?? state.showValidationError,
+      status: nextStatus,
+      failure: nextStatus == DispatchStatus.failed ? failure ?? state.failure : null,
+      problems: _isValidated ? _draft.problems : const {},
     );
 
     emit(snapshot);

@@ -24,6 +24,19 @@ interface ContactBody {
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
+/**
+ * Long enough for a slow upstream, short enough that the button does not sit on `Transmitting...`
+ * until the platform kills the request. The form's own timeout is 20s, so it outlasts this and a
+ * timeout here is always reported as this function's `502`, never as the form losing the server.
+ */
+const RESEND_TIMEOUT_MS = 10_000;
+
+/**
+ * The same pattern `ContactDraftBuilder` applies in the form, so a `400` means the same thing on
+ * both sides of the wire. Deliberately loose — see the comment there.
+ */
+const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
 function isFilled(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -32,9 +45,22 @@ function isWellFormed(body: Partial<ContactBody>): body is ContactBody {
   return (
     isFilled(body.name) &&
     isFilled(body.email) &&
+    EMAIL_PATTERN.test(body.email.trim()) &&
     isFilled(body.brief) &&
     isFilled(body.scope) &&
     typeof body.company === "string"
+  );
+}
+
+/**
+ * The secrets that are missing, by name.
+ *
+ * A project deployed without them answers `503` rather than the `502` that means Resend looked at a
+ * real enquiry and refused it — the two need different fixes, and they used to be indistinguishable.
+ */
+function missingSecrets(env: Env): string[] {
+  return (["RESEND_API_KEY", "CONTACT_TO", "CONTACT_FROM"] as const).filter(
+    (name) => !isFilled(env[name]),
   );
 }
 
@@ -61,9 +87,14 @@ function bodyFor(body: ContactBody): string {
 /**
  * Relays a consultation enquiry to the site owner's inbox, and forgets it.
  *
- * Answers with a status and no body: the form only reads `response.status`, and an error string
- * would tell whoever is probing this endpoint more than they need. A tripped trap gets the same
- * `204` a real send does, so a bot cannot tell the difference.
+ * Answers with a status and no body: the form maps the status to what it tells the visitor, and an
+ * error string would tell whoever is probing this endpoint more than they need. A tripped trap gets
+ * the same `204` a real send does, so a bot cannot tell the difference.
+ *
+ * Failures are logged instead, which is the only place the reason exists — read them with
+ * `wrangler pages deployment tail`. **The enquiry itself is never logged**: the visitor's address
+ * and their brief are the two things this function is trusted with, and Resend's own error text is
+ * the whole diagnosis anyway.
  */
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   let body: Partial<ContactBody>;
@@ -83,23 +114,40 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return new Response(null, { status: 400 });
   }
 
-  const sent = await fetch(RESEND_ENDPOINT, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${context.env.RESEND_API_KEY}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      from: context.env.CONTACT_FROM,
-      to: context.env.CONTACT_TO,
-      reply_to: body.email,
-      subject: subjectFor(body),
-      text: bodyFor(body),
-    }),
-  });
+  const missing = missingSecrets(context.env);
+
+  if (missing.length > 0) {
+    console.error(`contact: not configured, missing ${missing.join(", ")}`);
+    return new Response(null, { status: 503 });
+  }
+
+  let sent: Response;
+
+  try {
+    sent = await fetch(RESEND_ENDPOINT, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${context.env.RESEND_API_KEY}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        from: context.env.CONTACT_FROM,
+        to: context.env.CONTACT_TO,
+        reply_to: body.email,
+        subject: subjectFor(body),
+        text: bodyFor(body),
+      }),
+      signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
+    });
+  } catch (error) {
+    console.error(`contact: Resend unreachable after ${RESEND_TIMEOUT_MS}ms`, error);
+    return new Response(null, { status: 502 });
+  }
 
   if (!sent.ok) {
-    return new Response(null, { status: 502 });
+    // Resend's own message: an unverified domain, a rejected key, a `from` outside the domain.
+    console.error(`contact: Resend refused with ${sent.status}`, await sent.text());
+    return new Response(null, { status: sent.status === 429 ? 429 : 502 });
   }
 
   return new Response(null, { status: 204 });

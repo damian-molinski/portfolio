@@ -1,6 +1,7 @@
 library;
 
 import '../components/icons.dart';
+import '../utils/iterable_extensions.dart';
 
 const _contactEmail = 'contact@damian-molinski.dev';
 
@@ -408,6 +409,7 @@ enum ContactField {
     type: 'text',
     autocomplete: 'organization',
     label: 'Your Name / Organization',
+    noun: 'your name',
     placeholder: 'e.g. Jan Nowak, Acme Corp',
   ),
   email(
@@ -415,6 +417,7 @@ enum ContactField {
     type: 'email',
     autocomplete: 'email',
     label: 'Email Address',
+    noun: 'your email address',
     placeholder: 'name@domain.com',
   ),
   brief(
@@ -422,6 +425,7 @@ enum ContactField {
     type: 'textarea',
     autocomplete: 'off',
     label: 'Project Brief',
+    noun: 'a project brief',
     placeholder: 'Overview of scope, timeline, and current Dart/Flutter runtime stack...',
   );
 
@@ -430,6 +434,7 @@ enum ContactField {
     required this.type,
     required this.autocomplete,
     required this.label,
+    required this.noun,
     required this.placeholder,
   });
 
@@ -437,6 +442,7 @@ enum ContactField {
   final String type;
   final String autocomplete;
   final String label;
+  final String noun;
   final String placeholder;
 
   bool get isRequired => true;
@@ -473,8 +479,16 @@ final class ContactFormContent {
   String get submittingLabel => 'Transmitting...';
   String get submittedLabel => '[ sent_successfully ]';
 
-  String get validationMessage => 'Complete message form fist';
-  String get failureMessage => 'Count not send a message';
+  String get errorId => 'contact-form-error';
+
+  String missingMessage(Iterable<String> nouns) => 'Add ${nouns.toSentence()}.';
+
+  String get malformedEmailMessage => "That email address doesn't look right.";
+
+  String get networkFailureMessage => 'No connection. Check your network and try again — your message is still here.';
+  String get rejectedFailureMessage => 'The server refused the message. Check the email address and try again.';
+  String get rateLimitedFailureMessage => 'Too many attempts just now. Wait a minute and try again.';
+  String get mailerFailureMessage => 'Mail delivery is down right now. Reach me at the address above instead.';
 
   String get honeypotName => 'company';
   String get honeypotFieldId => 'contact-company';
