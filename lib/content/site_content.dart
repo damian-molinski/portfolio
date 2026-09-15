@@ -326,7 +326,7 @@ enum Project {
     href: 'https://habitive.app/',
   ),
   third(
-    category: '03 // Enterprise Fintech SDK and Mobile App',
+    category: '03 // Fintech SDK & Mobile',
     title: 'Autenti',
     body: 'Signing and verifying documents with native Android SDK and mobile application',
     telemetry: '100% secure and verifiable signatures · Documents trust',
