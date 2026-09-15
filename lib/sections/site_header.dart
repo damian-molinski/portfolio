@@ -41,9 +41,6 @@ class SiteHeader extends StatelessComponent {
           for (final section in content.sections)
             a(classes: 'site-header__link', href: section.anchor, [.text(section.navLabel)]),
         ]),
-
-        // D6 keeps the design's ring and its 32px circle and drops the face. The dashed edge says the
-        // slot is unfilled; the accessible name carries the marker that keeps it from shipping quietly.
         div(
           classes: 'site-header__avatar',
           attributes: {'role': 'img', 'aria-label': content.chrome.avatarAriaLabel},
@@ -80,15 +77,14 @@ class SiteHeader extends StatelessComponent {
         maxWidth: AppSpacing.containerMax,
         padding: .symmetric(horizontal: AppSpacing.gutterMobile),
         margin: .symmetric(horizontal: Unit.auto),
-        justifyContent: .spaceBetween,
         alignItems: .center,
         gap: Gap(column: AppSpacing.md),
       ),
 
-      // `min-width: 0` lets the brand shrink instead of pushing the avatar off a 360px viewport.
       css('.site-header__brand').styles(
         display: .flex,
         minWidth: .zero,
+        margin: .only(right: Unit.auto),
         alignItems: .center,
         gap: Gap(column: AppSpacing.sm),
       ),
@@ -125,7 +121,6 @@ class SiteHeader extends StatelessComponent {
             whiteSpace: .noWrap,
           ),
 
-      // A2: no menu replaces this below 768px. The footer's link row is the fallback route.
       css('.site-header__nav').styles(display: .none),
       css('.site-header__link')
           .combine(AppType.labelMd)
@@ -172,7 +167,6 @@ class SiteHeader extends StatelessComponent {
       ),
     ]),
 
-    // From 768px the nav has room to sit between the wordmark and the avatar.
     css.media(AppBreakpoints.fromMd, [
       css('.site-header .site-header__nav').styles(
         display: .flex,

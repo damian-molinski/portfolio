@@ -15,15 +15,6 @@ import 'state/bloc_builder.dart';
 import 'state/site_content_cubit.dart';
 import 'state/site_content_state.dart';
 
-/// The whole page.
-///
-/// Not `@client`: decision D5 puts the only JavaScript on the site in `CopyEmailButton` and
-/// `ContactForm`, and `ClientApp` in `main.client.dart` finds and hydrates those two on its own.
-/// Annotating the root instead would compile every section to JavaScript and hydrate the entire
-/// document, which is the opposite of what a static build is for.
-///
-/// `padding-top` on `<main>` clears the fixed header, which is out of flow and would otherwise sit
-/// over the top of the hero.
 class App extends StatelessComponent {
   const App({super.key});
 
@@ -37,9 +28,7 @@ class App extends StatelessComponent {
   Component _page(ChromeContent chrome) {
     return Component.fragment([
       a(classes: 'skip-link', href: chrome.mainAnchor, [.text(chrome.skipLink)]),
-
       const SiteHeader(),
-
       main_(
         classes: 'site-main',
         id: chrome.mainId,
