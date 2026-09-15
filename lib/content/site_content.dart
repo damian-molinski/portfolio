@@ -28,7 +28,7 @@ final class SiteMeta {
   String get ogTitle => 'Damian Moliński — Team Lead & Flutter Software Engineer';
   String get ogDescription =>
       'Multi-platform product engineering from one codebase — mobile, web, desktop and backend.';
-  String get ogImage => 'https://damian-molinski.dev/images/og-cover.png';
+  String get ogImage => 'https://damian-molinski.dev/images/og-cover.jpg';
   String get canonical => 'https://damian-molinski.dev/';
   String get twitterSite => '@DamianMoliski12';
 
