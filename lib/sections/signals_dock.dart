@@ -13,7 +13,8 @@ import '../state/site_content_state.dart';
 ///
 /// The design renders the PGP chip twice — once in the header row for wide viewports, once as a full
 /// width row below the grid for narrow ones — with one of the two hidden at any width. This renders
-/// it once and reorders it, so a screen reader hears the fingerprint a single time.
+/// it once and reorders it, so a screen reader hears the fingerprint a single time. The chip is a
+/// link out to the public key, so the fingerprint on screen can be checked against the key itself.
 class SignalsDock extends StatelessComponent {
   const SignalsDock({super.key});
 
@@ -44,11 +45,21 @@ class SignalsDock extends StatelessComponent {
               span(classes: 'signals-dock__subtitle', [.text(content.signals.subtitle)]),
             ]),
 
-            div(classes: 'signals-dock__pgp', [
-              AppIcon.fingerprint(classes: 'signals-dock__pgp-glyph'),
-              span(classes: 'signals-dock__fingerprint', [.text(content.signals.pgpFingerprint)]),
-              span(classes: 'signals-dock__algorithm', [.text(content.signals.pgpAlgorithm)]),
-            ]),
+            a(
+              classes: 'signals-dock__pgp',
+              href: content.signals.pgpHref,
+              target: .blank,
+              attributes: {
+                'rel': 'noopener noreferrer',
+                'aria-label': content.signals.pgpAriaLabel,
+              },
+              [
+                AppIcon.fingerprint(classes: 'signals-dock__pgp-glyph'),
+                span(classes: 'signals-dock__fingerprint', [.text(content.signals.pgpFingerprint)]),
+                span(classes: 'signals-dock__algorithm', [.text(content.signals.pgpAlgorithm)]),
+                AppIcon.northEast(classes: 'signals-dock__pgp-trailing'),
+              ],
+            ),
 
             div(classes: 'signals-dock__grid', [
               for (final node in content.identityNodes) NodeLink(node),
@@ -152,6 +163,15 @@ class SignalsDock extends StatelessComponent {
             fontWeight: .w700,
             whiteSpace: .noWrap,
           ),
+      css('.signals-dock__pgp-trailing').styles(
+        transition: Transition('all', duration: 200.ms, curve: .easeOut),
+        color: AppColors.outline,
+        fontSize: 13.px,
+      ),
+      css('.signals-dock__pgp:hover .signals-dock__pgp-trailing').styles(
+        transform: .translate(x: 2.px, y: (-2).px),
+        color: AppColors.tertiary,
+      ),
 
       css('.signals-dock__grid').styles(
         display: .grid,

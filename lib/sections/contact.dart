@@ -31,6 +31,8 @@ class Contact extends StatelessComponent {
           a(
             classes: 'contact__card-value contact__card-value--link',
             href: href,
+            target: card.isExternal ? .blank : null,
+            attributes: card.isExternal ? const {'rel': 'noopener noreferrer'} : null,
             [.text(card.value)],
           )
         else

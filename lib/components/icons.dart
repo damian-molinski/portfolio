@@ -5,7 +5,7 @@ import 'package:jaspr/jaspr.dart';
 ///
 /// The design drives its icons from Material Symbols Outlined ligatures
 /// (`<span class="material-symbols-outlined">send</span>`). Decision D7 replaces that with these
-/// components: the variable font is a heavy download for twenty-one glyphs, and the ligature-in-a-span
+/// components: the variable font is a heavy download for twenty-three glyphs, and the ligature-in-a-span
 /// pattern fights both `prefer_html_components` and the type-safe styling API.
 ///
 /// The geometry is Material Symbols' own, on its `0 -960 960 960` viewBox (Apache 2.0). Glyphs paint
@@ -129,6 +129,21 @@ enum AppIcon {
     '58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm0-80h480v-400H240v400Zm296.5-143.5Q560-327 '
     '560-360t-23.5-56.5Q513-440 480-440t-56.5 23.5Q400-393 400-360t23.5 56.5Q447-280 480-280t56.5-23.5ZM360-640h240v-80q0-50-35-85t-85-35q-50 '
     '0-85 35t-35 85v80ZM240-160v-400 400Z',
+  ),
+  database(
+    'M480-120q-151 0-255.5-46.5T120-280v-400q0-66 105.5-113T480-840q149 0 254.5 47T840-680v400q0 '
+    '67-104.5 113.5T480-120Zm0-479q89 0 179-25.5T760-679q-11-29-100.5-55T480-760q-91 0-178.5 '
+    '25.5T200-679q14 30 101.5 55T480-599Zm0 199q42 0 81-4t74.5-11.5q35.5-7.5 67-18.5t57.5-25v-120q-26 '
+    '14-57.5 25t-67 18.5Q600-528 561-524t-81 4q-42 0-82-4t-75.5-11.5Q287-543 256-554t-56-25v120q25 14 56 '
+    '25t66.5 18.5Q358-408 398-404t82 4Zm0 200q46 0 93.5-7t87.5-18.5q40-11.5 67-26t32-29.5v-98q-26 '
+    '14-57.5 25t-67 18.5Q600-328 561-324t-81 4q-42 0-82-4t-75.5-11.5Q287-343 256-354t-56-25v99q5 15 31.5 '
+    '29t66.5 25.5q40 11.5 88 18.5t94 7Z',
+  ),
+  key(
+    'M280-400q-33 0-56.5-23.5T200-480q0-33 23.5-56.5T280-560q33 0 56.5 23.5T360-480q0 33-23.5 '
+    '56.5T280-400Zm0 160q-100 0-170-70T40-480q0-100 70-170t170-70q67 0 121.5 33t86.5 87h352l120 '
+    '120-180 180-80-60-80 60-85-60h-47q-32 54-86.5 87T280-240Zm0-80q56 0 98.5-34t56.5-86h125l58 41 '
+    '82-61 71 55 75-75-40-40H435q-14-52-56.5-86T280-640q-66 0-113 47t-47 113q0 66 47 113t113 47Z',
   ),
   expandMore('M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z'),
   check('M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z');

@@ -2,7 +2,6 @@ library;
 
 import '../components/icons.dart';
 
-const todoMarker = '[[TODO:';
 const _contactEmail = 'contact@damian-molinski.dev';
 
 /// Identity in the header and the footer.
@@ -23,11 +22,14 @@ final class SiteMeta {
   const SiteMeta();
 
   String get title => 'Damian Moliński - Portfolio Website';
-  String get description => '[[TODO: meta description]]';
-  String get ogTitle => '[[TODO: og:title]]';
-  String get ogDescription => '[[TODO: og:description]]';
-  String get ogImage => '[[TODO: og:image absolute URL]]';
-  String get canonical => '[[TODO: canonical URL]]';
+  String get description =>
+      'Damian Moliński — Team Lead and Flutter software engineer. Multi-platform apps from one codebase: '
+      'mobile, web, desktop and backend, with Rust FFI, SQLite and runtime profiling.';
+  String get ogTitle => 'Damian Moliński — Team Lead & Flutter Software Engineer';
+  String get ogDescription =>
+      'Multi-platform product engineering from one codebase — mobile, web, desktop and backend.';
+  String get ogImage => 'https://damian-molinski.dev/images/og-cover.png';
+  String get canonical => 'https://damian-molinski.dev/';
   String get twitterSite => '@DamianMoliski12';
 
   /// Structural, not copy: taken from the manifest archived out of the design.
@@ -56,10 +58,8 @@ enum SiteSection {
     title: 'Skills & Tech Stack',
     ariaLabel: 'Skills & Tech Stack',
     navLabel: 'Skills',
-    // want: 'Something about true multi platform Flutter development, from mobile to web & desktop + backend'
-    lead: '[[TODO: section 02 standfirst — one line, sets up the four groups below]]',
-    // want: 'This site was build with Flutter'
-    note: '[[TODO: section 02 note]]',
+    lead: 'True multi-platform Flutter development, from mobile to web and desktop — plus the backend behind it.',
+    note: 'This site was built with Flutter.',
   ),
   projects(
     ordinal: '03',
@@ -68,9 +68,9 @@ enum SiteSection {
     title: 'Projects',
     ariaLabel: 'Projects',
     navLabel: 'Projects',
-    // was: 'Production graphics engines, native audio pipelines, and enterprise systems architecture.'
-    // want: 'Production audio&video pipelines, cryptography, fintech, enterprise systems architecture and web3 platforms.'
-    lead: '[[TODO: section 03 standfirst]]',
+    lead:
+        'Production audio & video pipelines, cryptography, fintech, enterprise systems architecture and web3 '
+        'platforms.',
   ),
   contact(
     ordinal: '04',
@@ -113,11 +113,11 @@ final class HeroContent {
   String get headlineLead => 'Damian';
   String get headlineAccent => 'Moliński';
 
-  // want: 'Solving real problems and building scalable systems for every platform and form factor. From one codebase.'
-  String get tagline => '[[TODO: hero tagline — one sentence, what you build]]';
+  String get tagline =>
+      'Solving real problems and building scalable systems for every platform and form factor. From one codebase.';
 
-  // want: 'Specialized in mobile software engineering, web and desktop. Building tailer solutions to the problem.'
-  String get body => '[[TODO: hero paragraph — two or three lines of substantiated detail]]';
+  String get body =>
+      'Specialised in mobile software engineering, web and desktop. Building solutions tailored to the problem.';
 
   String get primaryCta => '[ lets_talk() ]';
   String get primaryCtaAriaLabel => 'Let\'t talk, jump to contact section';
@@ -134,10 +134,10 @@ final class SignalsContent {
   String get title => 'Identity & Signals';
   String get subtitle => 'verified_nodes';
 
-  // Also want:
-  //  - external link arrow to https://github.com/damian-molinski.gpg
-  String get pgpFingerprint => 'A485 0DFB 126F 1E21C';
+  String get pgpFingerprint => 'FB50 1956 83C7 E44D 13FE 0AAA 4850 DFB1 26F1 E21C';
   String get pgpAlgorithm => 'RSA4096';
+  String get pgpHref => 'https://github.com/damian-molinski.gpg';
+  String get pgpAriaLabel => 'Download Damian Moliński\'s public PGP key';
 }
 
 enum IdentityNode {
@@ -165,16 +165,13 @@ enum IdentityNode {
     href: 'https://x.com/DamianMoliski12',
     ariaLabel: 'Damian Moliński on X (@DamianMoliski12)',
   ),
-  // want: SSH
-  pubDev(
-    // want: key-icon
-    icon: AppIcon.hub,
+  ssh(
+    icon: AppIcon.key,
     trailing: AppIcon.northEast,
     name: 'SSH SIGNING',
-    // want: Trust & Verify
-    handle: '[[TODO: publisher status]]',
+    handle: 'Trust & Verify',
     href: 'https://github.com/damian-molinski.keys',
-    ariaLabel: 'Verify work on Github',
+    ariaLabel: 'Verify Damian Moliński\'s signed work on GitHub',
   );
 
   const IdentityNode({
@@ -206,20 +203,17 @@ abstract interface class SpecEntry {
 /// Section `01` — the four competency cards.
 enum Pillar implements SpecEntry {
   first(
-    // want: `DB` icon
-    icon: AppIcon.draw,
+    icon: AppIcon.database,
     indexLabel: '01/04',
     title: 'SQLite & NoSQL',
-    // want: 'Modeling databases and complex queries'
-    body: '[[TODO: pillar 1 body — two lines on what you actually do here]]',
+    body: 'Modelling databases and the complex queries that read them.',
     tags: ['SQLite', 'NoSQL', 'PostgreSQL'],
   ),
   second(
     icon: AppIcon.memory,
     indexLabel: '02/04',
     title: 'Dart Native & Rust FFI',
-    // want: 'Tapping into low level code for mission critical functionalities for best performance and accuracy.'
-    body: '[[TODO: pillar 2 body]]',
+    body: 'Tapping into low-level code for mission-critical functionality, for the best performance and accuracy.',
     tags: ['dart:ffi', 'Rust', 'C++'],
   ),
   third(
@@ -233,8 +227,9 @@ enum Pillar implements SpecEntry {
     icon: AppIcon.architecture,
     indexLabel: '04/04',
     title: 'Mentorship & AI Software Engineering',
-    // want: 'Choosing frontend architecture for project needs, custom analytics lints, and mentoring team members while protecting code quality by enforcing automatic rules on code'
-    body: '[[TODO: pillar 4 body]]',
+    body:
+        'Choosing frontend architecture for the project\'s needs, writing custom analytics lints, and mentoring '
+        'team members while protecting code quality with rules enforced automatically.',
     tags: ['Melos', 'Code Review', 'AI'],
   );
 
@@ -324,7 +319,7 @@ enum Project {
     category: '02 // Adaptive Mobile',
     title: 'Habitive',
     body: 'Offline first mobile application with platform adaptive UI',
-    telemetry: 'TODO 1 · TODO 2',
+    telemetry: '100% offline capable · instant local queries',
     tags: ['NoSQL', 'SQLite', 'Platform Adaptive UI', 'l10n', 'Local Notifications'],
     href: 'https://habitive.app/',
   ),
@@ -373,30 +368,31 @@ enum ContactCard {
     icon: AppIcon.mail,
     label: 'Direct Mail',
     value: _contactEmail,
+    href: 'mailto:$_contactEmail',
   ),
   responseSla(
     icon: AppIcon.timer,
     label: 'Response SLA',
     value: '≤ 24 hours for technical briefs',
   ),
-  // want: something else
-  secureTransmission(
-    icon: AppIcon.lock,
-    // was: 'Secure Transmission'
-    label: '[[TODO: secure transmission card label]]',
-    // was: 'Key ID: 0x99C30E1F (keys.openpgp.org)'
-    value: '[[TODO: PGP key ID, or delete this card]]',
+  signedWork(
+    icon: AppIcon.key,
+    label: 'Signed & Verified',
+    value: 'github.com/damian-molinski.keys',
+    href: 'https://github.com/damian-molinski.keys',
   );
 
-  const ContactCard({required this.icon, required this.label, required this.value});
+  const ContactCard({required this.icon, required this.label, required this.value, this.href});
 
   final AppIcon icon;
   final String label;
   final String value;
-
-  String? get href => this == directMail ? 'mailto:$value' : null;
+  final String? href;
 
   bool get isCopyable => this == directMail;
+
+  /// Whether [href] leaves the site, and so needs a new tab and `rel="noopener noreferrer"`.
+  bool get isExternal => href?.startsWith('http') ?? false;
 }
 
 /// The dispatch form's text controls.

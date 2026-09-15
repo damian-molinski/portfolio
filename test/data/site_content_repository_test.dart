@@ -2,6 +2,9 @@ import 'package:portfolio/content/site_content.dart';
 import 'package:portfolio/data/site_content_repository.dart';
 import 'package:test/test.dart';
 
+/// The placeholder spelling the deploy gate greps `lib/` for.
+const _todoMarker = '[[TODO:';
+
 void main() {
   group(ConstSiteContentRepository, () {
     const repository = ConstSiteContentRepository();
@@ -32,18 +35,26 @@ void main() {
       expect(repository.load(), repository.load());
     });
 
-    test('still ships nothing but markers', () {
+    test('ships no placeholder copy', () {
       final content = repository.load();
       final copy = [
         content.identity.name,
+        content.meta.description,
         content.hero.tagline,
+        content.hero.body,
         content.signals.title,
         content.projectLabels.viewLabel,
         content.contactForm.submitLabel,
         content.chrome.skipLink,
+        ...content.sections.expand((section) => [section.title, ?section.lead, ?section.note]),
+        ...content.identityNodes.map((node) => node.handle),
+        ...content.pillars.map((pillar) => pillar.body),
+        ...content.skillGroups.map((group) => group.body),
+        ...content.projects.expand((project) => [project.body, project.telemetry]),
+        ...content.contactCards.expand((card) => [card.label, card.value]),
       ];
 
-      expect(copy, everyElement(startsWith(todoMarker)));
+      expect(copy, everyElement(isNot(contains(_todoMarker))));
     });
   });
 }
