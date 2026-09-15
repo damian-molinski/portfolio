@@ -3,12 +3,16 @@ name: CI
 on:
   push:
     branches: [main]
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
+
+env:
+  DART_SDK: 3.13.2
 
 jobs:
   check:
@@ -19,20 +23,20 @@ jobs:
 
       - uses: dart-lang/setup-dart@v1
         with:
-          sdk: 3.13.2
+          sdk: ${{ env.DART_SDK }}
 
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-      
+
       - uses: extractions/setup-just@v4
 
       - uses: actions/cache@v6
         with:
           path: ~/.pub-cache
-          key: pub-3.13.2-${{ hashFiles('pubspec.lock') }}
-          restore-keys: pub-3.13.2-
+          key: pub-${{ env.DART_SDK }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ env.DART_SDK }}-
 
       - name: Install the Jaspr CLI
         run: |
@@ -42,9 +46,9 @@ jobs:
       - run: dart pub get
       - run: npm ci
 
-      - run: just check
-
       - run: just markers
+
+      - run: just check
 
       - run: just build
 
@@ -55,16 +59,32 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - uses: actions/upload-artifact@v7
+        with:
+          name: deploy-context
+          path: |
+            functions
+            package.json
+            package-lock.json
+          if-no-files-found: error
+          retention-days: 7
+
   deploy:
     name: Deploy to Cloudflare Pages
     needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: production
       url: https://damian-molinski.dev/
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: build/jaspr
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: deploy-context
 
       - uses: actions/setup-node@v7
         with:
@@ -73,13 +93,7 @@ jobs:
 
       - run: npm ci
 
-      - uses: actions/download-artifact@v8
-        with:
-          name: site
-          path: build/jaspr
-
-      - id: deploy
-        uses: cloudflare/wrangler-action@v4
+      - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
