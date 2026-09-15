@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 A personal static portfolio site in Jaspr (`mode: static`). Pages pre-render to HTML during
-`jaspr build`; `@client` components compile to JavaScript and hydrate in the browser.
+`jaspr build`; `@client` components compile to WebAssembly and hydrate in the browser.
 Consult `.claude/skills/`'s Jaspr packs before applying habits from other web frameworks.
 
 ## Commands
@@ -51,8 +51,8 @@ for.
 
 ## Islands
 
-`CopyEmailButton` and `ContactForm` are the only JavaScript on the page; `app.dart` is deliberately
-not `@client`, since annotating the root would compile and hydrate every section.
+`CopyEmailButton` and `ContactForm` are the only code running in the browser; `app.dart` is
+deliberately not `@client`, since annotating the root would compile and hydrate every section.
 **A `@client` component must have an unnamed constructor.** Jaspr's hydration codegen calls one, so a
 named one analyzes clean, pre-renders correctly, then fails the client build with `Couldn't find
 constructor` — only `jaspr build` catches it. An island also hydrates as its **own tree** and cannot

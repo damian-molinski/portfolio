@@ -43,9 +43,11 @@ dart pub get
 | `web/` | Static assets copied into the build: favicon, PWA icons and manifest, the emblem. |
 | `docs/reference/` | The frozen render of the design the site was built from, with a README recording where it came from and where it is now wrong. |
 
-Two components are annotated `@client` and are the only JavaScript on the page: `CopyEmailButton`
-and `ContactForm`. Everything else — the ambient glow, the entrance animations, every hover and
-focus treatment — is CSS. Annotating `app.dart` instead would compile the whole page to JavaScript.
+Two components are annotated `@client` and are the only code running in the browser:
+`CopyEmailButton` and `ContactForm`. Everything else — the ambient glow, the entrance animations,
+every hover and focus treatment — is CSS. Annotating `app.dart` instead would compile and hydrate
+the whole page. Both are compiled to WebAssembly: `just build` and `just serve` pass
+`--experimental-wasm`.
 
 **A `@client` component must have an unnamed constructor.** Jaspr's hydration codegen rebuilds it by
 calling one, and `dart analyze` does not catch a named-only constructor — only `jaspr build` does,

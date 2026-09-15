@@ -13,12 +13,12 @@ deps:
 # Dev server on :8080 with the builder watching. Does not serve /api/contact.
 [group('site')]
 serve:
-    jaspr serve
+    jaspr serve --experimental-wasm
 
 # Pre-render the site to build/jaspr/, then content-hash the client bundle
 [group('site')]
 build:
-    jaspr build
+    jaspr build --experimental-wasm
     dart run tool/hash_assets.dart
 
 # Remove the build output
