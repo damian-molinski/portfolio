@@ -58,7 +58,7 @@ enum SiteSection {
     title: 'Skills & Tech Stack',
     ariaLabel: 'Skills & Tech Stack',
     navLabel: 'Skills',
-    lead: 'True multi-platform Flutter development, from mobile to web and desktop — plus the backend behind it.',
+    lead: 'True multi-platform Flutter development, from mobile to web and desktop — plus backend behind it.',
     note: 'This site was built with Flutter.',
   ),
   projects(
@@ -117,7 +117,9 @@ final class HeroContent {
       'Solving real problems and building scalable systems for every platform and form factor. From one codebase.';
 
   String get body =>
-      'Specialised in mobile software engineering, web and desktop. Building solutions tailored to the problem.';
+      'Specialised in mobile software engineering, web and desktop. Building solutions tailored to '
+      'the problem: SQLite and Rust FFI where performance decides it, shared Dart everywhere else, '
+      'profiling and CI holding the line — one codebase, every platform.';
 
   String get primaryCta => '[ lets_talk() ]';
   String get primaryCtaAriaLabel => 'Let\'t talk, jump to contact section';
@@ -224,7 +226,7 @@ enum Pillar implements SpecEntry {
     tags: ['Frame Timings', 'Memory Heap', 'Benchmarking Performance'],
   ),
   fourth(
-    icon: AppIcon.architecture,
+    icon: AppIcon.autoAwesome,
     indexLabel: '04/04',
     title: 'Mentorship & AI Software Engineering',
     body:
@@ -277,7 +279,7 @@ enum SkillGroup implements SpecEntry {
     tags: ['DevTools CPU Profiling', 'Memory Heap & Leak Analysis', 'Benchmarks'],
   ),
   fourth(
-    icon: AppIcon.accountTree,
+    icon: AppIcon.neurology,
     indexLabel: 'STK/04',
     title: 'AI-assisted Software Engineering, Tooling & Scale',
     body: 'Using AI while keeping ownership and understanding of the system.',
@@ -324,8 +326,8 @@ enum Project {
     href: 'https://habitive.app/',
   ),
   third(
-    category: '03 // Autenti',
-    title: 'Enterprise Fintech SDK and Mobile App',
+    category: '03 // Enterprise Fintech SDK and Mobile App',
+    title: 'Autenti',
     body: 'Signing and verifying documents with native Android SDK and mobile application',
     telemetry: '100% secure and verifiable signatures · Documents trust',
     tags: ['Fintech', 'eSign', 'Android', 'SDK'],

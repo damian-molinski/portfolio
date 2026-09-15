@@ -83,13 +83,14 @@ class MonoButton extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     final semantics = {if (ariaLabel case final ariaLabel?) 'aria-label': ariaLabel};
+    final className = isSubmit ? '${variant.className} mono-button--block' : variant.className;
 
     if (href case final href?) {
-      return a(classes: variant.className, href: href, attributes: semantics, _content);
+      return a(classes: className, href: href, attributes: semantics, _content);
     }
 
     return button(
-      classes: variant.className,
+      classes: className,
       type: isSubmit ? .submit : .button,
       disabled: isDisabled,
       attributes: semantics,
@@ -117,6 +118,10 @@ class MonoButton extends StatelessComponent {
       css('&:hover').styles(transform: .translate(y: (-2).px)),
       css('&:active').styles(transform: .scale(0.98)),
       css('&:disabled').styles(opacity: 0.55, cursor: .notAllowed, transform: .none),
+
+      // The design's submit fills its panel and centres its content
+      // (`docs/reference/landing-page.html:584`); every other button is shrink-to-fit.
+      css('&.mono-button--block').styles(width: 100.percent, justifyContent: .center),
 
       css('&.mono-button--primary').styles(
         border: .all(style: .solid, color: AppColors.tertiary.alpha(0.4), width: 1.px),

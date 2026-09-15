@@ -69,7 +69,6 @@ class Hero extends StatelessComponent {
           div(classes: 'hero__telemetry', [
             span(classes: 'hero__availability', [
               const StatusDot(),
-              AppIcon.schedule(),
               span([.text(hero.availability)]),
             ]),
             span(attributes: const {'aria-hidden': 'true'}, [.text('•')]),
