@@ -1,77 +1,34 @@
-/// Every user-visible string on the site, in one place.
-///
-/// **Nothing here is true yet.** Decision D2 ships the page structurally complete and deliberately
-/// unlaunchable: each string below is a `[[TODO: …]]` marker that renders literally, so an unfinished
-/// site cannot be mistaken for a finished one at a glance or shipped by accident. The design's own
-/// wording sits beside each field in a `// was:` comment — filling the site in is a read-and-replace
-/// within this file, and no section hardcodes a string in its `build` method.
-///
-/// The design's copy is not a draft to be tidied up. It asserts things that were never verified —
-/// an Impeller shader playground, a PGP fingerprint, an address at a domain nobody owns, software on
-/// "tens of millions of devices". Replace a marker only with something true.
-///
-/// Structural values are the exception and carry their real content: card indices, anchor targets,
-/// form control ids and `value` attributes, icon choices, and how many of each thing there are.
 library;
 
 import '../components/icons.dart';
 
-/// The marker every unwritten string wears. Grep for it before deploying: `grep -rn '\[\[TODO:' lib/`.
 const todoMarker = '[[TODO:';
-
-/// Read by both [SiteIdentity.email] and [ContactCard.directMail]. It is a top-level `const` rather
-/// than a member of [SiteIdentity] because an enum constant's arguments must be compile-time
-/// constants, and a getter is not one — this keeps the address in exactly one place regardless.
-// was: 'damian@molinski.dev'
-const _contactEmail = '[[TODO: contact email]]';
+const _contactEmail = 'contact@damian-molinski.dev';
 
 /// Identity in the header and the footer.
 final class SiteIdentity {
   const SiteIdentity();
 
-  // was: 'Damian Moliński'
-  String get name => '[[TODO: full name]]';
-
-  // was: 'Flutter & Dart Systems Architect'
-  String get role => '[[TODO: role strapline]]';
-
-  // was: '© Damian Moliński • Systems Architecture & Impeller Internals'
-  String get copyright => '[[TODO: copyright line]]';
-
-  /// The address both copy buttons write to the clipboard.
+  String get name => 'Damian Moliński';
+  String get role => 'Team Lead & Flutter Software Engineer';
+  String get copyright => '© Damian Moliński • Build with Flutter';
   String get email => _contactEmail;
-
-  /// The header's avatar. D6 keeps the slot and drops the image: the portrait shipped in the design
-  /// was an AI-generated likeness of someone else, and no real one exists yet. Until it does, the
-  /// slot renders its ring and initials rather than a face.
-  // was: an expiring lh3.googleusercontent.com portrait
-  String get avatarAlt => '[[TODO: portrait]]';
-
-  /// The site's own emblem: the transparent crop of the tile archived out of the design.
-  ///
-  /// `emblem-1024.png` beside it is the opaque master the PWA icons and the favicon were generated
-  /// from. That master carries its own near-black ground, which would render as a dark square in the
-  /// header, so the header uses this cut-out instead.
+  String get avatarAlt => 'Portrait photo';
   String get emblem => '/images/emblem.png';
-
-  // was: 'Brand logo. - Primary color: #0175c2 - Font: geist - Mode: dark - Roundness: rounded-sm'
-  String get emblemAlt => '[[TODO: emblem alt text]]';
+  String get emblemAlt => 'Logo';
 }
 
 /// `<head>` metadata.
-///
-/// The canonical domain is unresolved (an open question on the plan) and no social preview image
-/// exists, so those ship as markers too — see assumption A6.
 final class SiteMeta {
   const SiteMeta();
 
-  String get title => '[[TODO: page title]]';
+  String get title => 'Damian Moliński - Portfolio Website';
   String get description => '[[TODO: meta description]]';
   String get ogTitle => '[[TODO: og:title]]';
   String get ogDescription => '[[TODO: og:description]]';
   String get ogImage => '[[TODO: og:image absolute URL]]';
   String get canonical => '[[TODO: canonical URL]]';
-  String get twitterSite => '[[TODO: @handle]]';
+  String get twitterSite => '@DamianMoliski12';
 
   /// Structural, not copy: taken from the manifest archived out of the design.
   String get themeColor => '#0175c2';
@@ -87,58 +44,41 @@ enum SiteSection {
   pillars(
     ordinal: '01',
     anchor: '#pillars',
-    // was: 'Core Competencies'
-    eyebrow: '[[TODO: section 01 eyebrow]]',
-    // was: 'Architectural Pillars'
-    title: '[[TODO: section 01 heading]]',
-    // was: 'Focus & Architecture Pillars'
-    ariaLabel: '[[TODO: section 01 landmark label]]',
-    // was: 'Pillars'
-    navLabel: '[[TODO: nav 01]]',
+    eyebrow: 'Core Competencies',
+    title: 'Architectural Pillars',
+    ariaLabel: 'Focus & Architecture Pillars',
+    navLabel: 'Pillars',
   ),
   skills(
     ordinal: '02',
     anchor: '#skills',
-    // was: 'Technical Capabilities'
-    eyebrow: '[[TODO: section 02 eyebrow]]',
-    // was: 'Skills & Tech Stack'
-    title: '[[TODO: section 02 heading]]',
-    // was: 'Skills & Tech Stack'
-    ariaLabel: '[[TODO: section 02 landmark label]]',
-    // was: 'Skills'
-    navLabel: '[[TODO: nav 02]]',
-    // was: 'Engine-level internals, compiler toolchains, and high-throughput architectural patterns.'
+    eyebrow: 'Technical Capabilities',
+    title: 'Skills & Tech Stack',
+    ariaLabel: 'Skills & Tech Stack',
+    navLabel: 'Skills',
+    // want: 'Something about true multi platform Flutter development, from mobile to web & desktop + backend'
     lead: '[[TODO: section 02 standfirst — one line, sets up the four groups below]]',
-    // was: 'Engine Depth · Production Hardened'
+    // want: 'This site was build with Flutter'
     note: '[[TODO: section 02 note]]',
   ),
   projects(
     ordinal: '03',
     anchor: '#projects',
-    // was: 'Featured Artifacts'
-    eyebrow: '[[TODO: section 03 eyebrow]]',
-    // was: 'Projects & Case Studies'
-    title: '[[TODO: section 03 heading]]',
-    // was: 'Projects & Case Studies'
-    ariaLabel: '[[TODO: section 03 landmark label]]',
-    // was: 'Projects'
-    navLabel: '[[TODO: nav 03]]',
+    eyebrow: 'Featured Artifacts',
+    title: 'Projects',
+    ariaLabel: 'Projects',
+    navLabel: 'Projects',
     // was: 'Production graphics engines, native audio pipelines, and enterprise systems architecture.'
+    // want: 'Production audio&video pipelines, cryptography, fintech, enterprise systems architecture and web3 platforms.'
     lead: '[[TODO: section 03 standfirst]]',
-    // was: '3 Production Artifacts Active'
-    note: '[[TODO: section 03 note]]',
   ),
   contact(
     ordinal: '04',
     anchor: '#contact',
-    // was: 'Direct Touchpoint'
-    eyebrow: '[[TODO: section 04 eyebrow]]',
-    // was: "Let's Talk"
-    title: '[[TODO: section 04 heading]]',
-    // was: 'Contact & Consultation'
-    ariaLabel: '[[TODO: section 04 landmark label]]',
-    // was: 'Consultation'
-    navLabel: '[[TODO: nav 04]]',
+    eyebrow: 'Direct',
+    title: 'Let\'s Talk',
+    ariaLabel: 'Contact',
+    navLabel: 'Contact',
   );
 
   const SiteSection({
@@ -152,31 +92,16 @@ enum SiteSection {
     this.note,
   });
 
-  /// The two-digit index the design prints in the eyebrow. Structural.
   final String ordinal;
-
-  /// The in-page target, used by the nav, the footer and the hero's primary call to action.
   final String anchor;
-
   final String eyebrow;
   final String title;
-
-  /// Names the `<section>` landmark for screen readers.
   final String ariaLabel;
-
-  /// How the header nav and footer refer to this section.
   final String navLabel;
-
-  /// An optional standfirst under the heading. Absent on the sections that do not have one.
   final String? lead;
-
-  /// An optional right-aligned status note; hidden below 640px.
   final String? note;
-
-  /// The eyebrow as the design prints it, `01 • Core Competencies`.
   String get eyebrowLine => '$ordinal • $eyebrow';
 
-  /// The `id` the section's element carries, which is [anchor] without its leading `#`.
   String get id => anchor.substring(1);
 }
 
@@ -184,119 +109,72 @@ enum SiteSection {
 final class HeroContent {
   const HeroContent();
 
-  // was: 'Staff Flutter & Systems Architect'
-  String get statusPill => '[[TODO: role badge]]';
+  String get statusPill => 'Team Lead & Flutter Software Engineer';
+  String get headlineLead => 'Damian';
+  String get headlineAccent => 'Moliński';
 
-  /// The headline is split so the second half can take the gradient treatment the design gives it.
-  // was: 'Damian'
-  String get headlineLead => '[[TODO: first name]]';
-
-  // was: 'Moliński'
-  String get headlineAccent => '[[TODO: surname]]';
-
-  // was: 'Architecting sub-millisecond render pipelines, cross-platform Dart FFI runtimes, and
-  //       fault-tolerant graphics systems.'
+  // want: 'Solving real problems and building scalable systems for every platform and form factor. From one codebase.'
   String get tagline => '[[TODO: hero tagline — one sentence, what you build]]';
 
-  // was: 'Specialized in low-level Flutter Engine internals, Impeller custom fragment shaders,
-  //       native C++ interop, and mission-critical multi-platform architectures deployed to tens of
-  //       millions of devices.'
+  // want: 'Specialized in mobile software engineering, web and desktop. Building tailer solutions to the problem.'
   String get body => '[[TODO: hero paragraph — two or three lines of substantiated detail]]';
 
-  // was: '[ start_inquiry() ]'
-  String get primaryCta => '[[TODO: primary CTA label]]';
-
-  // was: 'Start consultation inquiry, jump to contact section'
-  String get primaryCtaAriaLabel => '[[TODO: primary CTA accessible name]]';
-
-  // was: 'copy damian@molinski.dev'
-  String get copyCta => '[[TODO: copy-email CTA label]]';
-
-  // was: 'Copy email address damian@molinski.dev to clipboard'
-  String get copyCtaAriaLabel => '[[TODO: copy-email accessible name]]';
-
-  /// Shown for two seconds after a successful clipboard write.
-  // was: 'copied!'
-  String get copyCtaSuccess => '[[TODO: copied confirmation]]';
-
-  // was: 'Status: Q3/Q4 Advisory Slots Open'
-  String get availability => '[[TODO: availability status]]';
-
-  // was: 'Remote / EMEA / US PST'
-  String get locations => '[[TODO: working timezones]]';
+  String get primaryCta => '[ lets_talk() ]';
+  String get primaryCtaAriaLabel => 'Let\'t talk, jump to contact section';
+  String get copyCta => 'copy $_contactEmail';
+  String get copyCtaAriaLabel => 'Copy email address $_contactEmail to clipboard';
+  String get copyCtaSuccess => 'copied!';
+  String get availability => 'Status: contact FiveDotTwelve';
+  String get locations => 'Remote / PL';
 }
 
 /// The frosted identity dock that overlaps the bottom of the hero.
 final class SignalsContent {
   const SignalsContent();
+  String get title => 'Identity & Signals';
+  String get subtitle => 'verified_nodes';
 
-  // was: 'Identity & Signals'
-  String get title => '[[TODO: dock heading]]';
-
-  // was: 'verified_nodes'
-  String get subtitle => '[[TODO: dock subtitle]]';
-
-  // was: 'PGP: 4A8F B12D 99C3 0E1F'
-  String get pgpFingerprint => '[[TODO: PGP fingerprint, or delete this chip]]';
-
-  // was: 'ED25519'
-  String get pgpAlgorithm => '[[TODO: PGP key algorithm]]';
+  // Also want:
+  //  - external link arrow to https://github.com/damian-molinski.gpg
+  String get pgpFingerprint => 'A485 0DFB 126F 1E21C';
+  String get pgpAlgorithm => 'RSA4096';
 }
 
-/// The verified identity links in the signals dock.
-///
-/// **Unresolved:** `pubspec.yaml` says `github.com/damian-molinski` (hyphenated) while every link in
-/// the design said `damianmolinski` (unhyphenated). At least one is wrong, so both stay markers and
-/// neither is guessed — see the plan's open questions.
 enum IdentityNode {
   github(
     icon: AppIcon.code,
     trailing: AppIcon.northEast,
-    // was: 'GitHub'
-    name: '[[TODO: GitHub]]',
-    // was: '@damianmolinski'
-    handle: '[[TODO: GitHub handle]]',
-    // was: 'https://github.com/damianmolinski'
-    href: '[[TODO: GitHub URL]]',
-    // was: 'Damian Moliński on GitHub (@damianmolinski)'
-    ariaLabel: '[[TODO: GitHub accessible name]]',
+    name: 'GitHub',
+    handle: '@damian-molinski',
+    href: 'https://github.com/damian-molinski',
+    ariaLabel: 'Damian Moliński on GitHub (@damian-molinski)',
   ),
   linkedin(
     icon: AppIcon.terminal,
     trailing: AppIcon.northEast,
-    // was: 'LinkedIn'
-    name: '[[TODO: LinkedIn]]',
-    // was: 'in/damianmolinski'
-    handle: '[[TODO: LinkedIn handle]]',
-    // was: 'https://linkedin.com/in/damianmolinski'
-    href: '[[TODO: LinkedIn URL]]',
-    // was: 'Damian Moliński on LinkedIn (in/damianmolinski)'
-    ariaLabel: '[[TODO: LinkedIn accessible name]]',
+    name: 'LinkedIn',
+    handle: 'in/damian-moliński',
+    href: 'https://www.linkedin.com/in/damian-moliński-54624713a',
+    ariaLabel: 'Damian Moliński on LinkedIn (in/damian-moliński)',
   ),
   x(
     icon: AppIcon.tag,
     trailing: AppIcon.northEast,
-    // was: 'X / Twitter'
-    name: '[[TODO: X]]',
-    // was: '@damianmolinski'
-    handle: '[[TODO: X handle]]',
-    // was: 'https://x.com/damianmolinski'
-    href: '[[TODO: X URL]]',
-    // was: 'Damian Moliński on X (@damianmolinski)'
-    ariaLabel: '[[TODO: X accessible name]]',
+    name: 'X',
+    handle: '@DamianMoliski12',
+    href: 'https://x.com/DamianMoliski12',
+    ariaLabel: 'Damian Moliński on X (@DamianMoliski12)',
   ),
+  // want: SSH
   pubDev(
+    // want: key-icon
     icon: AppIcon.hub,
-    // The one node whose trailing glyph is a verification tick rather than an outbound arrow.
-    trailing: AppIcon.checkCircle,
-    // was: 'Pub.dev'
-    name: '[[TODO: pub.dev]]',
-    // was: 'Verified Publisher'
+    trailing: AppIcon.northEast,
+    name: 'SSH SIGNING',
+    // want: Trust & Verify
     handle: '[[TODO: publisher status]]',
-    // was: 'https://pub.dev/publishers/damianmolinski.dev/packages'
-    href: '[[TODO: pub.dev publisher URL]]',
-    // was: 'Damian Moliński on Pub.dev (Verified Publisher)'
-    ariaLabel: '[[TODO: pub.dev accessible name]]',
+    href: 'https://github.com/damian-molinski.keys',
+    ariaLabel: 'Verify work on Github',
   );
 
   const IdentityNode({
@@ -309,83 +187,55 @@ enum IdentityNode {
   });
 
   final AppIcon icon;
-
-  /// The glyph in the top-right corner of the tile.
   final AppIcon trailing;
-
   final String name;
   final String handle;
   final String href;
   final String ariaLabel;
 }
 
-/// What the pillars and skills cards both render.
-///
-/// The two sections are the same card with different data: a glyph in a tile, an index opposite it,
-/// a heading, a paragraph, and a row of tags. Naming that shape lets one component draw both, and
-/// says the resemblance is intended rather than accidental.
 abstract interface class SpecEntry {
-  /// Where the card sits in its row. Both implementers are enums, so this comes for free, and the
-  /// accent ramp across the row is derived from it.
   int get index;
-
   AppIcon get icon;
-
-  /// The mono index printed opposite the glyph — `01/04` for a pillar, `STK/01` for a skill group.
   String get indexLabel;
-
   String get title;
   String get body;
   List<String> get tags;
 }
 
 /// Section `01` — the four competency cards.
-///
-/// The `NN/04` index is structural. Everything else is a claim and stays a marker.
 enum Pillar implements SpecEntry {
   first(
+    // want: `DB` icon
     icon: AppIcon.draw,
     indexLabel: '01/04',
-    // was: 'Impeller & Shaders'
-    title: '[[TODO: pillar 1 title]]',
-    // was: 'Custom GLSL fragment shaders, pipeline caching, tessellation tuning, and Vulkan/Metal
-    //       backend optimization for stable 120 FPS render loops.'
+    title: 'SQLite & NoSQL',
+    // want: 'Modeling databases and complex queries'
     body: '[[TODO: pillar 1 body — two lines on what you actually do here]]',
-    // was: ['SPIR-V', 'Impeller', 'SkSL Fixes']
-    tags: ['[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]'],
+    tags: ['SQLite', 'NoSQL', 'PostgreSQL'],
   ),
   second(
     icon: AppIcon.memory,
     indexLabel: '02/04',
-    // was: 'Dart Native & C++ FFI'
-    title: '[[TODO: pillar 2 title]]',
-    // was: 'Bypassing platform channels via zero-copy FFI memory pointers, native C++ audio/crypto
-    //       engines, and custom isolate thread pools.'
+    title: 'Dart Native & Rust FFI',
+    // want: 'Tapping into low level code for mission critical functionalities for best performance and accuracy.'
     body: '[[TODO: pillar 2 body]]',
-    // was: ['dart:ffi', 'C++20', 'Zero-Copy']
-    tags: ['[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]'],
+    tags: ['dart:ffi', 'Rust', 'C++'],
   ),
   third(
     icon: AppIcon.speed,
     indexLabel: '03/04',
-    // was: 'Runtime Profiling'
-    title: '[[TODO: pillar 3 title]]',
-    // was: 'Deep tracing via DevTools CPU samplers, memory leak elimination in long-running kiosk
-    //       runtimes, raster thread micro-benchmarks.'
-    body: '[[TODO: pillar 3 body]]',
-    // was: ['Frame Timings', 'Memory Heap', 'AOT Tracing']
-    tags: ['[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]'],
+    title: 'Runtime Profiling',
+    body: 'Deep tracing via DevTools CPU samplers for decentralized data source frontend, memory leak elimination.',
+    tags: ['Frame Timings', 'Memory Heap', 'Benchmarking Performance'],
   ),
   fourth(
     icon: AppIcon.architecture,
     indexLabel: '04/04',
-    // was: 'System Audits & Core'
-    title: '[[TODO: pillar 4 title]]',
-    // was: 'Advising scale-ups and enterprises on multi-repo monorepo structures, custom
-    //       code-generation tools, and compile-time state containers.'
+    title: 'Mentorship & AI Software Engineering',
+    // want: 'Choosing frontend architecture for project needs, custom analytics lints, and mentoring team members while protecting code quality by enforcing automatic rules on code'
     body: '[[TODO: pillar 4 body]]',
-    // was: ['Macro Systems', 'Melos', 'Code Review']
-    tags: ['[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]'],
+    tags: ['Melos', 'Code Review', 'AI'],
   );
 
   const Pillar({
@@ -398,17 +248,12 @@ enum Pillar implements SpecEntry {
 
   @override
   final AppIcon icon;
-
-  /// Structural: the card's position in the set, not copy.
   @override
   final String indexLabel;
-
   @override
   final String title;
-
   @override
   final String body;
-
   @override
   final List<String> tags;
 }
@@ -418,49 +263,30 @@ enum SkillGroup implements SpecEntry {
   first(
     icon: AppIcon.terminal,
     indexLabel: 'STK/01',
-    // was: 'Systems & Runtimes'
-    title: '[[TODO: stack group 1 title]]',
-    // was: 'Core runtime architectures, native embedders, and cross-boundary low-latency memory
-    //       execution.'
-    body: '[[TODO: stack group 1 body]]',
-    // was: ['Flutter Engine C++', 'Dart 3 AOT / JIT', 'C++20 FFI', 'Linux/macOS Native Embedders',
-    //       'Zero-Copy Shared Memory']
-    tags: ['[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]'],
+    title: 'Full Stack Flutter Engineer',
+    body: 'From one codebase to android, iOS, web & backend',
+    tags: ['Jaspr', 'WASM', 'Android', 'iOS', 'Backend'],
   ),
   second(
     icon: AppIcon.palette,
     indexLabel: 'STK/02',
-    // was: 'Graphics & Shaders'
-    title: '[[TODO: stack group 2 title]]',
-    // was: 'GPU compute pipelines, modern shader toolchains, and hardware acceleration layer mastery.'
-    body: '[[TODO: stack group 2 body]]',
-    // was: ['Impeller Rendering Pipeline', 'GLSL / SPIR-V Shaders', 'Vulkan & Metal APIs',
-    //       'Tessellation & Pipeline Caching', 'Custom Render Loops']
-    tags: ['[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]'],
+    title: 'Pixel Perfect UI & Animations',
+    body: 'Optimizing rebuilds for best performance and smooth UI on every platform and form factor.',
+    tags: ['Impeller', 'Flutter Trees', 'Bloc', 'Custom RenderObjects'],
   ),
   third(
     icon: AppIcon.monitoring,
     indexLabel: 'STK/03',
-    // was: 'Diagnostics & Profiling'
-    title: '[[TODO: stack group 3 title]]',
-    // was: 'Zero-overhead telemetry, memory allocation tracking, and raster thread latency
-    //       regression hunting.'
-    body: '[[TODO: stack group 3 body]]',
-    // was: ['DevTools CPU Profiling', 'Memory Heap & Leak Analysis', 'Raster Thread Tracing',
-    //       'Micro-benchmarks', 'Frame Budget Allocation']
-    tags: ['[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]'],
+    title: 'Diagnostics & Profiling',
+    body: 'Zero-overhead telemetry, memory allocation tracking, and benchmarking performance',
+    tags: ['DevTools CPU Profiling', 'Memory Heap & Leak Analysis', 'Benchmarks'],
   ),
   fourth(
     icon: AppIcon.accountTree,
     indexLabel: 'STK/04',
-    // was: 'Tooling & Scale'
-    title: '[[TODO: stack group 4 title]]',
-    // was: 'Monorepo orchestration, deterministic build graphs, and cryptographically verified
-    //       supply chains.'
-    body: '[[TODO: stack group 4 body]]',
-    // was: ['Melos Monorepos', 'Custom Code Generation', 'CI/CD Pipeline Automation',
-    //       'Deterministic Builds', 'Supply Chain & PGP Audits']
-    tags: ['[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]', '[[TODO: skill]]'],
+    title: 'AI-assisted Software Engineering, Tooling & Scale',
+    body: 'Using AI while keeping ownership and understanding of the system.',
+    tags: ['LLM', 'Agents', 'Skills', 'Melos Monorepos', 'CI/CD', 'Analytics'],
   );
 
   const SkillGroup({
@@ -473,70 +299,42 @@ enum SkillGroup implements SpecEntry {
 
   @override
   final AppIcon icon;
-
-  /// Structural: the card's position in the set, not copy.
   @override
   final String indexLabel;
-
   @override
   final String title;
-
   @override
   final String body;
-
   @override
   final List<String> tags;
 }
 
 /// Section `03` — the three case-study cards.
-///
-/// Every one of these was fiction in the design, telemetry figures included. A project only goes back
-/// in here once it exists and its numbers can be defended.
 enum Project {
   first(
-    // was: '01 // GRAPHICS & ENGINE'
-    category: '[[TODO: project 1 category]]',
-    // was: 'Impeller Shader Playground & Inspector'
-    title: '[[TODO: project 1 title]]',
-    // was: "Interactive SPIR-V shader workbench and runtime telemetry profiler for Flutter's
-    //       next-gen graphics backend."
-    body: '[[TODO: project 1 description]]',
-    // was: '120 FPS target · Zero SkSL hitching · Vulkan/Metal backend'
-    telemetry: '[[TODO: project 1 measured results]]',
-    // was: ['Impeller', 'GLSL', 'Vulkan', 'C++20']
-    tags: ['[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]'],
-    // was: '#'
-    href: '[[TODO: project 1 URL]]',
+    category: '01 // Web3 & Decentralization',
+    title: 'Catalyst Voices',
+    body:
+        'Next-generation, open-source portal for Project Catalyst—the world\'s largest decentralized innovation fund.',
+    telemetry: '< 5s 10k+ documents synchronization · < 0.5s db queries',
+    tags: ['Web3', 'Cardano', 'Rust', 'SQLite', 'Cryptography', 'Web & Mobile'],
+    href: 'https://github.com/cardano-foundation/catalyst-voices',
   ),
   second(
-    // was: '02 // NATIVE SYSTEMS'
-    category: '[[TODO: project 2 category]]',
-    // was: 'Dart FFI Zero-Copy Audio DSP Engine'
-    title: '[[TODO: project 2 title]]',
-    // was: 'Sub-millisecond audio synthesis pipeline bypassing standard platform channels via
-    //       direct memory pointers and worker isolate pools.'
-    body: '[[TODO: project 2 description]]',
-    // was: '< 1.2ms latency · Zero GC pause · SIMD acceleration'
-    telemetry: '[[TODO: project 2 measured results]]',
-    // was: ['dart:ffi', 'C++20', 'SIMD', 'Isolates']
-    tags: ['[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]'],
-    // was: '#'
-    href: '[[TODO: project 2 URL]]',
+    category: '02 // Adaptive Mobile',
+    title: 'Habitive',
+    body: 'Offline first mobile application with platform adaptive UI',
+    telemetry: 'TODO 1 · TODO 2',
+    tags: ['NoSQL', 'SQLite', 'Platform Adaptive UI', 'l10n', 'Local Notifications'],
+    href: 'https://habitive.app/',
   ),
   third(
-    // was: '03 // ARCHITECTURE & DEVOPS'
-    category: '[[TODO: project 3 category]]',
-    // was: 'Enterprise Melos Monorepo Framework'
-    title: '[[TODO: project 3 title]]',
-    // was: 'Modular architecture blueprint powering 60+ interdependent Dart/Flutter packages with
-    //       distributed remote caching.'
-    body: '[[TODO: project 3 description]]',
-    // was: '4.5x faster CI pipeline · 100% deterministic builds'
-    telemetry: '[[TODO: project 3 measured results]]',
-    // was: ['Melos', 'Monorepo', 'Codegen', 'DevOps']
-    tags: ['[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]', '[[TODO: tag]]'],
-    // was: '#'
-    href: '[[TODO: project 3 URL]]',
+    category: '03 // Autenti',
+    title: 'Enterprise Fintech SDK and Mobile App',
+    body: 'Signing and verifying documents with native Android SDK and mobile application',
+    telemetry: '100% secure and verifiable signatures · Documents trust',
+    tags: ['Fintech', 'eSign', 'Android', 'SDK'],
+    href: 'https://autenti.com/pl/',
   );
 
   const Project({
@@ -545,21 +343,18 @@ enum Project {
     required this.body,
     required this.telemetry,
     required this.tags,
-    required this.href,
+    this.href,
   });
 
   final String category;
   final String title;
   final String body;
-
-  /// The figures in the card's readout box.
   final String telemetry;
-
   final List<String> tags;
-  final String href;
+  final String? href;
 
-  /// What the card's link is called out of context, where three identical "View Project" links are
-  /// indistinguishable.
+  bool get isActive => false;
+
   String get linkAriaLabel => '${const ProjectContent().viewLabel}: $title';
 }
 
@@ -567,32 +362,24 @@ enum Project {
 final class ProjectContent {
   const ProjectContent();
 
-  // was: 'Active'
-  String get activeLabel => '[[TODO: status label]]';
-
-  // was: 'Telemetry & Target'
-  String get telemetryLabel => '[[TODO: telemetry box label]]';
-
-  // was: 'View Project'
-  String get viewLabel => '[[TODO: project link label]]';
+  String get activeLabel => 'Active';
+  String get telemetryLabel => 'Telemetry & Target';
+  String get viewLabel => 'View Project';
 }
 
 /// Section `04` — the three summary cards above the form.
 enum ContactCard {
   directMail(
     icon: AppIcon.mail,
-    // was: 'Direct Mail'
-    label: '[[TODO: direct mail card label]]',
-    // Rendered from the same address SiteIdentity.email and the copy button use.
+    label: 'Direct Mail',
     value: _contactEmail,
   ),
   responseSla(
     icon: AppIcon.timer,
-    // was: 'Response SLA'
-    label: '[[TODO: response SLA card label]]',
-    // was: '≤ 24 hours for technical briefs'
-    value: '[[TODO: response time you will actually hold to]]',
+    label: 'Response SLA',
+    value: '≤ 24 hours for technical briefs',
   ),
+  // want: something else
   secureTransmission(
     icon: AppIcon.lock,
     // was: 'Secure Transmission'
@@ -607,10 +394,8 @@ enum ContactCard {
   final String label;
   final String value;
 
-  /// Where the card's value points, for the one card whose value is an address. Null elsewhere.
   String? get href => this == directMail ? 'mailto:$value' : null;
 
-  /// Whether the card offers the clipboard copy the hero's second call to action also offers.
   bool get isCopyable => this == directMail;
 }
 
@@ -624,28 +409,22 @@ enum ContactField {
     id: 'contact-name',
     type: 'text',
     autocomplete: 'organization',
-    // was: 'Your Name / Organization'
-    label: '[[TODO: name field label]]',
-    // was: 'e.g. Alex Vance, Acme Corp'
-    placeholder: '[[TODO: name field example]]',
+    label: 'Your Name / Organization',
+    placeholder: 'e.g. Jan Nowak, Acme Corp',
   ),
   email(
     id: 'contact-email',
     type: 'email',
     autocomplete: 'email',
-    // was: 'Email Address'
-    label: '[[TODO: email field label]]',
-    // was: 'name@domain.com'
-    placeholder: '[[TODO: email field example]]',
+    label: 'Email Address',
+    placeholder: 'name@domain.com',
   ),
   brief(
     id: 'contact-brief',
     type: 'textarea',
     autocomplete: 'off',
-    // was: 'Project Brief'
-    label: '[[TODO: brief field label]]',
-    // was: 'Overview of target bottleneck, timeline, and current Dart/Flutter runtime stack...'
-    placeholder: '[[TODO: brief field prompt]]',
+    label: 'Project Brief',
+    placeholder: 'Overview of scope, timeline, and current Dart/Flutter runtime stack...',
   );
 
   const ContactField({
@@ -656,43 +435,24 @@ enum ContactField {
     required this.placeholder,
   });
 
-  /// Ties the control to its `<label for>`. Structural.
   final String id;
-
-  /// `text`, `email`, or the sentinel `textarea` for the one control that is not an `<input>`.
   final String type;
-
   final String autocomplete;
   final String label;
   final String placeholder;
 
-  /// Every field on this form is required; the design marks all three.
   bool get isRequired => true;
 
-  /// Whether this field wants the email keyboard and the browser's address validation.
   bool get isEmail => type == 'email';
 
-  /// Whether this field renders as a `<textarea>` rather than an `<input>`.
   bool get isMultiline => type == 'textarea';
 }
 
-/// The engagement-scope dropdown.
-///
-/// The submitted `value` is structural and real; the visible label is copy.
-///
-/// Note that `docs/prd.md` §3.7 lists only four options — the rendered design has these five, and it
-/// is the PRD that is stale.
 enum ScopeOption {
-  // was: 'Architecture / Performance Audit'
-  audit('[[TODO: scope option 1]]'),
-  // was: 'Custom Impeller / Shader Engineering'
-  shaders('[[TODO: scope option 2]]'),
-  // was: 'Native C++ / Rust FFI Implementation'
-  ffi('[[TODO: scope option 3]]'),
-  // was: 'Fractional Staff Architect Role'
-  fractional('[[TODO: scope option 4]]'),
-  // was: 'General Technical Inquiry'
-  other('[[TODO: scope option 5]]');
+  audit('Architecture / Performance Audit'),
+  greenfield('Greenfield Build-up'),
+  development('Existing Project Development / Takeover'),
+  other('General Technical Inquiry');
 
   const ScopeOption(this.label);
 
@@ -700,7 +460,6 @@ enum ScopeOption {
 
   String get value => name;
 
-  /// The option carrying [value], for reading a `<select>`'s state back into the enum.
   static ScopeOption byValue(String value) => ScopeOption.values.byName(value);
 }
 
@@ -710,55 +469,26 @@ final class ContactFormContent {
 
   String get fieldId => 'contact-form';
   String get scopeFieldId => 'contact-scope';
+  String get scopeLabel => 'Engagement Scope';
+  String get requiredHint => '(required)';
+  String get submitLabel => '[ dispatch_message() ]';
+  String get submittingLabel => 'Transmitting...';
+  String get submittedLabel => '[ sent_successfully ]';
 
-  // was: 'Engagement Scope'
-  String get scopeLabel => '[[TODO: scope field label]]';
+  String get validationMessage => 'Complete message form fist';
+  String get failureMessage => 'Count not send a message';
 
-  // was: '(required)'
-  String get requiredHint => '[[TODO: required marker]]';
-
-  // was: '[ dispatch_message() ]'
-  String get submitLabel => '[[TODO: submit button label]]';
-
-  /// Shown while the submit sequence runs.
-  // was: 'Transmitting...'
-  String get submittingLabel => '[[TODO: submitting label]]';
-
-  /// Shown once the sequence finishes.
-  // was: '[ sent_successfully ]'
-  String get submittedLabel => '[[TODO: sent confirmation]]';
-
-  /// Shown when a required field is empty on submit.
-  String get validationMessage => '[[TODO: validation message]]';
-
-  /// Shown when the send itself failed. The design had no failure state at all — its submit always
-  /// succeeded, because nothing was behind it.
-  String get failureMessage => '[[TODO: send failure message]]';
-
-  /// The trap field's `name` and `id`. Structural for the same reason, and unmarked for a second
-  /// one: a trap carrying a placeholder marker would announce itself to the scraper it is set for.
   String get honeypotName => 'company';
   String get honeypotFieldId => 'contact-company';
 }
 
 /// The footer's link row.
-///
-/// Four of the five point at the sections above; `about` had no destination in the design either.
 enum FooterLink {
-  about(
-    // was: 'About'
-    label: '[[TODO: footer link 1]]',
-    // was: '#'
-    href: '[[TODO: about URL, or delete this link]]',
-  ),
-  // was: 'Focus' — the design labels the pillars section differently down here than in the nav
-  focus(label: '[[TODO: footer link 2]]', href: '#pillars'),
-  // was: 'Skills'
-  skills(label: '[[TODO: footer link 3]]', href: '#skills'),
-  // was: 'Projects'
-  projects(label: '[[TODO: footer link 4]]', href: '#projects'),
-  // was: 'Contact'
-  contact(label: '[[TODO: footer link 5]]', href: '#contact');
+  about(label: 'About', href: '#'),
+  focus(label: 'Focus', href: '#pillars'),
+  skills(label: 'Skills', href: '#skills'),
+  projects(label: 'Projects', href: '#projects'),
+  contact(label: 'Contact', href: '#contact');
 
   const FooterLink({required this.label, required this.href});
 
@@ -770,19 +500,9 @@ enum FooterLink {
 final class ChromeContent {
   const ChromeContent();
 
-  // was: 'Skip to main content'
-  String get skipLink => '[[TODO: skip link label]]';
-
-  /// Names the `<main>` landmark and is the skip link's target. Structural.
+  String get skipLink => 'Skip to main content';
   String get mainId => 'main-content';
-
-  /// [mainId] as the skip link's `href`.
   String get mainAnchor => '#$mainId';
-
-  // was: 'About Damian Moliński'
-  String get avatarAriaLabel => '[[TODO: avatar link accessible name]]';
-
-  /// Fills the empty avatar ring until a real portrait exists (D6). Structural rather than copy —
-  /// the marker that keeps this from shipping silently is [avatarAriaLabel], which names the slot.
+  String get avatarAriaLabel => 'About Damian Moliński';
   String get avatarPlaceholder => '?';
 }

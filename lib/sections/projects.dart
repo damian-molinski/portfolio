@@ -29,10 +29,11 @@ class Projects extends StatelessComponent {
         div(classes: 'project-card__head', [
           div(classes: 'project-card__top', [
             span(classes: 'project-card__category', [.text(project.category)]),
-            span(classes: 'project-card__status', [
-              const StatusDot(tone: StatusDotTone.pulse),
-              .text(labels.activeLabel),
-            ]),
+            if (project.isActive)
+              span(classes: 'project-card__status', [
+                const StatusDot(tone: StatusDotTone.pulse),
+                .text(labels.activeLabel),
+              ]),
           ]),
 
           div(classes: 'project-card__text', [
@@ -46,21 +47,22 @@ class Projects extends StatelessComponent {
           ]),
         ]),
 
-        div(classes: 'project-card__footer', [
-          div(classes: 'project-card__tags', [
-            for (final tag in project.tags) TagPill(tag),
+        if (project.href case final String href)
+          div(classes: 'project-card__footer', [
+            div(classes: 'project-card__tags', [
+              for (final tag in project.tags) TagPill(tag),
+            ]),
+            a(
+              classes: 'project-card__link',
+              href: href,
+              target: .blank,
+              attributes: {'rel': 'noopener noreferrer', 'aria-label': project.linkAriaLabel},
+              [
+                span([.text(labels.viewLabel)]),
+                AppIcon.northEast(classes: 'project-card__link-glyph'),
+              ],
+            ),
           ]),
-          a(
-            classes: 'project-card__link',
-            href: project.href,
-            target: .blank,
-            attributes: {'rel': 'noopener noreferrer', 'aria-label': project.linkAriaLabel},
-            [
-              span([.text(labels.viewLabel)]),
-              AppIcon.northEast(classes: 'project-card__link-glyph'),
-            ],
-          ),
-        ]),
       ],
     );
   }
