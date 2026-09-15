@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Analyze, format, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.13.2
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      
+      - uses: extractions/setup-just@v4
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.pub-cache
+          key: pub-3.13.2-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-3.13.2-
+
+      - name: Install the Jaspr CLI
+        run: |
+          dart pub global activate jaspr_cli 0.23.4
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - run: dart pub get
+      - run: npm ci
+
+      - run: just check
+
+      - run: just markers
+
+      - run: just build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: build/jaspr
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://damian-molinski.dev/
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: build/jaspr
+
+      - id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy build/jaspr
+            --project-name=portfolio
+            --branch=main
+            --commit-hash=${{ github.sha }}
+
+      - name: Deployment is production, not preview
+        env:
+          ENVIRONMENT: ${{ steps.deploy.outputs.pages-environment }}
+        run: |
+          test "$ENVIRONMENT" = production || {
+            echo "Deployed to '$ENVIRONMENT'. The project's production branch is not 'main'."
+            exit 1
+          }
+
+      - name: The contact Function is routed
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            -X POST "$DEPLOYMENT_URL/api/contact" \
+            -H 'content-type: application/json' \
+            --data '{}')
+
+          test "$status" = 400 || {
+            echo "POST /api/contact answered $status, expected 400."
+            echo "The Pages Function was not deployed with the assets."
+            exit 1
+          }

@@ -103,6 +103,10 @@ time. `main.server.dart`'s `<head>` is the exception.
 `functions/api/contact.ts` is a Cloudflare Pages Function relaying the form's JSON through Resend.
 
 - **`functions/` is a sibling of `build/jaspr/`, never inside it**, or it stops being a function.
+  Wrangler resolves it as `process.cwd()/functions`, never from the assets directory, and no
+  `pages deploy` flag overrides that — so the deploy step in `.github/workflows/ci.yml` runs
+  from the repo root. Get that wrong and the deploy still succeeds, with a warning, shipping a
+  site whose every contact submission 404s.
 - **`jaspr serve` does not serve it** — only `just dev` does, on :8788.
 - **Secrets are `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM`** — on the Pages project, in a
   gitignored `.dev.vars` locally, named in `.dev.vars.example`. With any of them missing it answers
@@ -115,5 +119,10 @@ time. `main.server.dart`'s `<head>` is the exception.
 - **The reason exists only in the logs.** Failures are `console.error`ed for
   `wrangler pages deployment tail`; the enquiry never is, so nothing in a log line carries the
   visitor's address or their brief.
+- **Deployment is direct upload, not a Git connection.** `.github/workflows/ci.yml` builds,
+  gates, then runs `wrangler pages deploy build/jaspr --project-name=portfolio --branch=main`.
+  Without `--branch` wrangler deploys to production unconditionally; with it, the deployment is
+  production only if the string matches the Pages project's own production branch. Preview and
+  production hold **separate** secrets, so nothing Resend needs exists on preview.
 - **The honeypot is weak here** — the form never natively submits, so a bot posting straight to the
   endpoint never sees it; real abuse needs a challenge at the edge, not more of this.

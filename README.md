@@ -67,17 +67,17 @@ ramp, and `DESIGN.md`'s frontmatter is what this site is built on.
 
 ## Status
 
-**The site is structurally complete and must not be deployed.** Every user-visible string is a
-literal `[[TODO: …]]` marker that renders as written — the layout, motion and accessibility work are
-finished, and the copy, links, email address and PGP details are not. The design's original wording
-sits beside each field in `lib/content/site_content.dart` as a `// was:` comment, but that copy was
-never verified and asserts things that are not true, so replace a marker only with something that is.
+**The site deploys on every push to `main`**, through `.github/workflows/ci.yml`: one `check` job
+runs `just check`, `just markers` and `just build`, and a `deploy` job — which cannot run unless
+`check` passed — uploads the pre-rendered output and `functions/` to Cloudflare Pages by direct
+upload, then asserts that `/api/contact` is actually routed before calling it good. Pull requests
+run `check` alone and deploy nothing.
 
-Before deploying, this must return nothing:
+The marker gate still stands. This must return nothing, and CI fails the branch when it does not:
 
 ```bash
 grep -rn '\[\[TODO:' lib/
 ```
 
-Still open: no portrait for the header's avatar slot, no canonical domain or social preview image for
-the `<head>` metadata, and the contact form's submit is a documented no-op with no endpoint behind it.
+Still open: the header's avatar slot renders a literal `?` placeholder
+(`ChromeContent.avatarPlaceholder`) because there is no portrait for it yet.

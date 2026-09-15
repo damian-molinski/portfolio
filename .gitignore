@@ -29,6 +29,5 @@ migrate_working_dir/
 
 # Functions
 /node_modules/
-/package-lock.json
 /.wrangler/
 .dev.vars
