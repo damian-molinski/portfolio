@@ -9,27 +9,17 @@ environment:
 
 dependencies:
   jaspr: ^0.23.4
-  # Browser APIs for the two @client components. The `universal_web` variant (not `web`) is what
-  # static mode needs: it stubs the same API on the VM, so `lib/app.dart`'s import graph still
-  # compiles for the server during pre-rendering.
   universal_web: ^1.1.1
-  # Pure Dart, so both halves of the dual compilation take them. `jaspr_bloc` would have supplied
-  # the provider and builder, but it pins `jaspr: ^0.22.0` and this project is on ^0.23.4; the
-  # binding layer in `lib/state/` is hand-rolled instead.
   bloc: ^9.2.1
   get_it: ^9.2.1
-  # Value equality for the cubit states. `ContactState` carries a Map, and without it `emit` fires
-  # on every keystroke.
   equatable: ^2.0.7
-  # The contact form's POST to `/api/contact`. Safe in the dual-compiled graph: `package:http`
-  # resolves `Client()` through a conditional import, so the server build takes `io_client` and the
-  # browser build takes `browser_client` — neither half ever sees the other's `dart:` import.
   http: ^1.6.0
 
 dev_dependencies:
   bloc_test: ^10.0.0
   build_runner: ^2.10.0
   build_web_compilers: ^4.8.5
+  crypto: ^3.0.7
   jaspr_builder: ^0.23.4
   lints: ^5.0.0
   test: ^1.25.0

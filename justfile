@@ -15,10 +15,11 @@ deps:
 serve:
     jaspr serve
 
-# Pre-render the site to build/jaspr/
+# Pre-render the site to build/jaspr/, then content-hash the client bundle
 [group('site')]
 build:
     jaspr build
+    dart run tool/hash_assets.dart
 
 # Remove the build output
 [group('site')]
