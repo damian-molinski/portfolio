@@ -15,6 +15,7 @@ final class CopyViewModel extends Cubit<CopyState> {
   final Duration _confirmationDuration;
 
   Timer? _revert;
+
   Future<void> copy(String email) async {
     final didWrite = await _clipboard.write(email);
     if (!didWrite || isClosed) return;

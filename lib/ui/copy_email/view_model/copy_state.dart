@@ -4,6 +4,7 @@ final class CopyState extends Equatable {
   const CopyState.idle() : isCopied = false;
 
   const CopyState.copied() : isCopied = true;
+  
   final bool isCopied;
 
   @override
