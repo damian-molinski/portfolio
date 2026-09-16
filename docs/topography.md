@@ -34,7 +34,7 @@ docs/           decisions.md, plans/, this map
 | Island (browser code) | `lib/components/*.dart`, annotated `@client` | `@client` + **unnamed** constructor, resolves its cubit from `get_it` | `lib/components/copy_email_button.dart` | component + the annotation + cubit in `lib/state/` + registration in `lib/di/injector.dart` |
 | Copy / strings | `lib/content/site_content.dart` | `const` classes `<Section>Content`, one `SiteContent` root | `lib/content/site_content.dart` | add field to the `*Content` class; never declare copy in a `build` |
 | Design tokens & global CSS | `lib/constants/theme.dart` | `abstract final class App<Thing>` — `AppColors`, `AppType`, `AppSpacing`, `AppMotion`, `AppBorders`, `AppGrid`, `AppFocus` | `lib/constants/theme.dart` | token in `lib/constants/theme.dart`, mirrored from `DESIGN.md` frontmatter |
-| DTO / wire type | `lib/data/*_dto.dart` | `<Name>Dto`, `@JsonSerializable(createFactory: false)`, plus a `to<Name>Dto()` extension on the domain type | `lib/data/contact_draft_dto.dart` | DTO file + `part '<name>_dto.g.dart'` + `test/data/<name>_dto_test.dart`; run `just build` to generate |
+| DTO / wire type | `lib/data/*_dto.dart` | `<Name>Dto`, `@JsonSerializable(createFactory: false)`, plus a `to<Name>Dto()` extension on the domain type | `lib/data/contact_draft_dto.dart` | DTO file + `part '<name>_dto.g.dart'` + `test/data/<name>_dto_test.dart`; run `just generate` |
 | Repository / data seam | `lib/data/*.dart` | abstract `<Name>` + `Const`/`Browser`/`Http` prefixed impl | `lib/data/contact_dispatcher.dart` | data file + a registration in `lib/di/injector.dart` + `test/data/<name>_test.dart` |
 | Cubit | `lib/state/<name>_cubit.dart` | `<Name>Cubit extends Cubit<<Name>State>` | `lib/state/contact_cubit.dart` | cubit + `<name>_state.dart` + `lib/di/injector.dart` + `test/state/<name>_cubit_test.dart` |
 | Cubit state | `lib/state/<name>_state.dart` | `Equatable` class or sealed family | `lib/state/copy_state.dart` | alongside its cubit |
@@ -74,7 +74,7 @@ docs/           decisions.md, plans/, this map
 ## Not where you expect
 
 - **No router.** Single page; `lib/app.dart` composes the sections in order and links are in-page anchors.
-- `lib/main.client.options.dart`, `lib/main.server.options.dart` and `lib/data/*_dto.g.dart` are build output — never edit. They are committed, and `jaspr build` regenerates them into `lib/`.
+- `lib/main.client.options.dart`, `lib/main.server.options.dart` and `lib/data/*_dto.g.dart` are build output — never edit. The `.options.dart` pair is committed; `*_dto.g.dart` is git-ignored and comes from `just generate`. `jaspr build` regenerates all of them into `lib/`.
 - **Primary constructors do not build** — see `docs/constraints.md` §Builds. Private named parameters do.
 - CSS lives in Dart, not `.css` files: component-scoped in each component's `@css styles` getter, global in `lib/constants/theme.dart`.
 - `functions/` is TypeScript and a **sibling** of `build/jaspr/`; moving it inside stops it being a function, and the deploy still succeeds with every submission 404ing.

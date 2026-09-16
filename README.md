@@ -19,7 +19,7 @@ to Cloudflare Pages at [damian-molinski.dev](https://damian-molinski.dev/).
 ```bash
 brew install just
 dart pub global activate jaspr_cli 0.23.4
-just deps                 # dart pub get + npm install
+just deps                 # dart pub get + npm install + just generate
 ```
 
 The contact endpoint needs `RESEND_API_KEY`, `CONTACT_TO` and `CONTACT_FROM`. Copy

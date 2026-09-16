@@ -10,8 +10,10 @@ way it did is in `docs/decisions.md`; *where* things live is in `docs/topography
 builds here more often than anything else; branch with `kIsWeb` or split behind a conditional import.
 
 **`lib/main.client.options.dart` and `lib/main.server.options.dart` are `jaspr_builder` output** —
-never edit them. So is `lib/data/contact_draft_dto.g.dart`. All three are committed, because
-`just analyze` and `just test` run without a build; `jaspr build` writes them back into `lib/`.
+never edit them. So is `lib/data/contact_draft_dto.g.dart`. The two `.options.dart` files are
+committed; `*.g.dart` is git-ignored, so a fresh clone must run `just generate` before
+`just analyze` or `just test` will resolve the `part`. `jaspr build` writes all of them back
+into `lib/`.
 
 **Primary constructors do not compile here, even on Dart 3.13.** `jaspr_builder` 0.23.4 — the
 newest — pins `analyzer: ^12.1.0`, and that analyzer carries `primary-constructors` with

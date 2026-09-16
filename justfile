@@ -9,6 +9,14 @@ default:
 deps:
     dart pub get
     npm install
+    @just generate
+
+# Run the builders — json_serializable's .g.dart parts are not committed
+[group('setup')]
+generate:
+    dart run build_runner build
+    @# source_gen emits at 80 columns and ignores the formatter's page_width.
+    @find lib -name '*.g.dart' -exec dart format {} +
 
 # Dev server on :8080 with the builder watching. Does not serve /api/contact.
 [group('site')]
