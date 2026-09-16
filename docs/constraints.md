@@ -110,8 +110,8 @@ nothing styles `:invalid`, and `type="email"` is what gives a phone the `@` key.
   the form reports the failure, which is correct rather than broken.
 - **Status only, no body**: `204` accepted, `400` malformed or a bad address, `429` rate limited,
   `502` Resend refused or timed out, `503` secrets missing. A tripped honeypot also gets `204`.
-  `HttpContactDispatcher._failureFor` maps each to a `DispatchFailure` — a new status needs a case
-  there or it reads as "delivery is down".
+  `HttpContactDispatcher._outcomeFor` maps each to a `DispatchException`, or to a `DispatchReceipt`
+  carrying the accepted status — a new status needs a case there or it reads as "delivery is down".
 - **`ContactDraftDto` is the wire format**, and its five keys are read by name in
   `contact.ts`'s `isWellFormed`. `honeypot` is renamed to `company` by a `@JsonKey`, and **the key
   must be sent even when empty** — an encoder that drops empty values turns every legitimate

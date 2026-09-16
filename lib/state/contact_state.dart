@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../content/site_content.dart';
+import '../data/dispatch_outcome.dart';
 import 'contact_draft.dart';
 
 enum DispatchStatus {
@@ -16,7 +17,15 @@ enum DispatchFailure {
   network,
   rejected,
   rateLimited,
-  mailer,
+  mailer;
+
+  /// Reads anything the dispatcher did not recognise as delivery being down.
+  factory DispatchFailure.of(Exception error) => switch (error) {
+    NetworkDispatchException() => network,
+    RejectedDispatchException() => rejected,
+    RateLimitedDispatchException() => rateLimited,
+    _ => mailer,
+  };
 }
 
 final class ContactState extends Equatable {

@@ -1,21 +1,27 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:portfolio/content/site_content.dart';
 import 'package:portfolio/data/contact_dispatcher.dart';
+import 'package:portfolio/data/dispatch_outcome.dart';
 import 'package:portfolio/state/contact_cubit.dart';
 import 'package:portfolio/state/contact_draft.dart';
 import 'package:portfolio/state/contact_state.dart';
+import 'package:portfolio/utils/result.dart';
 import 'package:test/test.dart';
 
 final class _FakeContactDispatcher implements ContactDispatcher {
-  _FakeContactDispatcher({this.failure});
+  _FakeContactDispatcher({this.error});
 
-  final DispatchFailure? failure;
+  final DispatchException? error;
   final List<ContactDraft> sent = [];
 
   @override
-  Future<DispatchFailure?> send(ContactDraft draft) async {
+  Future<DispatchOutcome> send(ContactDraft draft) async {
     sent.add(draft);
-    return failure;
+
+    return switch (error) {
+      final error? => Failure(error),
+      null => const Success(DispatchReceipt(204)),
+    };
   }
 }
 
@@ -75,8 +81,8 @@ void main() {
 
     ContactCubit buildCubit() => ContactCubit(dispatcher: dispatcher, confirmationDuration: Duration.zero);
 
-    ContactCubit buildRefusingCubit({DispatchFailure failure = DispatchFailure.mailer}) => ContactCubit(
-      dispatcher: _FakeContactDispatcher(failure: failure),
+    ContactCubit buildRefusingCubit({DispatchException error = const MailerDispatchException()}) => ContactCubit(
+      dispatcher: _FakeContactDispatcher(error: error),
       confirmationDuration: Duration.zero,
     );
 
@@ -178,7 +184,7 @@ void main() {
 
       blocTest<ContactCubit, ContactState>(
         "carries the dispatcher's reason through, so the form can say which one it was",
-        build: () => buildRefusingCubit(failure: DispatchFailure.rateLimited),
+        build: () => buildRefusingCubit(error: const RateLimitedDispatchException()),
         act: (cubit) async {
           cubit.fillRequiredFields();
           await cubit.submit();
@@ -190,7 +196,7 @@ void main() {
 
       blocTest<ContactCubit, ContactState>(
         'drops the reason once the next attempt starts, rather than showing it under the spinner',
-        build: () => buildRefusingCubit(failure: DispatchFailure.network),
+        build: () => buildRefusingCubit(error: const NetworkDispatchException()),
         act: (cubit) async {
           cubit.fillRequiredFields();
           await cubit.submit();

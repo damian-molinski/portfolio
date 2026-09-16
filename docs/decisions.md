@@ -113,3 +113,24 @@ points at it with `aria-describedby`; a refused press moves focus to the first o
 message is announced. Three live regions firing at once would be read as three interruptions. The
 paragraph above the button is about a failed *send* rather than any field, nothing focuses it, and
 it is the one `role="alert"` on the form.
+
+**The dispatch seam answers a `Result`, not a nullable enum.** `ContactDispatcher.send` returned
+`DispatchFailure?`, where `null` meant it arrived — an encoding with nowhere to put success data,
+and one the cubit read with an `if` rather than a match. It now returns
+`Result<DispatchReceipt, Exception>`: the receipt carries the 2xx the endpoint answered, and the
+failure arm carries a sealed `DispatchException` family. `Result` is generic and lives in
+`lib/utils/` with two arms and no combinators; `fold`, `map` and the rest arrive when a caller needs
+one. The failure type is `Exception` rather than `DispatchException`, so the switch that reads it
+needs a fallback arm that `HttpContactDispatcher` can never reach — the price of a seam that can
+report something it did not anticipate.
+
+**`DispatchFailure` stays in `lib/state/` as the form's vocabulary.** The transport speaks
+exceptions; the form speaks four cases it has copy for. `DispatchFailure.of(Exception)` is where one
+becomes the other, so `ContactState` stays plainly `Equatable` and `contact_form.dart`'s
+`_failureMessage` switch never learns what a `ClientException` is. Two representations of the same
+four reasons is the cost; a fifth exception with no copy resolves to `mailer` instead of failing to
+compile is the risk that buys.
+
+**Nothing renders `DispatchReceipt.statusCode` yet.** It is on the seam because it exists there and
+was previously discarded, not because the page shows it. Putting it on `ContactState` would add a
+field with no reader.
