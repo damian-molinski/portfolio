@@ -42,7 +42,7 @@ docs/           decisions.md, plans/, this map
 | DI | `lib/di/injector.dart` | `configureDependencies()`, idempotent, one `getIt` cascade | `lib/di/injector.dart` | one line in the cascade |
 | Pure helpers | `lib/utils/*.dart` | extensions or top-level fns | `lib/utils/markup.dart` | helper + `test/utils/<name>_test.dart` |
 | Tests | `test/<mirror of lib>/<name>_test.dart` | `dart test`, VM only | `test/state/contact_cubit_test.dart` | mirror the `lib/` path |
-| Render test helper | `test/components/render.dart` | a `ServerTester` extension returning an `html` `Document` | `test/components/render.dart` | reuse it, don't re-pump by hand |
+| Render test helper | `test/components/render.dart` | a `ServerTester` extension returning an `html` `Document`, plus `useAppOptions()` | `test/components/render.dart` | reuse it, don't re-pump by hand; call `useAppOptions()` first in any file that renders a `@client` island |
 | Contact endpoint | `functions/api/*.ts` | file path is the route — contact.ts serves /api/contact | `functions/api/contact.ts` | `.ts` file + `npm run types` + a `DispatchException` in `lib/data/dispatch_outcome.dart` and its case in `HttpContactDispatcher._outcomeFor` |
 | Static assets | `web/**` | copied verbatim to the site root | `web/images/portrait.jpg` | drop the file in `web/` |
 | Build script | `tool/*.dart` | `dart run tool/<name>.dart`, runs after `jaspr build` | `tool/hash_assets.dart` | script + a line in the `build` recipe of `justfile` |

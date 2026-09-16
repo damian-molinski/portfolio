@@ -16,6 +16,8 @@ final class _AcceptingDispatcher implements ContactDispatcher {
 }
 
 void main() {
+  useAppOptions();
+
   const copy = ContactFormContent();
 
   late ContactCubit contact;

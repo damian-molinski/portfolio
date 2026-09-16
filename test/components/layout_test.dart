@@ -9,6 +9,8 @@ import 'package:portfolio/content/site_content.dart';
 import 'render.dart';
 
 void main() {
+  useAppOptions();
+
   group(SectionShell, () {
     testServer('emits a named landmark on the page container', (tester) async {
       const siteSection = SiteSection.pillars;

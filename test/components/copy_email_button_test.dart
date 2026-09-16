@@ -13,6 +13,8 @@ final class _FakeClipboard implements Clipboard {
 }
 
 void main() {
+  useAppOptions();
+
   const hero = HeroContent();
   const identity = SiteIdentity();
 
