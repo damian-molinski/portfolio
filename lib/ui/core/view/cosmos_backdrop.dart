@@ -53,10 +53,12 @@ class CosmosBackdrop extends StatelessComponent {
 
     css('.cosmos', [
       css('&').styles(
-        position: .fixed(top: .zero, left: .zero, right: .zero, bottom: .zero),
+        position: .fixed(top: .zero, left: .zero, right: .zero),
         zIndex: const ZIndex(0),
+        height: 100.vh,
         overflow: .hidden,
         pointerEvents: .none,
+        raw: {'height': '100lvh'},
       ),
 
       css('.cosmos__base').styles(
