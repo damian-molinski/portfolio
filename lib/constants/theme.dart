@@ -76,13 +76,15 @@ abstract final class AppColors {
 /// collapses those onto Kinetic Slate roles at the same alpha, so `AppColors.tertiary.alpha(0.4)`
 /// replaces `cyan-500/40` rather than a second literal palette being kept alive alongside the first.
 extension AppColorAlpha on Color {
+  static final _hexPattern = RegExp(r'^#[0-9a-fA-F]{6}$');
+
   /// This colour at [opacity], as an `rgba()` value.
   ///
   /// Only defined for the `#rrggbb` literals in [AppColors]; anything else throws rather than
   /// silently rendering an invalid colour into the stylesheet.
   Color alpha(double opacity) {
     final hex = value;
-    if (!RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(hex)) {
+    if (!_hexPattern.hasMatch(hex)) {
       throw ArgumentError.value(hex, 'value', 'alpha() needs a #rrggbb colour');
     }
     final red = int.parse(hex.substring(1, 3), radix: 16);
@@ -90,6 +92,58 @@ extension AppColorAlpha on Color {
     final blue = int.parse(hex.substring(5, 7), radix: 16);
     return Color.rgba(red, green, blue, opacity);
   }
+}
+
+/// The 1px lines the design draws everywhere — card edges, section rules, control borders.
+///
+/// Only the colour varies between them, which is the whole reason this is a function rather than a
+/// constant: the width and the style never do.
+abstract final class AppBorders {
+  /// A hairline on all four sides, in [color].
+  static Border hairline(Color color) => Border.all(style: .solid, color: color, width: 1.px);
+
+  /// One side of a hairline, for [Border.only] and [Border.symmetric].
+  static BorderSide hairlineSide(Color color) => BorderSide.solid(color: color, width: 1.px);
+}
+
+/// The keyboard focus ring.
+///
+/// Declared once because it is an accessibility guarantee rather than decoration: the global
+/// `:focus-visible` rule and the contact form's own override have to draw the same thing, and two
+/// copies of it would drift.
+abstract final class AppFocus {
+  static const ring = Outline(
+    color: AppColors.tertiary,
+    style: .solid,
+    width: OutlineWidth(Unit.pixels(2)),
+    offset: Unit.pixels(2),
+  );
+}
+
+/// The equal-column grids the page lays out, one constant per column count.
+///
+/// Four counts is all the design uses — the entry grid runs 1 / 2 / 4 across its breakpoints, the
+/// projects grid 1 / 3, the contact cards 1 / 3, the form's name-and-email row 1 / 2.
+abstract final class AppGrid {
+  static const singleColumn = GridTemplate(columns: GridTracks([GridTrack(TrackSize.fr(1))]));
+
+  static const twoColumns = GridTemplate(
+    columns: GridTracks([
+      GridTrack.repeat(TrackRepeat(2), [GridTrack(TrackSize.fr(1))]),
+    ]),
+  );
+
+  static const threeColumns = GridTemplate(
+    columns: GridTracks([
+      GridTrack.repeat(TrackRepeat(3), [GridTrack(TrackSize.fr(1))]),
+    ]),
+  );
+
+  static const fourColumns = GridTemplate(
+    columns: GridTracks([
+      GridTrack.repeat(TrackRepeat(4), [GridTrack(TrackSize.fr(1))]),
+    ]),
+  );
 }
 
 /// The two font stacks. Geist sets prose, JetBrains Mono sets every telemetry readout.
@@ -289,6 +343,19 @@ abstract final class AppMotion {
 
   /// The design's ambient pulse easing — `cubic-bezier(0.4, 0, 0.6, 1)`.
   static const ambient = Curve.cubicBezier(0.4, 0, 0.6, 1);
+
+  /// Hover and focus feedback — colour, border, glow.
+  static const fast = Duration(milliseconds: 200);
+
+  /// The card lift and the tile rotation, which travel further and so take longer.
+  static const slow = Duration(milliseconds: 300);
+
+  /// A transition on [property] at the design's shared `ease-out`.
+  ///
+  /// Every transition on the site is this curve; only the property and, for the two above, the
+  /// duration differ.
+  static Transition ease(String property, {Duration duration = fast}) =>
+      Transition(property, duration: duration, curve: .easeOut);
 }
 
 /// The global stylesheet: font import, element reset, the two shared keyframes, the utilities that
@@ -343,13 +410,17 @@ List<StyleRule> get styles => [
   ),
 
   // A visible default so nothing is ever keyboard-invisible; sections override with their own ring.
-  css(':focus-visible').styles(
-    outline: const Outline(
-      color: AppColors.tertiary,
-      style: .solid,
-      width: OutlineWidth(Unit.pixels(2)),
-      offset: Unit.pixels(2),
-    ),
+  css(':focus-visible').styles(outline: AppFocus.ring),
+
+  // The page's one horizontal measure: the header bar, the hero, the dock, every section and the
+  // footer sit on the same gutter and the same ceiling. Only the horizontal padding is declared
+  // here, so a caller is free to add its own vertical padding — but it must do so with
+  // `Spacing.symmetric(vertical:)` alone, since passing both axes emits the `padding` shorthand and
+  // would take these longhands with it.
+  css('.app-container').styles(
+    maxWidth: AppSpacing.containerMax,
+    padding: .symmetric(horizontal: AppSpacing.gutterMobile),
+    margin: .symmetric(horizontal: Unit.auto),
   ),
 
   // Screen-reader-only text: present in the accessibility tree, absent from the page.
@@ -433,6 +504,10 @@ List<StyleRule> get styles => [
   css('.delay-100').styles(raw: {'animation-delay': '100ms'}),
   css('.delay-200').styles(raw: {'animation-delay': '200ms'}),
   css('.delay-300').styles(raw: {'animation-delay': '300ms'}),
+
+  css.media(AppBreakpoints.fromLg, [
+    css('.app-container').styles(padding: .symmetric(horizontal: AppSpacing.gutterDesktop)),
+  ]),
 
   // Stop every continuous animation, entrance and transform for visitors who asked for less motion.
   // Colour feedback survives on purpose — it is the only hover cue left once the lifts are gone.

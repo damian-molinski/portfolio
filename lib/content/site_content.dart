@@ -12,7 +12,6 @@ final class SiteIdentity {
   String get role => 'Team Lead & Flutter Software Engineer';
   String get copyright => '© Damian Moliński • Built with Dart&Jaspr';
   String get email => _contactEmail;
-  String get avatarAlt => 'Portrait photo';
   String get emblem => '/images/emblem.png';
   String get emblemAlt => 'Logo';
 }
@@ -350,8 +349,6 @@ enum Project {
   final List<String> tags;
   final String? href;
 
-  bool get isActive => false;
-
   String get linkAriaLabel => '${const ProjectContent().viewLabel}: $title';
 }
 
@@ -359,7 +356,6 @@ enum Project {
 final class ProjectContent {
   const ProjectContent();
 
-  String get activeLabel => 'Active';
   String get telemetryLabel => 'Telemetry & Target';
   String get viewLabel => 'View Project';
 }
@@ -405,7 +401,7 @@ enum ContactCard {
 enum ContactField {
   name(
     id: 'contact-name',
-    type: 'text',
+    type: ContactFieldType.text,
     autocomplete: 'organization',
     label: 'Your Name / Organization',
     noun: 'your name',
@@ -413,7 +409,7 @@ enum ContactField {
   ),
   email(
     id: 'contact-email',
-    type: 'email',
+    type: ContactFieldType.email,
     autocomplete: 'email',
     label: 'Email Address',
     noun: 'your email address',
@@ -421,7 +417,7 @@ enum ContactField {
   ),
   brief(
     id: 'contact-brief',
-    type: 'textarea',
+    type: ContactFieldType.multiline,
     autocomplete: 'off',
     label: 'Project Brief',
     noun: 'a project brief',
@@ -438,15 +434,15 @@ enum ContactField {
   });
 
   final String id;
-  final String type;
+  final ContactFieldType type;
   final String autocomplete;
   final String label;
   final String noun;
   final String placeholder;
 
-  bool get isRequired => true;
+  bool get isEmail => type == ContactFieldType.email;
 
-  bool get isEmail => type == 'email';
+  bool get isMultiline => type == ContactFieldType.multiline;
 
   /// The id of the paragraph naming what is wrong with this field, for `aria-describedby`.
   ///
@@ -454,9 +450,13 @@ enum ContactField {
   /// blocked control at one shared paragraph would have a screen reader read the other fields'
   /// problems as this one's.
   String get errorId => '$id-error';
-
-  bool get isMultiline => type == 'textarea';
 }
+
+/// What kind of control a [ContactField] renders, and so how it is validated.
+///
+/// Structural rather than copy. [email] is what gives a phone the `@` key and what asks
+/// [ContactDraftBuilder] to check the shape of the value; [multiline] is a `<textarea>`.
+enum ContactFieldType { text, email, multiline }
 
 enum ScopeOption {
   audit('Architecture / Performance Audit'),
@@ -465,6 +465,10 @@ enum ScopeOption {
   other('General Technical Inquiry');
 
   const ScopeOption(this.label);
+
+  /// The selection an untouched form carries. Named rather than `values.first`, so the default is a
+  /// decision instead of a consequence of declaration order.
+  static const ScopeOption initial = audit;
 
   final String label;
 

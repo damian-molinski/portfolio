@@ -30,6 +30,14 @@ CSS is written in Dart: component-scoped rules in a `@css static List<StyleRule>
 global rules in `lib/constants/theme.dart`. Use the type-safe `css(...)` bindings and shorthand enums
 (`display: .flex`), not raw strings, and satisfy `jaspr_lints` rather than suppressing it.
 
+Recurring CSS has names in `theme.dart` — use them rather than re-inlining the literal:
+`AppBorders.hairline/hairlineSide` for every 1px line, `AppMotion.ease(property)` for every
+transition (`AppMotion.fast` / `slow` are the two durations), `AppGrid.singleColumn` … `fourColumns`
+for the equal-column grids, `AppFocus.ring` for the keyboard focus outline, and the global
+`.app-container` class for the page's shared gutter and 72rem ceiling. **A caller of
+`.app-container` that adds vertical padding must pass `Spacing.symmetric(vertical:)` alone** — both
+axes emit the `padding` shorthand, which would overwrite the utility's longhands.
+
 `DESIGN.md`'s YAML frontmatter is the source of truth for tokens; its prose is intent only.
 `lib/constants/theme.dart` declares them verbatim (`AppColors`, `AppType`, `AppSpacing`, …). Never
 restate a hex value in a component; translucent variants come from `Color.alpha()`.
@@ -37,17 +45,20 @@ restate a hex value in a component; translucent variants come from `Color.alpha(
 both roles exist, `primary` for text accents and `primary-container` for button fills. And
 `docs/reference/landing-page.html`, the archived render, is for layout — **never for colour**.
 
-## The site carries placeholder copy
+## All copy lives in one file
 
-Every user-visible string is a `[[TODO: …]]` marker in `lib/content/site_content.dart`; no component
-declares copy of its own, so add a string by adding a field there, not in a `build` method.
-**The site must not be deployed while `grep -rn '\[\[TODO:' lib/` returns anything.** Plans live in
-`docs/plans/`, never `lib/` — a plan quoting markers makes that gate count prose.
+Every user-visible string is a field in `lib/content/site_content.dart`; no component declares copy of
+its own, so add a string by adding a field there, not in a `build` method.
 
-Not everything there is copy: `ContactFormContent`'s `fieldId`, `scopeFieldId`, `endpoint`,
-`honeypotName` and `honeypotFieldId` are structural and hold real values, as is `ContactField`'s
-`errorId` — and a trap carrying a placeholder marker would announce itself to the scraper it is set
-for.
+The real copy has landed — `grep -rn '\[\[TODO:' lib/` now returns nothing. `just markers` stays in
+the deploy gate as a guard against a placeholder reappearing, so **the site must not be deployed while
+that grep matches**. Plans live in `docs/plans/`, never `lib/` — a plan quoting markers makes that gate
+count prose.
+
+Not everything in that file is copy: `ContactFormContent`'s `fieldId`, `scopeFieldId`,
+`honeypotName` and `honeypotFieldId` are structural and hold real values, as are `ContactField`'s
+`id`, `errorId` and `type` — and a trap carrying a placeholder marker would announce itself to the
+scraper it is set for.
 
 ## Islands
 
@@ -95,8 +106,10 @@ would compare equal on every keystroke and suppress the emit — also why `Conta
 **`CopyCubit` must stay `registerFactory`** — the page renders `CopyEmailButton` twice, and a
 singleton would make both confirm on one click.
 
-Every section reads copy through a `BlocBuilder`, deliberately including ones that freeze at build
-time. `main.server.dart`'s `<head>` is the exception.
+Every section reads copy through `SiteContentBuilder` (`lib/state/site_content_builder.dart`),
+deliberately including ones that freeze at build time — it is `BlocBuilder` with the one-field state
+unwrapped, and the islands pass their own cubit to it. `main.server.dart`'s `<head>` is the
+exception.
 
 ## The contact endpoint
 

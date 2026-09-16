@@ -7,8 +7,8 @@ import '../di/injector.dart';
 import '../state/bloc_builder.dart';
 import '../state/copy_cubit.dart';
 import '../state/copy_state.dart';
+import '../state/site_content_builder.dart';
 import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
 import 'icons.dart';
 import 'mono_button.dart';
 
@@ -91,11 +91,11 @@ class CopyEmailButtonState extends State<CopyEmailButton> {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      bloc: _siteContent,
-      builder: (context, state) => BlocBuilder<CopyCubit, CopyState>(
+    return SiteContentBuilder(
+      cubit: _siteContent,
+      builder: (context, content) => BlocBuilder<CopyCubit, CopyState>(
         bloc: _copy,
-        builder: (context, copyState) => _button(state.content, copyState),
+        builder: (context, copyState) => _button(content, copyState),
       ),
     );
   }
@@ -108,7 +108,7 @@ class CopyEmailButtonState extends State<CopyEmailButton> {
         padding: .all(AppSpacing.xxs),
         radius: .all(.circular(AppRadius.base)),
         cursor: .pointer,
-        transition: Transition('all', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('all'),
         justifyContent: .center,
         alignItems: .center,
         color: AppColors.onSurfaceVariant,

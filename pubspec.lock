@@ -274,7 +274,7 @@ packages:
     source: hosted
     version: "4.4.0"
   html:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: html
       sha256: "43b67b8f43321ab066817dfac5619596c98bb1b61624e77203bb4351785f9699"
@@ -326,6 +326,14 @@ packages:
     description:
       name: jaspr_builder
       sha256: "470ab4f3659e04c5562d68df1904c08e0fb91678e57c90d9583143ec320d2375"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.23.4"
+  jaspr_test:
+    dependency: "direct dev"
+    description:
+      name: jaspr_test
+      sha256: "60a5e954039ef4af485bcb51d5613f76c072e94eebb85e28b5921d22214fa1ed"
       url: "https://pub.dev"
     source: hosted
     version: "0.23.4"

@@ -13,10 +13,7 @@ enum TagPillVariant {
   /// pills per card need edges to stay legible as a group.
   neutral;
 
-  String get className => switch (this) {
-    accent => 'tag-pill tag-pill--accent',
-    neutral => 'tag-pill tag-pill--neutral',
-  };
+  String get className => 'tag-pill tag-pill--$name';
 }
 
 /// A technology tag.
@@ -40,24 +37,24 @@ class TagPill extends StatelessComponent {
           .styles(
             display: .inlineBlock,
             padding: .symmetric(vertical: 2.px, horizontal: AppSpacing.xs),
-            border: .all(style: .solid, color: Colors.transparent, width: 1.px),
+            border: AppBorders.hairline(Colors.transparent),
             radius: .all(.circular(AppRadius.pill)),
             cursor: .defaultCursor,
-            transition: Transition('all', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('all'),
             whiteSpace: .noWrap,
             backgroundColor: AppColors.surfaceContainer,
           ),
       css('&.tag-pill--accent').styles(color: AppColors.secondary),
       css('&.tag-pill--accent:hover').styles(
-        border: .all(style: .solid, color: AppColors.tertiary.alpha(0.6), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.6)),
         color: AppColors.tertiary,
       ),
       css('&.tag-pill--neutral').styles(
-        border: .all(style: .solid, color: AppColors.surfaceContainerHigh.alpha(0.6), width: 1.px),
+        border: AppBorders.hairline(AppColors.surfaceContainerHigh.alpha(0.6)),
         color: AppColors.onSurface,
       ),
       css('&.tag-pill--neutral:hover').styles(
-        border: .all(style: .solid, color: AppColors.tertiary, width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary),
         color: AppColors.tertiary,
         backgroundColor: AppColors.tertiaryContainer.alpha(0.3),
       ),

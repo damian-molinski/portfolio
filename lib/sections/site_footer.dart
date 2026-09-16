@@ -3,9 +3,7 @@ import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
 import '../data/site_content_repository.dart';
-import '../state/bloc_builder.dart';
-import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
+import '../state/site_content_builder.dart';
 
 /// The page footer.
 ///
@@ -16,14 +14,12 @@ class SiteFooter extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => _footer(state.content),
-    );
+    return SiteContentBuilder(builder: (context, content) => _footer(content));
   }
 
   Component _footer(SiteContent content) {
     return footer(classes: 'site-footer', [
-      div(classes: 'site-footer__bar', [
+      div(classes: 'site-footer__bar app-container', [
         nav(classes: 'site-footer__links', [
           for (final link in content.footerLinks) a(classes: 'site-footer__link', href: link.href, [.text(link.label)]),
         ]),
@@ -38,16 +34,15 @@ class SiteFooter extends StatelessComponent {
       css('&').styles(
         width: 100.percent,
         border: Border.only(
-          top: BorderSide.solid(color: AppColors.surfaceContainerHigh.alpha(0.4), width: 1.px),
+          top: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.4)),
         ),
         backgroundColor: AppColors.surfaceContainerLowest,
       ),
 
       css('.site-footer__bar').styles(
         display: .flex,
-        maxWidth: AppSpacing.containerMax,
-        padding: .symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.gutterMobile),
-        margin: .symmetric(horizontal: Unit.auto),
+        // Vertical only — `.app-container` owns the horizontal gutter. See the note in `hero.dart`.
+        padding: .symmetric(vertical: AppSpacing.xl),
         flexDirection: .column,
         justifyContent: .spaceBetween,
         alignItems: .center,
@@ -66,7 +61,7 @@ class SiteFooter extends StatelessComponent {
           .styles(
             padding: .symmetric(horizontal: AppSpacing.xxs),
             radius: .all(.circular(AppRadius.base)),
-            transition: Transition('color', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('color'),
             color: AppColors.onSurfaceVariant,
             whiteSpace: .noWrap,
           ),
@@ -83,12 +78,6 @@ class SiteFooter extends StatelessComponent {
     // From 768px the links and the copyright share a row.
     css.media(AppBreakpoints.fromMd, [
       css('.site-footer .site-footer__bar').styles(flexDirection: .row),
-    ]),
-
-    css.media(AppBreakpoints.fromLg, [
-      css('.site-footer .site-footer__bar').styles(
-        padding: .symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.gutterDesktop),
-      ),
     ]),
   ];
 }

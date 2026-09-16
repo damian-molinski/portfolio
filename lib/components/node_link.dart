@@ -3,6 +3,7 @@ import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
 import '../content/site_content.dart';
+import '../utils/markup.dart';
 
 /// One tile in the identity dock: a leading glyph, the service and handle stacked beside it, and an
 /// outbound arrow in the corner. Every node leaves the site, so every tile carries the same arrow.
@@ -20,7 +21,7 @@ class NodeLink extends StatelessComponent {
       classes: 'node-link',
       href: node.href,
       target: .blank,
-      attributes: {'rel': 'noopener noreferrer', 'aria-label': node.ariaLabel},
+      attributes: externalLinkAttributes(ariaLabel: node.ariaLabel),
       [
         div(classes: 'node-link__identity', [
           node.icon(classes: 'node-link__glyph'),
@@ -40,15 +41,15 @@ class NodeLink extends StatelessComponent {
       css('&').styles(
         display: .flex,
         padding: .all(AppSpacing.sm),
-        border: .all(style: .solid, color: AppColors.surfaceContainerHigh.alpha(0.6), width: 1.px),
+        border: AppBorders.hairline(AppColors.surfaceContainerHigh.alpha(0.6)),
         radius: .all(.circular(AppRadius.lg)),
-        transition: Transition('all', duration: 300.ms, curve: .easeOut),
+        transition: AppMotion.ease('all', duration: AppMotion.slow),
         justifyContent: .spaceBetween,
         alignItems: .center,
         backgroundColor: AppColors.surfaceContainerLow.alpha(0.7),
       ),
       css('&:hover').styles(
-        border: .all(style: .solid, color: AppColors.tertiary.alpha(0.6), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.6)),
         shadow: BoxShadow(offsetX: .zero, offsetY: 8.px, blur: 20.px, color: AppColors.tertiary.alpha(0.18)),
         transform: .translate(y: (-4).px),
         backgroundColor: AppColors.tertiaryContainer.alpha(0.2),
@@ -63,7 +64,7 @@ class NodeLink extends StatelessComponent {
       css('.node-link__text').styles(display: .flex, flexDirection: .column),
 
       css('.node-link__glyph').styles(
-        transition: Transition('color', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('color'),
         color: AppColors.primary,
         fontSize: 20.px,
       ),
@@ -72,7 +73,7 @@ class NodeLink extends StatelessComponent {
       css('.node-link__name')
           .combine(AppType.labelMd)
           .styles(
-            transition: Transition('color', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('color'),
             color: AppColors.onSurface,
           ),
       css('&:hover .node-link__name').styles(color: AppColors.tertiaryFixed),
@@ -80,7 +81,7 @@ class NodeLink extends StatelessComponent {
       css('.node-link__handle').combine(AppType.labelSm).styles(color: AppColors.onSurfaceVariant),
 
       css('.node-link__trailing').styles(
-        transition: Transition('all', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('all'),
         color: AppColors.outline,
         fontSize: 13.px,
       ),

@@ -71,8 +71,10 @@ final class ContactCubit extends Cubit<ContactState> {
       return;
     }
 
+    // Both, together: the draft is empty again, so leaving validation on would re-derive a problem
+    // for every field and report the send that just succeeded as three blocked ones.
     _draft.clear();
-    _emitDraft(status: DispatchStatus.sent);
+    _emitDraft(status: DispatchStatus.sent, isValidated: false);
 
     _confirmation = Timer(_confirmationDuration, () {
       if (!isClosed) _emitDraft(status: DispatchStatus.idle);

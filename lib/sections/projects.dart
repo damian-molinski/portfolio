@@ -5,14 +5,12 @@ import '../components/icons.dart';
 import '../components/section_heading.dart';
 import '../components/section_shell.dart';
 import '../components/spec_card.dart';
-import '../components/status_dot.dart';
 import '../components/tag_pill.dart';
 import '../constants/theme.dart';
 import '../content/site_content.dart';
 import '../data/site_content_repository.dart';
-import '../state/bloc_builder.dart';
-import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
+import '../state/site_content_builder.dart';
+import '../utils/markup.dart';
 
 /// Section `03` — the three case-study cards.
 ///
@@ -29,11 +27,6 @@ class Projects extends StatelessComponent {
         div(classes: 'project-card__head', [
           div(classes: 'project-card__top', [
             span(classes: 'project-card__category', [.text(project.category)]),
-            if (project.isActive)
-              span(classes: 'project-card__status', [
-                const StatusDot(tone: StatusDotTone.pulse),
-                .text(labels.activeLabel),
-              ]),
           ]),
 
           div(classes: 'project-card__text', [
@@ -56,7 +49,7 @@ class Projects extends StatelessComponent {
               classes: 'project-card__link',
               href: href,
               target: .blank,
-              attributes: {'rel': 'noopener noreferrer', 'aria-label': project.linkAriaLabel},
+              attributes: externalLinkAttributes(ariaLabel: project.linkAriaLabel),
               [
                 span([.text(labels.viewLabel)]),
                 AppIcon.northEast(classes: 'project-card__link-glyph'),
@@ -69,9 +62,7 @@ class Projects extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => _section(state.content),
-    );
+    return SiteContentBuilder(builder: (context, content) => _section(content));
   }
 
   Component _section(SiteContent content) {
@@ -91,7 +82,7 @@ class Projects extends StatelessComponent {
     css('.project-grid', [
       css('&').styles(
         display: .grid,
-        gridTemplate: const GridTemplate(columns: GridTracks([GridTrack(TrackSize.fr(1))])),
+        gridTemplate: AppGrid.singleColumn,
         gap: Gap(row: AppSpacing.md, column: AppSpacing.md),
       ),
     ]),
@@ -117,16 +108,6 @@ class Projects extends StatelessComponent {
             textTransform: .upperCase,
             letterSpacing: 0.08.em,
           ),
-      css('.project-card__status')
-          .combine(AppType.labelSm)
-          .styles(
-            display: .inlineFlex,
-            alignItems: .center,
-            gap: Gap(column: AppSpacing.xxs),
-            color: AppColors.tertiary,
-            fontFamily: AppFonts.mono,
-          ),
-
       css('.project-card__text').styles(
         display: .flex,
         flexDirection: .column,
@@ -135,7 +116,7 @@ class Projects extends StatelessComponent {
       css('.project-card__title')
           .combine(AppType.headlineSm)
           .styles(
-            transition: Transition('color', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('color'),
             color: AppColors.onSurface,
           ),
       css('&:hover .project-card__title').styles(color: AppColors.tertiaryFixed),
@@ -144,11 +125,7 @@ class Projects extends StatelessComponent {
       css('.project-card__telemetry').styles(
         display: .flex,
         padding: .all(AppSpacing.sm),
-        border: Border.all(
-          style: .solid,
-          color: AppColors.surfaceContainerHigh.alpha(0.5),
-          width: 1.px,
-        ),
+        border: AppBorders.hairline(AppColors.surfaceContainerHigh.alpha(0.5)),
         radius: .all(.circular(AppRadius.lg)),
         flexDirection: .column,
         gap: Gap(row: AppSpacing.xxs),
@@ -173,7 +150,7 @@ class Projects extends StatelessComponent {
         padding: .only(top: AppSpacing.md),
         margin: .only(top: AppSpacing.md),
         border: Border.only(
-          top: BorderSide.solid(color: AppColors.surfaceContainerHigh.alpha(0.4), width: 1.px),
+          top: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.4)),
         ),
         flexDirection: .column,
         gap: Gap(row: AppSpacing.sm),
@@ -190,14 +167,14 @@ class Projects extends StatelessComponent {
             display: .inlineFlex,
             width: .fitContent,
             radius: .all(.circular(AppRadius.base)),
-            transition: Transition('color', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('color'),
             alignItems: .center,
             gap: Gap(column: AppSpacing.xs),
             color: AppColors.primary,
           ),
       css('&:hover .project-card__link').styles(color: AppColors.tertiary),
       css('.project-card__link-glyph').styles(
-        transition: Transition('transform', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('transform'),
         fontSize: 13.px,
       ),
       css('&:hover .project-card__link-glyph').styles(
@@ -207,11 +184,7 @@ class Projects extends StatelessComponent {
 
     css.media(AppBreakpoints.fromLg, [
       css('.project-grid').styles(
-        gridTemplate: const GridTemplate(
-          columns: GridTracks([
-            GridTrack.repeat(TrackRepeat(3), [GridTrack(TrackSize.fr(1))]),
-          ]),
-        ),
+        gridTemplate: AppGrid.threeColumns,
       ),
     ]),
   ];

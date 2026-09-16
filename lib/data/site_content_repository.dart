@@ -22,7 +22,6 @@ final class SiteContent extends Equatable {
     required this.skillGroups,
     required this.projects,
     required this.contactCards,
-    required this.contactFields,
     required this.scopeOptions,
     required this.footerLinks,
   });
@@ -40,7 +39,6 @@ final class SiteContent extends Equatable {
   final List<SkillGroup> skillGroups;
   final List<Project> projects;
   final List<ContactCard> contactCards;
-  final List<ContactField> contactFields;
   final List<ScopeOption> scopeOptions;
   final List<FooterLink> footerLinks;
 
@@ -59,7 +57,6 @@ final class SiteContent extends Equatable {
     skillGroups,
     projects,
     contactCards,
-    contactFields,
     scopeOptions,
     footerLinks,
   ];
@@ -95,7 +92,6 @@ final class ConstSiteContentRepository implements SiteContentRepository {
       skillGroups: SkillGroup.values,
       projects: Project.values,
       contactCards: ContactCard.values,
-      contactFields: ContactField.values,
       scopeOptions: ScopeOption.values,
       footerLinks: FooterLink.values,
     );

@@ -8,15 +8,14 @@ import '../components/section_shell.dart';
 import '../constants/theme.dart';
 import '../content/site_content.dart';
 import '../data/site_content_repository.dart';
-import '../state/bloc_builder.dart';
-import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
+import '../state/site_content_builder.dart';
+import '../utils/markup.dart';
 
 /// Section `04` — the consultation panel.
 ///
 /// One panel rather than a section of loose blocks: a header strip carrying the heading and three
-/// summary cards, then the form console beneath it on a lighter ground. The form sends nothing —
-/// decision D5, and [ContactForm] says why.
+/// summary cards, then the form console beneath it on a lighter ground. The form posts to
+/// `/api/contact`; [ContactForm] owns the draft and the request, and says how.
 class Contact extends StatelessComponent {
   const Contact({super.key});
 
@@ -32,7 +31,7 @@ class Contact extends StatelessComponent {
             classes: 'contact__card-value contact__card-value--link',
             href: href,
             target: card.isExternal ? .blank : null,
-            attributes: card.isExternal ? const {'rel': 'noopener noreferrer'} : null,
+            attributes: card.isExternal ? externalLinkAttributes() : null,
             [.text(card.value)],
           )
         else
@@ -44,9 +43,7 @@ class Contact extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => _section(state.content),
-    );
+    return SiteContentBuilder(builder: (context, content) => _section(content));
   }
 
   Component _section(SiteContent content) {
@@ -81,11 +78,7 @@ class Contact extends StatelessComponent {
         position: .relative(),
         maxWidth: 56.rem,
         margin: .symmetric(horizontal: Unit.auto),
-        border: Border.all(
-          style: .solid,
-          color: AppColors.surfaceContainerHigh.alpha(0.6),
-          width: 1.px,
-        ),
+        border: AppBorders.hairline(AppColors.surfaceContainerHigh.alpha(0.6)),
         radius: .all(.circular(AppRadius.xl)),
         overflow: .hidden,
         shadow: BoxShadow(
@@ -112,7 +105,7 @@ class Contact extends StatelessComponent {
         position: .relative(),
         padding: .all(AppSpacing.lg),
         border: Border.only(
-          bottom: BorderSide.solid(color: AppColors.surfaceContainerHigh.alpha(0.6), width: 1.px),
+          bottom: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.6)),
         ),
         flexDirection: .column,
         gap: Gap(row: AppSpacing.sm),
@@ -121,25 +114,21 @@ class Contact extends StatelessComponent {
 
       css('.contact__cards').styles(
         display: .grid,
-        gridTemplate: const GridTemplate(columns: GridTracks([GridTrack(TrackSize.fr(1))])),
+        gridTemplate: AppGrid.singleColumn,
         gap: Gap(row: AppSpacing.xs, column: AppSpacing.xs),
       ),
       css('.contact__card').styles(
         display: .flex,
         padding: .all(AppSpacing.sm),
-        border: Border.all(
-          style: .solid,
-          color: AppColors.surfaceContainerHigh.alpha(0.5),
-          width: 1.px,
-        ),
+        border: AppBorders.hairline(AppColors.surfaceContainerHigh.alpha(0.5)),
         radius: .all(.circular(AppRadius.lg)),
-        transition: Transition('all', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('all'),
         alignItems: .center,
         gap: Gap(column: AppSpacing.sm),
         backgroundColor: AppColors.surfaceContainer,
       ),
       css('.contact__card:hover').styles(
-        border: Border.all(style: .solid, color: AppColors.tertiary.alpha(0.5), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.5)),
         shadow: BoxShadow(
           offsetX: .zero,
           offsetY: .zero,
@@ -149,7 +138,7 @@ class Contact extends StatelessComponent {
       ),
 
       css('.contact__card-glyph').styles(
-        transition: Transition('color', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('color'),
         fontSize: 20.px,
       ),
       for (final accent in AppAccent.values) css('.contact__card-glyph--${accent.name}').styles(color: accent.color),
@@ -166,7 +155,7 @@ class Contact extends StatelessComponent {
           .combine(AppType.bodySm)
           .styles(
             overflow: .hidden,
-            transition: Transition('color', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('color'),
             color: AppColors.onSurface,
             textOverflow: .ellipsis,
             whiteSpace: .noWrap,
@@ -182,11 +171,7 @@ class Contact extends StatelessComponent {
 
     css.media(AppBreakpoints.fromMd, [
       css('.contact__panel .contact__cards').styles(
-        gridTemplate: const GridTemplate(
-          columns: GridTracks([
-            GridTrack.repeat(TrackRepeat(3), [GridTrack(TrackSize.fr(1))]),
-          ]),
-        ),
+        gridTemplate: AppGrid.threeColumns,
       ),
     ]),
 

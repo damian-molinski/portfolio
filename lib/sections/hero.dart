@@ -7,9 +7,7 @@ import '../components/mono_button.dart';
 import '../components/status_dot.dart';
 import '../constants/theme.dart';
 import '../content/site_content.dart';
-import '../state/bloc_builder.dart';
-import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
+import '../state/site_content_builder.dart';
 
 /// The opening screen.
 ///
@@ -22,9 +20,7 @@ class Hero extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => _section(state.content.hero),
-    );
+    return SiteContentBuilder(builder: (context, content) => _section(content.hero));
   }
 
   Component _section(HeroContent hero) {
@@ -39,7 +35,7 @@ class Hero extends StatelessComponent {
         ],
       ),
 
-      div(classes: 'hero__container', [
+      div(classes: 'hero__container app-container', [
         div(classes: 'hero__content animate-fade-in-up', [
           div(classes: 'hero__pill', [
             const StatusDot(),
@@ -87,7 +83,7 @@ class Hero extends StatelessComponent {
         position: .relative(),
         width: 100.percent,
         border: Border.only(
-          bottom: BorderSide.solid(color: AppColors.surfaceContainerHigh.alpha(0.3), width: 1.px),
+          bottom: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.3)),
         ),
         overflow: .hidden,
       ),
@@ -129,11 +125,11 @@ class Hero extends StatelessComponent {
         },
       ),
 
+      // Vertical only: `.app-container` owns the horizontal gutter as longhands, and passing both
+      // axes here would emit the `padding` shorthand over them.
       css('.hero__container').styles(
         position: .relative(),
-        maxWidth: AppSpacing.containerMax,
-        padding: .symmetric(vertical: AppSpacing.xxl, horizontal: AppSpacing.gutterMobile),
-        margin: .symmetric(horizontal: Unit.auto),
+        padding: .symmetric(vertical: AppSpacing.xxl),
       ),
 
       css('.hero__content').styles(
@@ -149,7 +145,7 @@ class Hero extends StatelessComponent {
       css('.hero__pill').styles(
         display: .inlineFlex,
         padding: .symmetric(vertical: AppSpacing.xxs, horizontal: AppSpacing.sm),
-        border: Border.all(style: .solid, color: AppColors.tertiary.alpha(0.3), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.3)),
         radius: .all(.circular(AppRadius.pill)),
         shadow: BoxShadow(
           offsetX: .zero,
@@ -229,9 +225,7 @@ class Hero extends StatelessComponent {
     ]),
 
     css.media(AppBreakpoints.fromLg, [
-      css('.hero .hero__container').styles(
-        padding: .symmetric(vertical: AppSpacing.xxxl, horizontal: AppSpacing.gutterDesktop),
-      ),
+      css('.hero .hero__container').styles(padding: .symmetric(vertical: AppSpacing.xxxl)),
     ]),
 
     // The global reduced-motion rule zeroes every transform, and this blob is centred by its

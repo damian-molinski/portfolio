@@ -22,7 +22,7 @@ void main() {
       final builder = ContactDraftBuilder();
 
       expect(builder.problems, _everyFieldMissing);
-      expect(builder.scope, ScopeOption.values.first);
+      expect(builder.scope, ScopeOption.initial);
     });
 
     group('problems', () {
@@ -157,7 +157,7 @@ void main() {
 
         expect(builder.problems, _everyFieldMissing);
         expect(builder.honeypot, isNull);
-        expect(builder.scope, ScopeOption.values.first);
+        expect(builder.scope, ScopeOption.initial);
       });
     });
   });

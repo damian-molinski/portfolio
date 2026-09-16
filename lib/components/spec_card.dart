@@ -2,6 +2,7 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
+import '../utils/markup.dart';
 
 /// The card shell shared by the pillars, skills and projects grids.
 ///
@@ -25,10 +26,8 @@ class SpecCard extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final className = classes == null ? 'spec-card' : 'spec-card $classes';
-
     return div(
-      classes: className,
+      classes: classNames(['spec-card', classes]),
       styles: minHeight == null ? null : Styles(minHeight: minHeight),
       children,
     );
@@ -42,7 +41,7 @@ class SpecCard extends StatelessComponent {
         position: .relative(),
         minHeight: 300.px,
         padding: .all(AppSpacing.lg),
-        border: .all(style: .solid, color: AppColors.surfaceContainerHigh.alpha(0.4), width: 1.px),
+        border: AppBorders.hairline(AppColors.surfaceContainerHigh.alpha(0.4)),
         radius: .all(.circular(AppRadius.xl)),
         overflow: .hidden,
         shadow: BoxShadow(
@@ -51,7 +50,7 @@ class SpecCard extends StatelessComponent {
           blur: 6.px,
           color: const Color.rgba(0, 0, 0, 0.18),
         ),
-        transition: Transition('all', duration: 300.ms, curve: .easeOut),
+        transition: AppMotion.ease('all', duration: AppMotion.slow),
         flexDirection: .column,
         justifyContent: .spaceBetween,
         backgroundColor: AppColors.surfaceContainerLow.alpha(0.8),
@@ -61,13 +60,13 @@ class SpecCard extends StatelessComponent {
         position: .absolute(top: .zero, left: .zero, right: .zero),
         height: 2.px,
         opacity: 0.4,
-        transition: Transition('opacity', duration: 300.ms, curve: .easeOut),
+        transition: AppMotion.ease('opacity', duration: AppMotion.slow),
         raw: {
           'background-image': 'linear-gradient(to right, transparent, ${AppColors.tertiary.value}, transparent)',
         },
       ),
       css('&:hover').styles(
-        border: .all(style: .solid, color: AppColors.tertiary.alpha(0.5), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.5)),
         shadow: BoxShadow(offsetX: .zero, offsetY: 16.px, blur: 36.px, color: AppColors.tertiary.alpha(0.12)),
         transform: .translate(y: (-6).px),
         backgroundColor: AppColors.surfaceContainer,

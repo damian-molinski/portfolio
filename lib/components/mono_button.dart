@@ -2,6 +2,7 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
+import '../utils/markup.dart';
 import 'icons.dart';
 
 /// The two button treatments in the design.
@@ -12,10 +13,7 @@ enum MonoButtonVariant {
   /// Glass fill with a cyan hairline. Everything else.
   ghost;
 
-  String get className => switch (this) {
-    primary => 'mono-button mono-button--primary',
-    ghost => 'mono-button mono-button--ghost',
-  };
+  String get className => 'mono-button mono-button--$name';
 }
 
 /// A monospaced action in the design's `[ label() ]` form.
@@ -83,7 +81,7 @@ class MonoButton extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     final semantics = {if (ariaLabel case final ariaLabel?) 'aria-label': ariaLabel};
-    final className = isSubmit ? '${variant.className} mono-button--block' : variant.className;
+    final className = classNames([variant.className, if (isSubmit) 'mono-button--block']);
 
     if (href case final href?) {
       return a(classes: className, href: href, attributes: semantics, _content);
@@ -107,10 +105,10 @@ class MonoButton extends StatelessComponent {
           .styles(
             display: .inlineFlex,
             padding: .symmetric(vertical: AppSpacing.xs, horizontal: AppSpacing.md),
-            border: .all(style: .solid, color: Colors.transparent, width: 1.px),
+            border: AppBorders.hairline(Colors.transparent),
             radius: .all(.circular(AppRadius.lg)),
             cursor: .pointer,
-            transition: Transition('all', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('all'),
             alignItems: .center,
             gap: Gap(column: AppSpacing.xs),
             whiteSpace: .noWrap,
@@ -124,7 +122,7 @@ class MonoButton extends StatelessComponent {
       css('&.mono-button--block').styles(width: 100.percent, justifyContent: .center),
 
       css('&.mono-button--primary').styles(
-        border: .all(style: .solid, color: AppColors.tertiary.alpha(0.4), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.4)),
         shadow: BoxShadow(
           offsetX: .zero,
           offsetY: 4.px,
@@ -140,25 +138,25 @@ class MonoButton extends StatelessComponent {
         },
       ),
       css('&.mono-button--primary:hover').styles(
-        border: .all(style: .solid, color: AppColors.tertiary, width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary),
         shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 24.px, color: AppColors.tertiary.alpha(0.4)),
         // A multiplier, not a percentage: `brightness(110)` is 110x and renders the button white.
         filter: .brightness(1.1),
       ),
 
       css('&.mono-button--ghost').styles(
-        border: .all(style: .solid, color: AppColors.tertiary.alpha(0.3), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.3)),
         color: AppColors.onSurface,
         backgroundColor: AppColors.surfaceContainerLow.alpha(0.6),
       ),
       css('&.mono-button--ghost:hover').styles(
-        border: .all(style: .solid, color: AppColors.tertiary, width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary),
         shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 24.px, color: AppColors.tertiary.alpha(0.25)),
         backgroundColor: AppColors.surfaceContainerLow.alpha(0.9),
       ),
 
       css('.mono-button__icon').styles(
-        transition: Transition('transform', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('transform'),
         fontSize: 15.px,
       ),
       css('&:hover .mono-button__icon').styles(transform: .translate(x: 2.px)),

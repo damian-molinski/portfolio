@@ -44,12 +44,12 @@ final class ContactState extends Equatable {
     this.failure,
   });
 
-  /// An empty form: no field filled, the first scope selected, nothing submitted.
-  ContactState.initial()
+  /// An empty form: no field filled, the default scope selected, nothing submitted.
+  const ContactState.initial()
     : name = null,
       email = null,
       brief = null,
-      scope = ScopeOption.values.first,
+      scope = ScopeOption.initial,
       status = DispatchStatus.idle,
       problems = const {},
       failure = null;

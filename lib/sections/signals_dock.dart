@@ -5,9 +5,8 @@ import '../components/icons.dart';
 import '../components/node_link.dart';
 import '../constants/theme.dart';
 import '../data/site_content_repository.dart';
-import '../state/bloc_builder.dart';
-import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
+import '../state/site_content_builder.dart';
+import '../utils/markup.dart';
 
 /// The frosted identity dock that overlaps the bottom of the hero.
 ///
@@ -20,9 +19,7 @@ class SignalsDock extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => _section(state.content),
-    );
+    return SiteContentBuilder(builder: (context, content) => _section(content));
   }
 
   Component _section(SiteContent content) {
@@ -31,7 +28,7 @@ class SignalsDock extends StatelessComponent {
       id: 'signals',
       attributes: {'aria-label': content.signals.title},
       [
-        div(classes: 'signals-dock__container', [
+        div(classes: 'app-container', [
           div(classes: 'signals-dock__panel animate-fade-in-up delay-100', [
             div(classes: 'signals-dock__heading', [
               span(classes: 'signals-dock__title', [.text(content.signals.title)]),
@@ -49,10 +46,7 @@ class SignalsDock extends StatelessComponent {
               classes: 'signals-dock__pgp',
               href: content.signals.pgpHref,
               target: .blank,
-              attributes: {
-                'rel': 'noopener noreferrer',
-                'aria-label': content.signals.pgpAriaLabel,
-              },
+              attributes: externalLinkAttributes(ariaLabel: content.signals.pgpAriaLabel),
               [
                 AppIcon.fingerprint(classes: 'signals-dock__pgp-glyph'),
                 span(classes: 'signals-dock__fingerprint', [.text(content.signals.pgpFingerprint)]),
@@ -83,16 +77,10 @@ class SignalsDock extends StatelessComponent {
         raw: {'scroll-margin-top': '5rem'},
       ),
 
-      css('.signals-dock__container').styles(
-        maxWidth: AppSpacing.containerMax,
-        padding: .symmetric(horizontal: AppSpacing.gutterMobile),
-        margin: .symmetric(horizontal: Unit.auto),
-      ),
-
       css('.signals-dock__panel').styles(
         display: .flex,
         padding: .all(AppSpacing.md),
-        border: Border.all(style: .solid, color: AppColors.tertiary.alpha(0.2), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.2)),
         radius: .all(.circular(AppRadius.xl)),
         shadow: BoxShadow(
           offsetX: .zero,
@@ -133,9 +121,9 @@ class SignalsDock extends StatelessComponent {
         display: .flex,
         width: 100.percent,
         padding: .symmetric(vertical: 2.px, horizontal: AppSpacing.sm),
-        border: Border.all(style: .solid, color: AppColors.tertiary.alpha(0.2), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.2)),
         radius: .all(.circular(AppRadius.lg)),
-        transition: Transition('border-color', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('border-color'),
         justifyContent: .spaceBetween,
         alignItems: .center,
         gap: Gap(column: AppSpacing.xs),
@@ -143,7 +131,7 @@ class SignalsDock extends StatelessComponent {
         backgroundColor: AppColors.surfaceContainerLow.alpha(0.8),
       ),
       css('.signals-dock__pgp:hover').styles(
-        border: Border.all(style: .solid, color: AppColors.tertiary.alpha(0.5), width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary.alpha(0.5)),
       ),
       css('.signals-dock__pgp-glyph').styles(color: AppColors.onSurfaceVariant, fontSize: 13.px),
       css('.signals-dock__fingerprint')
@@ -164,7 +152,7 @@ class SignalsDock extends StatelessComponent {
             whiteSpace: .noWrap,
           ),
       css('.signals-dock__pgp-trailing').styles(
-        transition: Transition('all', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('all'),
         color: AppColors.outline,
         fontSize: 13.px,
       ),
@@ -176,7 +164,7 @@ class SignalsDock extends StatelessComponent {
       css('.signals-dock__grid').styles(
         display: .grid,
         width: 100.percent,
-        gridTemplate: const GridTemplate(columns: GridTracks([GridTrack(TrackSize.fr(1))])),
+        gridTemplate: AppGrid.singleColumn,
         gap: Gap(row: AppSpacing.xs, column: AppSpacing.xs),
         order: 2,
       ),
@@ -190,26 +178,15 @@ class SignalsDock extends StatelessComponent {
         order: 1,
       ),
       css('.signals-dock .signals-dock__grid').styles(
-        gridTemplate: const GridTemplate(
-          columns: GridTracks([
-            GridTrack.repeat(TrackRepeat(2), [GridTrack(TrackSize.fr(1))]),
-          ]),
-        ),
+        gridTemplate: AppGrid.twoColumns,
         order: 2,
       ),
     ]),
 
     css.media(AppBreakpoints.fromLg, [
-      css('.signals-dock .signals-dock__container').styles(
-        padding: .symmetric(horizontal: AppSpacing.gutterDesktop),
-      ),
       css('.signals-dock .signals-dock__panel').styles(padding: .all(AppSpacing.lg)),
       css('.signals-dock .signals-dock__grid').styles(
-        gridTemplate: const GridTemplate(
-          columns: GridTracks([
-            GridTrack.repeat(TrackRepeat(4), [GridTrack(TrackSize.fr(1))]),
-          ]),
-        ),
+        gridTemplate: AppGrid.fourColumns,
       ),
     ]),
   ];

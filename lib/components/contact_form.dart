@@ -10,8 +10,9 @@ import '../state/bloc_builder.dart';
 import '../state/contact_cubit.dart';
 import '../state/contact_draft.dart';
 import '../state/contact_state.dart';
+import '../state/site_content_builder.dart';
 import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
+import '../utils/markup.dart';
 import '../utils/iterable_extensions.dart';
 import 'icons.dart';
 import 'mono_button.dart';
@@ -54,7 +55,11 @@ class ContactFormState extends State<ContactForm> {
     event.preventDefault();
     await _contact.submit();
 
-    if (_contact.state.status == DispatchStatus.sent) _clearMultilineControls();
+    if (_contact.state.status == DispatchStatus.sent) {
+      _clearMultilineControls();
+      return;
+    }
+
     _focusFirstProblem();
   }
 
@@ -94,11 +99,11 @@ class ContactFormState extends State<ContactForm> {
   };
 
   String _controlClasses(FieldProblem? problem, {bool isMultiline = false}) {
-    return [
+    return classNames([
       'contact-form__control',
       if (isMultiline) 'contact-form__control--multiline',
       if (problem != null) 'contact-form__control--invalid',
-    ].join(' ');
+    ]);
   }
 
   /// The control's share of the rejection: it is marked, and it points at the line beneath it that
@@ -121,14 +126,13 @@ class ContactFormState extends State<ContactForm> {
     return div(classes: 'contact-form__field', [
       label(classes: 'contact-form__label', htmlFor: field.id, [
         span([.text(field.label)]),
-        if (field.isRequired)
-          span(
-            classes: 'contact-form__required',
-            attributes: const {'aria-hidden': 'true'},
-            [
-              .text(copy.requiredHint),
-            ],
-          ),
+        span(
+          classes: 'contact-form__required',
+          attributes: const {'aria-hidden': 'true'},
+          [
+            .text(copy.requiredHint),
+          ],
+        ),
       ]),
       if (field.isMultiline)
         textarea(
@@ -279,11 +283,11 @@ class ContactFormState extends State<ContactForm> {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      bloc: _siteContent,
-      builder: (context, state) => BlocBuilder<ContactCubit, ContactState>(
+    return SiteContentBuilder(
+      cubit: _siteContent,
+      builder: (context, content) => BlocBuilder<ContactCubit, ContactState>(
         bloc: _contact,
-        builder: (context, formState) => _form(state.content, formState),
+        builder: (context, formState) => _form(content, formState),
       ),
     );
   }
@@ -298,7 +302,7 @@ class ContactFormState extends State<ContactForm> {
       ),
       css('.contact-form__row').styles(
         display: .grid,
-        gridTemplate: const GridTemplate(columns: GridTracks([GridTrack(TrackSize.fr(1))])),
+        gridTemplate: AppGrid.singleColumn,
         gap: Gap(row: AppSpacing.md, column: AppSpacing.md),
       ),
       css('.contact-form__field').styles(
@@ -328,9 +332,9 @@ class ContactFormState extends State<ContactForm> {
           .styles(
             width: 100.percent,
             padding: .symmetric(vertical: AppSpacing.xs, horizontal: AppSpacing.sm),
-            border: .all(style: .solid, color: AppColors.surfaceContainerHigh, width: 1.px),
+            border: AppBorders.hairline(AppColors.surfaceContainerHigh),
             radius: .all(.circular(AppRadius.lg)),
-            transition: Transition('all', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('all'),
             color: AppColors.onSurface,
             backgroundColor: AppColors.surfaceContainerLowest,
           ),
@@ -361,7 +365,7 @@ class ContactFormState extends State<ContactForm> {
       // placeholder still reads as secondary to the value beside it.
       css('.contact-form__control::placeholder').styles(color: AppColors.outline),
       css('.contact-form__control:focus').styles(
-        border: .all(style: .solid, color: AppColors.tertiary, width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary),
         outline: const Outline(style: .none),
         shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 16.px, color: AppColors.tertiary.alpha(0.15)),
       ),
@@ -369,22 +373,17 @@ class ContactFormState extends State<ContactForm> {
       // `:focus` drops the outline for the design's border-and-glow treatment, which would take the
       // ring away from keyboard users too. This puts it back for them alone.
       css('.contact-form__control:focus-visible').styles(
-        outline: const Outline(
-          color: AppColors.tertiary,
-          style: .solid,
-          width: OutlineWidth(Unit.pixels(2)),
-          offset: Unit.pixels(2),
-        ),
+        outline: AppFocus.ring,
       ),
 
       // Both rules, because `.contact-form__control:focus` above is a pseudo-class and outranks a
       // plain class: focusing a field the summary named must not make it look accepted. The second
       // matches that specificity and wins on source order.
       css('.contact-form__control--invalid').styles(
-        border: .all(style: .solid, color: AppColors.error, width: 1.px),
+        border: AppBorders.hairline(AppColors.error),
       ),
       css('.contact-form__control--invalid:focus').styles(
-        border: .all(style: .solid, color: AppColors.error, width: 1.px),
+        border: AppBorders.hairline(AppColors.error),
         shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 16.px, color: AppColors.error.alpha(0.15)),
       ),
 
@@ -403,11 +402,7 @@ class ContactFormState extends State<ContactForm> {
     // From 768px the name and email fields share a row.
     css.media(AppBreakpoints.fromMd, [
       css('.contact-form .contact-form__row').styles(
-        gridTemplate: const GridTemplate(
-          columns: GridTracks([
-            GridTrack.repeat(TrackRepeat(2), [GridTrack(TrackSize.fr(1))]),
-          ]),
-        ),
+        gridTemplate: AppGrid.twoColumns,
       ),
     ]),
   ];

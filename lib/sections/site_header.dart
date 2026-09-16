@@ -3,9 +3,7 @@ import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
 import '../data/site_content_repository.dart';
-import '../state/bloc_builder.dart';
-import '../state/site_content_cubit.dart';
-import '../state/site_content_state.dart';
+import '../state/site_content_builder.dart';
 
 /// The fixed page header.
 ///
@@ -17,14 +15,12 @@ class SiteHeader extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => _header(state.content),
-    );
+    return SiteContentBuilder(builder: (context, content) => _header(content));
   }
 
   Component _header(SiteContent content) {
     return header(classes: 'site-header', [
-      div(classes: 'site-header__bar', [
+      div(classes: 'site-header__bar app-container', [
         div(classes: 'site-header__brand', [
           img(
             alt: content.identity.emblemAlt,
@@ -59,7 +55,7 @@ class SiteHeader extends StatelessComponent {
         position: .fixed(top: .zero, left: .zero, right: .zero),
         zIndex: const ZIndex(50),
         border: Border.only(
-          bottom: BorderSide.solid(color: AppColors.surfaceContainerHigh.alpha(0.4), width: 1.px),
+          bottom: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.4)),
         ),
         shadow: BoxShadow(
           offsetX: .zero,
@@ -74,9 +70,6 @@ class SiteHeader extends StatelessComponent {
       css('.site-header__bar').styles(
         display: .flex,
         height: 4.rem,
-        maxWidth: AppSpacing.containerMax,
-        padding: .symmetric(horizontal: AppSpacing.gutterMobile),
-        margin: .symmetric(horizontal: Unit.auto),
         alignItems: .center,
         gap: Gap(column: AppSpacing.md),
       ),
@@ -91,7 +84,7 @@ class SiteHeader extends StatelessComponent {
       css('.site-header__emblem').styles(
         width: .auto,
         height: 32.px,
-        transition: Transition('transform', duration: 200.ms, curve: .easeOut),
+        transition: AppMotion.ease('transform'),
         flex: const Flex(grow: 0, shrink: 0, basis: .auto),
         raw: {'object-fit': 'contain'},
       ),
@@ -127,7 +120,7 @@ class SiteHeader extends StatelessComponent {
           .styles(
             padding: .symmetric(horizontal: AppSpacing.xxs),
             radius: .all(.circular(AppRadius.base)),
-            transition: Transition('all', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('all'),
             color: AppColors.onSurfaceVariant,
             whiteSpace: .noWrap,
           ),
@@ -154,7 +147,7 @@ class SiteHeader extends StatelessComponent {
               blur: 10.px,
               color: AppColors.tertiary.alpha(0.2),
             ),
-            transition: Transition('all', duration: 300.ms, curve: .easeOut),
+            transition: AppMotion.ease('all', duration: AppMotion.slow),
             justifyContent: .center,
             alignItems: .center,
             flex: const Flex(grow: 0, shrink: 0, basis: .auto),
@@ -162,7 +155,7 @@ class SiteHeader extends StatelessComponent {
             backgroundColor: AppColors.surfaceContainerHigh,
           ),
       css('.site-header__avatar:hover').styles(
-        border: Border.all(style: .solid, color: AppColors.tertiary, width: 1.px),
+        border: AppBorders.hairline(AppColors.tertiary),
         transform: .scale(1.05),
       ),
     ]),
@@ -172,12 +165,6 @@ class SiteHeader extends StatelessComponent {
         display: .flex,
         alignItems: .center,
         gap: Gap(column: AppSpacing.md),
-      ),
-    ]),
-
-    css.media(AppBreakpoints.fromLg, [
-      css('.site-header .site-header__bar').styles(
-        padding: .symmetric(horizontal: AppSpacing.gutterDesktop),
       ),
     ]),
   ];

@@ -52,7 +52,7 @@ class SpecEntryCard extends StatelessComponent {
     css('.spec-entry-grid', [
       css('&').styles(
         display: .grid,
-        gridTemplate: const GridTemplate(columns: GridTracks([GridTrack(TrackSize.fr(1))])),
+        gridTemplate: AppGrid.singleColumn,
         gap: Gap(row: AppSpacing.md, column: AppSpacing.md),
       ),
     ]),
@@ -75,7 +75,7 @@ class SpecEntryCard extends StatelessComponent {
         width: 40.px,
         height: 40.px,
         radius: .all(.circular(AppRadius.lg)),
-        transition: Transition('all', duration: 300.ms, curve: .easeOut),
+        transition: AppMotion.ease('all', duration: AppMotion.slow),
         justifyContent: .center,
         alignItems: .center,
         flex: const Flex(grow: 0, shrink: 0, basis: .auto),
@@ -94,7 +94,7 @@ class SpecEntryCard extends StatelessComponent {
       css('.spec-entry__index')
           .combine(AppType.labelSm)
           .styles(
-            transition: Transition('color', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('color'),
             color: AppColors.onSurfaceVariant,
             fontFamily: AppFonts.mono,
             whiteSpace: .noWrap,
@@ -109,7 +109,7 @@ class SpecEntryCard extends StatelessComponent {
       css('.spec-entry__title')
           .combine(AppType.headlineSm)
           .styles(
-            transition: Transition('color', duration: 200.ms, curve: .easeOut),
+            transition: AppMotion.ease('color'),
             color: AppColors.onSurface,
           ),
       css('&:hover .spec-entry__title').styles(color: AppColors.tertiaryFixed),
@@ -120,7 +120,7 @@ class SpecEntryCard extends StatelessComponent {
         padding: .only(top: AppSpacing.md),
         margin: .only(top: AppSpacing.md),
         border: Border.only(
-          top: BorderSide.solid(color: AppColors.surfaceContainerHigh.alpha(0.4), width: 1.px),
+          top: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.4)),
         ),
         flexWrap: .wrap,
         gap: Gap(row: AppSpacing.xxs, column: AppSpacing.xxs),
@@ -129,21 +129,13 @@ class SpecEntryCard extends StatelessComponent {
 
     css.media(AppBreakpoints.fromMd, [
       css('.spec-entry-grid').styles(
-        gridTemplate: const GridTemplate(
-          columns: GridTracks([
-            GridTrack.repeat(TrackRepeat(2), [GridTrack(TrackSize.fr(1))]),
-          ]),
-        ),
+        gridTemplate: AppGrid.twoColumns,
       ),
     ]),
 
     css.media(AppBreakpoints.fromLg, [
       css('.spec-entry-grid').styles(
-        gridTemplate: const GridTemplate(
-          columns: GridTracks([
-            GridTrack.repeat(TrackRepeat(4), [GridTrack(TrackSize.fr(1))]),
-          ]),
-        ),
+        gridTemplate: AppGrid.fourColumns,
       ),
     ]),
   ];

@@ -54,7 +54,7 @@ ContactState filledState({required DispatchStatus status, DispatchFailure? failu
     name: 'Ada Lovelace',
     email: 'ada@example.com',
     brief: 'A note about the engine.',
-    scope: ScopeOption.values.first,
+    scope: ScopeOption.initial,
     status: status,
     problems: const {},
     failure: failure,
@@ -67,7 +67,7 @@ ContactState clearedState({required DispatchStatus status}) {
     name: null,
     email: null,
     brief: null,
-    scope: ScopeOption.values.first,
+    scope: ScopeOption.initial,
     status: status,
     problems: const {},
   );
@@ -124,6 +124,25 @@ void main() {
           clearedState(status: DispatchStatus.sent),
           clearedState(status: DispatchStatus.idle),
         ],
+      );
+
+      blocTest<ContactCubit, ContactState>(
+        'reports no problems after a send that followed a rejected press',
+        build: buildCubit,
+        act: (cubit) async {
+          // The first press turns validation on. It has to stay on for the fields the visitor then
+          // fixes — and go off again once the send clears the draft, or the empty form reports a
+          // problem per field beside its own success message.
+          await cubit.submit();
+          cubit.fillRequiredFields();
+          await cubit.submit();
+        },
+        wait: settle,
+        verify: (cubit) {
+          expect(cubit.state.status, DispatchStatus.idle);
+          expect(cubit.state.problems, isEmpty);
+          expect(dispatcher.sent, hasLength(1));
+        },
       );
 
       blocTest<ContactCubit, ContactState>(

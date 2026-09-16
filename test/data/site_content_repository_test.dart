@@ -18,7 +18,6 @@ void main() {
       expect(content.skillGroups, SkillGroup.values);
       expect(content.projects, Project.values);
       expect(content.contactCards, ContactCard.values);
-      expect(content.contactFields, ContactField.values);
       expect(content.scopeOptions, ScopeOption.values);
       expect(content.footerLinks, FooterLink.values);
     });

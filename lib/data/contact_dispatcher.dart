@@ -20,7 +20,7 @@ abstract interface class ContactDispatcher {
 /// Posts the draft as JSON to a Cloudflare Pages Function on the site's own origin.
 final class HttpContactDispatcher implements ContactDispatcher {
   const HttpContactDispatcher({
-    required final http.Client client,
+    required http.Client client,
     required Uri base,
     Duration timeout = const Duration(seconds: 20),
   }) : _client = client,

@@ -11,18 +11,14 @@ import 'sections/signals_dock.dart';
 import 'sections/site_footer.dart';
 import 'sections/site_header.dart';
 import 'sections/skills.dart';
-import 'state/bloc_builder.dart';
-import 'state/site_content_cubit.dart';
-import 'state/site_content_state.dart';
+import 'state/site_content_builder.dart';
 
 class App extends StatelessComponent {
   const App({super.key});
 
   @override
   Component build(BuildContext context) {
-    return BlocBuilder<SiteContentCubit, SiteContentState>(
-      builder: (context, state) => _page(state.content.chrome),
-    );
+    return SiteContentBuilder(builder: (context, content) => _page(content.chrome));
   }
 
   Component _page(ChromeContent chrome) {

@@ -53,7 +53,7 @@ final class ContactDraftBuilder {
   String? email;
   String? brief;
   String? honeypot;
-  ScopeOption scope = ScopeOption.values.first;
+  ScopeOption scope = ScopeOption.initial;
 
   /// What blocks the submit, by field. Empty when the draft is ready to post.
   Map<ContactField, FieldProblem> get problems =>
@@ -85,7 +85,7 @@ final class ContactDraftBuilder {
     email = null;
     brief = null;
     honeypot = null;
-    scope = ScopeOption.values.first;
+    scope = ScopeOption.initial;
   }
 
   MapEntry<ContactField, FieldProblem>? _entryFor(ContactField field) {
@@ -97,7 +97,7 @@ final class ContactDraftBuilder {
   FieldProblem? _problemWith(ContactField field) {
     final value = _valueOf(field)?.trim();
 
-    if (value == null || value.isEmpty) return field.isRequired ? FieldProblem.missing : null;
+    if (value == null || value.isEmpty) return FieldProblem.missing;
     if (field.isEmail && !_emailPattern.hasMatch(value)) return FieldProblem.malformed;
 
     return null;
