@@ -5,12 +5,13 @@ way it did is in `docs/decisions.md`; *where* things live is in `docs/topography
 
 ## Builds
 
-**`lib/app.dart` and everything it imports compile twice** — server (pre-rendering) and client. A
+**`lib/routing/routes.dart` and everything it reaches compile twice** — server (pre-rendering) and
+client. A
 `dart:io` or `dart:html` import anywhere in that graph breaks one of the two builds, which breaks
 builds here more often than anything else; branch with `kIsWeb` or split behind a conditional import.
 
 **`lib/main.client.options.dart` and `lib/main.server.options.dart` are `jaspr_builder` output** —
-never edit them. So is `lib/data/contact_draft_dto.g.dart`. The two `.options.dart` files are
+never edit them. So is `lib/data/dto/contact_draft_dto.g.dart`. The two `.options.dart` files are
 committed; `*.g.dart` is git-ignored, so a fresh clone must run `just generate` before
 `just analyze` or `just test` will resolve the `part`. `jaspr build` writes all of them back
 into `lib/`.
@@ -39,7 +40,7 @@ gate. Plans live in `docs/plans/`, never `lib/` — a plan quoting markers makes
 ## Styling
 
 CSS is written in Dart: component-scoped rules in a `@css static List<StyleRule> get styles` getter,
-global rules in `lib/constants/theme.dart`. Use the type-safe `css(...)` bindings and shorthand enums
+global rules in `lib/ui/core/theme.dart`. Use the type-safe `css(...)` bindings and shorthand enums
 (`display: .flex`), not raw strings, and satisfy `jaspr_lints` rather than suppressing it.
 
 Recurring CSS has names in `theme.dart` — use them rather than re-inlining the literal:
@@ -52,14 +53,14 @@ global `.app-container` class for the page's shared gutter and 72rem ceiling.
 alone** — both axes emit the `padding` shorthand, which would overwrite the utility's longhands.
 
 **`DESIGN.md`'s YAML frontmatter is the source of truth for tokens**; its prose is intent only.
-`lib/constants/theme.dart` declares them verbatim. Never restate a hex value in a component;
+`lib/ui/core/theme.dart` declares them verbatim. Never restate a hex value in a component;
 translucent variants come from `Color.alpha()`. Known conflict — the frontmatter wins: it sets
 `primary: '#9ecaff'`, the prose names `#0175C2`; both roles exist, `primary` for text accents and
 `primary-container` for button fills.
 
 ## Copy
 
-Every user-visible string is a field in `lib/content/site_content.dart`; no component declares copy
+Every user-visible string is a field in `lib/domain/models/site_content.dart`; no component declares copy
 of its own, so add a string by adding a field there, not in a `build` method.
 
 Not everything in that file is copy: `ContactFormContent`'s `fieldId`, `scopeFieldId`,
@@ -67,27 +68,40 @@ Not everything in that file is copy: `ContactFormContent`'s `fieldId`, `scopeFie
 `id`, `errorId` and `type` — a trap carrying a placeholder marker would announce itself to the
 scraper it is set for.
 
-Every section reads copy through `SiteContentBuilder`, deliberately including ones that freeze at
-build time. `main.server.dart`'s `<head>` is the exception.
+Every section reads copy off its ViewModel's state, deliberately including ones that freeze at build
+time. `main.server.dart`'s `<head>` is the exception — `SiteMeta` is read there, outside the tree.
 
 ## State
 
-`bloc` + `get_it`, with a hand-rolled binding in `lib/state/`. `jaspr_bloc` pins `jaspr: ^0.22.0`;
+`bloc` + `get_it`, with a hand-rolled binding in `lib/ui/core/binding/`. `jaspr_bloc` pins
+`jaspr: ^0.22.0`;
 this project is on `^0.23.4`.
 
-**Islands resolve their cubits from `get_it`, not `BlocProvider`** — `CopyEmailButton` and
-`ContactForm` hydrate as their own trees and cannot see the provider above `App`. `app.dart` is
-deliberately not `@client`; annotating the root would compile and hydrate every section.
+**Islands resolve their ViewModels from `get_it`, not `BlocProvider`** — `CopyEmailButton` and
+`ContactForm` hydrate as their own trees and cannot see the providers above `AppShell`. Neither
+`AppShell` nor anything the router renders is `@client`; annotating the root would compile and
+hydrate every section.
 
-**`ContactCubit` owns a mutable `ContactDraftBuilder` and never hands it out.** The state carries a
+**`ContactViewModel` owns a mutable `ContactDraftBuilder` and never hands it out.** The state carries a
 snapshot taken in `_emitDraft`, its one emit path; a mutable builder held *in* an `Equatable` state
 would compare equal on every keystroke and suppress the emit — also why `ContactState` has no
 `copyWith`. The trap field lives on the builder alone, so typing into it re-renders nothing.
 
-**`CopyCubit` must stay `registerFactory`** — the page renders `CopyEmailButton` twice, and a
+**`CopyViewModel` must stay `registerFactory`** — the page renders `CopyEmailButton` twice, and a
 singleton would make both confirm on one click.
 
 `configureDependencies()` is idempotent and runs from **both** entrypoints.
+
+**The `Router` never hydrates, so navigation does not exist.** Nothing above the route table is
+`@client`, and on the server `HistoryManagerImpl`'s `push`/`replace`/`back` throw
+`UnimplementedError('Routing unavailable on the server')`. `Link` renders an anchor whose handlers
+are never attached, and `Router.push` has no caller that could reach it. In-page anchors are how the
+site navigates; a second route would be a full page load.
+
+**`RouteSettings` alone emits no sitemap.** `jaspr build` skips any route whose sitemap data is null
+*and* writes nothing at all unless `--sitemap-domain` is passed — both halves are required, and the
+domain lives on the `build` recipe's command line in the `justfile`, not in content. Drop the flag
+and `build/jaspr/sitemap.xml` silently stops being produced.
 
 ## The contact form
 
@@ -117,7 +131,8 @@ nothing styles `:invalid`, and `type="email"` is what gives a phone the `@` key.
 - **`ContactDraftDto` is the wire format**, and its five keys are read by name in
   `contact.ts`'s `isWellFormed`. `honeypot` is renamed to `company` by a `@JsonKey`, and **the key
   must be sent even when empty** — an encoder that drops empty values turns every legitimate
-  submission into a `400`. `test/data/contact_draft_dto_test.dart` is the only thing guarding this.
+  submission into a `400`. `test/data/dto/contact_draft_dto_test.dart` is the only thing guarding
+  this.
 - **The reason exists only in the logs.** Failures are `console.error`ed for
   `wrangler pages deployment tail`; the enquiry never is, so no log line carries the visitor's
   address or their brief.

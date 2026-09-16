@@ -7,8 +7,41 @@ break; the reasoning behind a choice lives here.
 This file supersedes it. The identifiers are kept because `docs/plans/` still refers to them.
 
 Conventions that are enforced rather than merely decided — the `kIsWeb` stream guard, the `@client`
-unnamed constructor, `CopyCubit` as a factory, `.app-container`'s padding longhands — are in
+unnamed constructor, `CopyViewModel` as a factory, `.app-container`'s padding longhands — are in
 `docs/constraints.md` and are not repeated here.
+
+## Architecture
+
+**Three layers — `data/`, `domain/`, `ui/` — and one ViewModel per view.** Every view that has state
+of its own has exactly one ViewModel beside it, under `lib/ui/<feature>/view_model/`. The alternative
+was renaming `lib/state/` to `lib/view_models/` in place: smallest diff, but the classes would carry
+the MVVM vocabulary while the directory tree still said nothing about layers, and the "ViewModel"
+would belong to no view in particular — which is the thing the pattern exists to fix. The Flutter
+team's literal `ChangeNotifier` + `Command` MVVM was also rejected: it strands D1 (the hand-rolled
+bloc binding, chosen over `jaspr_bloc`) and D4 (cubits, not event-driven blocs) and buys nothing,
+because a `Cubit` already *is* a ViewModel.
+
+**Four ViewModels, not one per section.** `AppShellViewModel` serves the chrome, `HomeViewModel` all
+six home sections, and the two islands own theirs. D5's reasoning survives the split intact — eight
+registrations over `const` data would be ceremony. What the split adds is that each state carries
+exactly what its view renders, which is what makes it a ViewModel split rather than a rename. One
+shared `SiteContentViewModel` — the old `SiteContentCubit`, moved — was the other option, and the
+ViewModel then belongs to no view.
+
+**Copy travels in the emitted state, islands included.** `ContactState` carries `copy` and
+`scopeOptions`; `CopyState` carries the four strings the button renders. Each island opens one
+`BlocBuilder` rather than a `SiteContentBuilder` nested inside one, and stops importing `SiteContent`
+at all — which also ends the oddity of the contact card's copy button reading hero copy. The content
+fields are `const`, so Dart canonicalises them and `Equatable` compares by identity; no extra rebuild.
+Exposing copy as a plain getter on the ViewModel would keep the state minimal but split the view's
+inputs across two access paths, on a page whose stream emits once anyway.
+
+**The router is a `ShellRoute` over one `Route('/')`.** The chrome is provided above the route and
+the page content below it, so a second page is a second entry in one list rather than a rewrite of
+the shell. A flat `Route(path: '/', builder: …)` returning the whole tree would be fifteen lines of
+decoration with no seam behind it. Making the routed subtree `@client` so navigation is real was
+rejected against `docs/constraints.md` §State — it ships every section to the browser and buys
+nothing on a one-page site.
 
 ## Design system
 
@@ -54,7 +87,7 @@ Rendering it once and reordering it means a screen reader hears the fingerprint 
 
 ## State
 
-**`SiteContentState` is one class, not a `sealed` hierarchy.** `SiteContentRepository.load()` reads
+**The ViewModel states are plain classes, not `sealed` hierarchies.** `SiteContentRepository.load()` reads
 `const` data and performs no I/O, so there is no loading state the page can be in and no failure it
 can report; the hierarchy had one member and every reader was a single-arm `switch`. What that gives
 up: a second case — a runtime content source, say — no longer arrives as an exhaustiveness error at
@@ -91,7 +124,7 @@ in `analysis_options.yaml`. The constraint, and the symptom it produces, is in `
 revisit when `jaspr_builder` moves off analyzer 12.
 
 **The wire format is a DTO, not a method on the state class.** `ContactDraft.toJson()` put the shape
-of `functions/api/contact.ts` inside `lib/state/`. `ContactDraftDto` carries it in `lib/data/`
+of `functions/api/contact.ts` inside the form's state. `ContactDraftDto` carries it in `lib/data/dto/`
 instead, next to the dispatcher that posts it, and `json_serializable` generates the encoder. The
 DTO is five `String`s — `ScopeOption` is resolved to its value by the mapping extension, so the
 generator never learns the enum and the DTO matches the TypeScript `ContactBody` field for field.
@@ -124,7 +157,7 @@ one. The failure type is `Exception` rather than `DispatchException`, so the swi
 needs a fallback arm that `HttpContactDispatcher` can never reach — the price of a seam that can
 report something it did not anticipate.
 
-**`DispatchFailure` stays in `lib/state/` as the form's vocabulary.** The transport speaks
+**`DispatchFailure` stays in `lib/ui/contact/view_model/` as the form's vocabulary.** The transport speaks
 exceptions; the form speaks four cases it has copy for. `DispatchFailure.of(Exception)` is where one
 becomes the other, so `ContactState` stays plainly `Equatable` and `contact_form.dart`'s
 `_failureMessage` switch never learns what a `ClientException` is. Two representations of the same
