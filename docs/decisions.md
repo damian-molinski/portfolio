@@ -8,7 +8,7 @@ This file supersedes it. The identifiers are kept because `docs/plans/` still re
 
 Conventions that are enforced rather than merely decided — the `kIsWeb` stream guard, the `@client`
 unnamed constructor, `CopyCubit` as a factory, `.app-container`'s padding longhands — are in
-`CLAUDE.md` and are not repeated here.
+`docs/constraints.md` and are not repeated here.
 
 ## Design system
 
