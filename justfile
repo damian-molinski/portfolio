@@ -26,7 +26,8 @@ serve:
 # Pre-render the site to build/jaspr/, then content-hash the client bundle
 [group('site')]
 build:
-    jaspr build --experimental-wasm
+    @# `RouteSettings` on its own emits nothing — the sitemap needs the domain on the command line.
+    jaspr build --experimental-wasm --sitemap-domain https://damian-molinski.dev
     dart run tool/hash_assets.dart
 
 # Remove the build output
