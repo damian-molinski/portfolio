@@ -47,7 +47,6 @@ class Contact extends StatelessComponent {
   Component _section(HomeState state) {
     return SectionShell(
       siteSection: SiteSection.contact,
-      hasDivider: false,
       children: [
         div(classes: 'contact__panel', [
           div(

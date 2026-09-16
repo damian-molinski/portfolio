@@ -48,6 +48,9 @@ colors:
   background: '#0f131c'
   on-background: '#dfe2ee'
   surface-variant: '#31353e'
+  cosmos-top: '#02040a'
+  cosmos-mid: '#060b18'
+  cosmos-base: '#030712'
 typography:
   display:
     fontFamily: Geist
@@ -191,6 +194,7 @@ The layout is built on an **8pt progressive grid** paired with a constrained 12-
 Depth is established through translucent structural layering, diffuse chromatic glows, and razor-sharp ghost borders rather than traditional drop shadows.
 
 - **Base Layer (Ground)**: Solid `#0B0F17` with an optional radial gradient mask of subtle indigo-blue noise at the viewport apex.
+- **Ground Backdrop**: Behind every surface sits one fixed full-viewport layer, a vertical `cosmos-top` → `cosmos-mid` → `cosmos-base` gradient carrying the diffuse nebulae, the starfield and the technical grid.
 - **Level 1 (Card & Snippet Surfaces)**: `rgba(15, 23, 42, 0.65)` with `12px` backdrop blur (`backdrop-filter: blur(12px)`) and a `1px` uniform border of `rgba(64, 196, 255, 0.08)`.
 - **Level 2 (Hover & Active Contexts)**: Surface transitions to `rgba(24, 34, 53, 0.85)` with a subtle radial gradient wash (`rgba(1, 117, 194, 0.15)`) trailing cursor movement. Border illuminates to `rgba(64, 196, 255, 0.3)`.
 - **Level 3 (Overlays & Modals)**: `rgba(11, 15, 23, 0.85)` with `20px` backdrop blur, framed by a soft diffuse outer glow: `box-shadow: 0 0 32px -8px rgba(64, 196, 255, 0.15)`.

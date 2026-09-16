@@ -35,7 +35,11 @@ class SiteFooter extends StatelessComponent {
   @css
   static List<StyleRule> get styles => [
     css('.site-footer', [
+      // Positioned on purpose: the backdrop is fixed at `z-index: 0`, which paints over the
+      // background of any static in-flow sibling.
       css('&').styles(
+        position: .relative(),
+        zIndex: const ZIndex(1),
         width: 100.percent,
         border: Border.only(
           top: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.4)),

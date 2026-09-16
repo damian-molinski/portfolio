@@ -29,7 +29,6 @@ class Hero extends StatelessComponent {
         [
           div(classes: 'hero__glow animate-ambient-pulse', []),
           div(classes: 'hero__glow-secondary', []),
-          div(classes: 'hero__vignette', []),
         ],
       ),
 
@@ -80,9 +79,6 @@ class Hero extends StatelessComponent {
         display: .block,
         position: .relative(),
         width: 100.percent,
-        border: Border.only(
-          bottom: AppBorders.hairlineSide(AppColors.surfaceContainerHigh.alpha(0.3)),
-        ),
         overflow: .hidden,
       ),
 
@@ -112,14 +108,6 @@ class Hero extends StatelessComponent {
         radius: .all(.circular(AppRadius.pill)),
         filter: .blur(100.px),
         backgroundColor: AppColors.secondaryContainer.alpha(0.15),
-      ),
-
-      css('.hero__vignette').styles(
-        position: .absolute(top: .zero, left: .zero, right: .zero, bottom: .zero),
-        opacity: 0.85,
-        raw: {
-          'background-image': 'radial-gradient(circle at center, transparent 0%, ${AppColors.surface.value} 75%)',
-        },
       ),
 
       css('.hero__container').styles(
@@ -184,9 +172,19 @@ class Hero extends StatelessComponent {
         },
       ),
 
-      css('.hero__tagline').combine(AppType.headlineSm).styles(color: AppColors.onSurfaceVariant, fontWeight: .w400),
+      css('.hero__tagline')
+          .combine(AppType.headlineSm)
+          .styles(
+            color: AppColors.onSurfaceVariant,
+            fontWeight: .w400,
+          ),
 
-      css('.hero__body').combine(AppType.bodyMd).styles(maxWidth: 42.rem, color: AppColors.onSurfaceVariant.alpha(0.8)),
+      css('.hero__body')
+          .combine(AppType.bodyMd)
+          .styles(
+            maxWidth: 42.rem,
+            color: AppColors.onSurfaceVariant.alpha(0.8),
+          ),
 
       css('.hero__actions').styles(
         display: .flex,
@@ -211,7 +209,7 @@ class Hero extends StatelessComponent {
       css('.hero__availability').styles(
         display: .inlineFlex,
         alignItems: .center,
-        gap: Gap(column: AppSpacing.xxs),
+        gap: Gap(column: AppSpacing.sm),
         color: AppColors.tertiary,
       ),
     ]),

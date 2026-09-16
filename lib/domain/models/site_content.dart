@@ -108,7 +108,7 @@ enum SiteSection {
     ariaLabel: 'Skills & Tech Stack',
     navLabel: 'Skills',
     lead: 'True multi-platform Flutter development, from mobile to web and desktop — plus backend behind it.',
-    note: 'This site is Dart — Jaspr, pre-rendered, hydrated as WASM.',
+    note: 'This site is Dart — Jaspr using WASM.',
   ),
   projects(
     ordinal: '03',

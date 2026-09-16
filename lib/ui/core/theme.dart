@@ -13,6 +13,10 @@ abstract final class AppColors {
   static const surfaceTint = Color('#9ecaff');
   static const background = Color('#0f131c');
 
+  static const cosmosTop = Color('#02040a');
+  static const cosmosMid = Color('#060b18');
+  static const cosmosBase = Color('#030712');
+
   static const onSurface = Color('#dfe2ee');
   static const onSurfaceVariant = Color('#c0c7d3');
   static const onBackground = Color('#dfe2ee');
@@ -307,7 +311,7 @@ List<StyleRule> get styles => [
         margin: .zero,
         overflow: .only(x: .hidden),
         color: AppColors.onSurface,
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.cosmosBase,
       )
       .combine(AppType.bodyMd),
 

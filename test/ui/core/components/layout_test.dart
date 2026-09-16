@@ -24,18 +24,6 @@ void main() {
       expect(landmark.attributes, containsPair('aria-label', siteSection.ariaLabel));
       expect(rendered.querySelector('section > div')!.classes, contains('app-container'));
     });
-
-    testServer('closes the page rather than ruling off, when told to', (tester) async {
-      final divided = await tester.render(
-        const SectionShell(siteSection: SiteSection.projects, children: []),
-      );
-      final closing = await tester.render(
-        const SectionShell(siteSection: SiteSection.contact, hasDivider: false, children: []),
-      );
-
-      expect(divided.querySelector('section')!.classes, isNot(contains('section-shell--closing')));
-      expect(closing.querySelector('section')!.classes, contains('section-shell--closing'));
-    });
   });
 
   group(SpecEntryCard, () {

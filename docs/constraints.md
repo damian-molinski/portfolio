@@ -52,6 +52,16 @@ global `.app-container` class for the page's shared gutter and 72rem ceiling.
 **A caller of `.app-container` that adds vertical padding must pass `Spacing.symmetric(vertical:)`
 alone** — both axes emit the `padding` shorthand, which would overwrite the utility's longhands.
 
+**The ground backdrop is fixed at `z-index: 0`, which paints over the background of any static
+in-flow sibling.** `CosmosBackdrop` sits behind the whole page, so `.site-main`
+(`lib/ui/core/view/app_shell.dart`) and `.site-footer` (`lib/ui/core/view/site_footer.dart`) both
+carry `position: relative; z-index: 1`. Drop either and that element's background vanishes under the
+starfield, with nothing in `dart analyze`, `dart test` or `jaspr build` to say so.
+
+**Stars are placed with `left`/`top`, never `transform`.** The global reduced-motion rule nulls every
+`transform` with `!important`, so a field centred or offset by transform collapses into one corner for
+those visitors. `hero.dart`'s `.hero__glow` carries the same fix in margin form.
+
 **`DESIGN.md`'s YAML frontmatter is the source of truth for tokens**; its prose is intent only.
 `lib/ui/core/theme.dart` declares them verbatim. Never restate a hex value in a component;
 translucent variants come from `Color.alpha()`. Known conflict — the frontmatter wins: it sets

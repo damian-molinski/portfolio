@@ -21,6 +21,8 @@ import 'package:portfolio/ui/core/components/spec_entry_card.dart'
 import 'package:portfolio/ui/core/components/status_dot.dart' as _status_dot;
 import 'package:portfolio/ui/core/components/tag_pill.dart' as _tag_pill;
 import 'package:portfolio/ui/core/view/app_shell.dart' as _app_shell;
+import 'package:portfolio/ui/core/view/cosmos_backdrop.dart'
+    as _cosmos_backdrop;
 import 'package:portfolio/ui/core/view/site_footer.dart' as _site_footer;
 import 'package:portfolio/ui/core/view/site_header.dart' as _site_header;
 import 'package:portfolio/ui/core/theme.dart' as _theme;
@@ -72,6 +74,7 @@ ServerOptions get defaultServerOptions => ServerOptions(
     ..._status_dot.StatusDot.styles,
     ..._tag_pill.TagPill.styles,
     ..._app_shell.AppShell.styles,
+    ..._cosmos_backdrop.CosmosBackdrop.styles,
     ..._site_footer.SiteFooter.styles,
     ..._site_header.SiteHeader.styles,
     ..._contact.Contact.styles,
