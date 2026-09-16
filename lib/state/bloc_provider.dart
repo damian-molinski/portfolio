@@ -7,17 +7,15 @@ typedef ComponentWrapper = Component Function(Component child);
 
 final class BlocProvider<B extends BlocBase<Object?>> extends StatefulComponent {
   const BlocProvider({
-    required BlocCreate<B> create,
+    required BlocCreate<B> this._create,
     required this.child,
     super.key,
-  }) : _create = create,
-       _value = null;
+  }) : _value = null;
   const BlocProvider.value({
-    required B value,
+    required B this._value,
     required this.child,
     super.key,
-  }) : _value = value,
-       _create = null;
+  }) : _create = null;
 
   final BlocCreate<B>? _create;
   final B? _value;

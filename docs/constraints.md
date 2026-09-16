@@ -10,7 +10,18 @@ way it did is in `docs/decisions.md`; *where* things live is in `docs/topography
 builds here more often than anything else; branch with `kIsWeb` or split behind a conditional import.
 
 **`lib/main.client.options.dart` and `lib/main.server.options.dart` are `jaspr_builder` output** —
-never edit them.
+never edit them. So is `lib/data/contact_draft_dto.g.dart`. All three are committed, because
+`just analyze` and `just test` run without a build; `jaspr build` writes them back into `lib/`.
+
+**Primary constructors do not compile here, even on Dart 3.13.** `jaspr_builder` 0.23.4 — the
+newest — pins `analyzer: ^12.1.0`, and that analyzer carries `primary-constructors` with
+`releaseVersion: null`, so no SDK language version turns it on. The build_runner resolver takes
+experiments only from build_runner's own `--enable-experiment` flag, never from
+`analysis_options.yaml`, and `jaspr build` has no way to pass one. The failure is
+`This requires the 'primary-constructors' language feature to be enabled`, and **only `jaspr build`
+reports it** — `dart analyze` and `dart test` both pass, because they run on the SDK's own analyzer.
+Private named parameters (`required this._client`, called as `client:`) released in 3.12 and do
+work; they are the part of the 3.13 constructor syntax this repo uses.
 
 **A `@client` component must have an unnamed constructor.** Jaspr's hydration codegen calls one, so a
 named one analyzes clean, pre-renders correctly, then fails the client build with `Couldn't find
@@ -99,8 +110,12 @@ nothing styles `:invalid`, and `type="email"` is what gives a phone the `@` key.
   the form reports the failure, which is correct rather than broken.
 - **Status only, no body**: `204` accepted, `400` malformed or a bad address, `429` rate limited,
   `502` Resend refused or timed out, `503` secrets missing. A tripped honeypot also gets `204`.
-  `HttpContactDispatcher._failureFor` maps each to a `DispatchFailure` — a new status needs a case
-  there or it reads as "delivery is down".
+  `HttpContactDispatcher._outcomeFor` maps each to a `DispatchException`, or to a `DispatchReceipt`
+  carrying the accepted status — a new status needs a case there or it reads as "delivery is down".
+- **`ContactDraftDto` is the wire format**, and its five keys are read by name in
+  `contact.ts`'s `isWellFormed`. `honeypot` is renamed to `company` by a `@JsonKey`, and **the key
+  must be sent even when empty** — an encoder that drops empty values turns every legitimate
+  submission into a `400`. `test/data/contact_draft_dto_test.dart` is the only thing guarding this.
 - **The reason exists only in the logs.** Failures are `console.error`ed for
   `wrangler pages deployment tail`; the enquiry never is, so no log line carries the visitor's
   address or their brief.

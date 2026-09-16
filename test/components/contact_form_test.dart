@@ -2,19 +2,22 @@ import 'package:jaspr_test/server_test.dart';
 import 'package:portfolio/components/contact_form.dart';
 import 'package:portfolio/content/site_content.dart';
 import 'package:portfolio/data/contact_dispatcher.dart';
+import 'package:portfolio/data/dispatch_outcome.dart';
 import 'package:portfolio/di/injector.dart';
 import 'package:portfolio/state/contact_cubit.dart';
 import 'package:portfolio/state/contact_draft.dart';
-import 'package:portfolio/state/contact_state.dart';
+import 'package:portfolio/utils/result.dart';
 
 import 'render.dart';
 
 final class _AcceptingDispatcher implements ContactDispatcher {
   @override
-  Future<DispatchFailure?> send(ContactDraft draft) async => null;
+  Future<DispatchOutcome> send(ContactDraft draft) async => const Success(DispatchReceipt(204));
 }
 
 void main() {
+  useAppOptions();
+
   const copy = ContactFormContent();
 
   late ContactCubit contact;

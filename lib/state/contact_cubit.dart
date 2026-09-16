@@ -4,16 +4,15 @@ import 'package:bloc/bloc.dart';
 
 import '../content/site_content.dart';
 import '../data/contact_dispatcher.dart';
+import '../utils/result.dart';
 import 'contact_draft.dart';
 import 'contact_state.dart';
 
 final class ContactCubit extends Cubit<ContactState> {
   ContactCubit({
-    required ContactDispatcher dispatcher,
-    Duration confirmationDuration = const Duration(seconds: 3),
-  }) : _dispatcher = dispatcher,
-       _confirmationDuration = confirmationDuration,
-       super(ContactState.initial());
+    required this._dispatcher,
+    this._confirmationDuration = const Duration(seconds: 3),
+  }) : super(ContactState.initial());
 
   final ContactDispatcher _dispatcher;
   final Duration _confirmationDuration;
@@ -43,7 +42,10 @@ final class ContactCubit extends Cubit<ContactState> {
     _emitDraft();
   }
 
-  void updateHoneypot(String value) => _draft.honeypot = value;
+  void updateHoneypot(String value) {
+    _draft.honeypot = value;
+  }
+
   Future<void> submit() async {
     if (state.status.blocksSubmit) return;
 
@@ -55,23 +57,23 @@ final class ContactCubit extends Cubit<ContactState> {
     final draft = _draft.build();
     _emitDraft(status: DispatchStatus.transmitting);
 
-    final failure = await _dispatcher.send(draft);
+    final outcome = await _dispatcher.send(draft);
     if (isClosed) return;
 
-    if (failure case final failure?) {
-      // What the visitor typed stays in the fields.
-      _emitDraft(status: DispatchStatus.failed, failure: failure);
-      return;
+    switch (outcome) {
+      case Failure(:final error):
+        // What the visitor typed stays in the fields.
+        _emitDraft(status: DispatchStatus.failed, failure: DispatchFailure.of(error));
+      case Success():
+        // Both, together: the draft is empty again, so leaving validation on would re-derive a
+        // problem for every field and report the send that just succeeded as three blocked ones.
+        _draft.clear();
+        _emitDraft(status: DispatchStatus.sent, isValidated: false);
+
+        _confirmation = Timer(_confirmationDuration, () {
+          if (!isClosed) _emitDraft(status: DispatchStatus.idle);
+        });
     }
-
-    // Both, together: the draft is empty again, so leaving validation on would re-derive a problem
-    // for every field and report the send that just succeeded as three blocked ones.
-    _draft.clear();
-    _emitDraft(status: DispatchStatus.sent, isValidated: false);
-
-    _confirmation = Timer(_confirmationDuration, () {
-      if (!isClosed) _emitDraft(status: DispatchStatus.idle);
-    });
   }
 
   void _emitDraft({DispatchStatus? status, bool? isValidated, DispatchFailure? failure}) {

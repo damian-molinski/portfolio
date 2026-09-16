@@ -7,11 +7,9 @@ import 'copy_state.dart';
 
 final class CopyCubit extends Cubit<CopyState> {
   CopyCubit({
-    required Clipboard clipboard,
-    Duration confirmationDuration = const Duration(seconds: 2),
-  }) : _clipboard = clipboard,
-       _confirmationDuration = confirmationDuration,
-       super(const CopyState.idle());
+    required this._clipboard,
+    this._confirmationDuration = const Duration(seconds: 2),
+  }) : super(const CopyState.idle());
 
   final Clipboard _clipboard;
   final Duration _confirmationDuration;

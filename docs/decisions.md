@@ -78,6 +78,25 @@ ever fire, unless the caller sits inside a `@client` boundary.
 
 **The submit button fills its panel**; every other button is shrink-to-fit.
 
+## Toolchain
+
+**Dart 3.13, but not primary constructors.** The SDK floor moved from `^3.10.0` to `^3.13.0` to
+match the version CI already pinned. The 3.13 headline feature was the point of the bump and it
+turned out to be unreachable: `jaspr_builder` caps `analyzer` at 12.x, where the feature has no
+release version, and nothing in `jaspr build` can pass build_runner the experiment flag. Forcing
+`analyzer: ^14` through `dependency_overrides` resolves but breaks `dart_style`'s AST visitors, and
+the override cascade would reach every builder in the graph. So the enforced default is the half
+that does work — private named parameters, with `prefer_initializing_formals` promoted to an error
+in `analysis_options.yaml`. The constraint, and the symptom it produces, is in `docs/constraints.md`;
+revisit when `jaspr_builder` moves off analyzer 12.
+
+**The wire format is a DTO, not a method on the state class.** `ContactDraft.toJson()` put the shape
+of `functions/api/contact.ts` inside `lib/state/`. `ContactDraftDto` carries it in `lib/data/`
+instead, next to the dispatcher that posts it, and `json_serializable` generates the encoder. The
+DTO is five `String`s — `ScopeOption` is resolved to its value by the mapping extension, so the
+generator never learns the enum and the DTO matches the TypeScript `ContactBody` field for field.
+No `fromJson`: the endpoint answers with a status and no body, so `createFactory: false`.
+
 ## Contact
 
 **The honeypot is weak, and deliberately so.** It catches a scraper that fills every input in the
@@ -94,3 +113,24 @@ points at it with `aria-describedby`; a refused press moves focus to the first o
 message is announced. Three live regions firing at once would be read as three interruptions. The
 paragraph above the button is about a failed *send* rather than any field, nothing focuses it, and
 it is the one `role="alert"` on the form.
+
+**The dispatch seam answers a `Result`, not a nullable enum.** `ContactDispatcher.send` returned
+`DispatchFailure?`, where `null` meant it arrived — an encoding with nowhere to put success data,
+and one the cubit read with an `if` rather than a match. It now returns
+`Result<DispatchReceipt, Exception>`: the receipt carries the 2xx the endpoint answered, and the
+failure arm carries a sealed `DispatchException` family. `Result` is generic and lives in
+`lib/utils/` with two arms and no combinators; `fold`, `map` and the rest arrive when a caller needs
+one. The failure type is `Exception` rather than `DispatchException`, so the switch that reads it
+needs a fallback arm that `HttpContactDispatcher` can never reach — the price of a seam that can
+report something it did not anticipate.
+
+**`DispatchFailure` stays in `lib/state/` as the form's vocabulary.** The transport speaks
+exceptions; the form speaks four cases it has copy for. `DispatchFailure.of(Exception)` is where one
+becomes the other, so `ContactState` stays plainly `Equatable` and `contact_form.dart`'s
+`_failureMessage` switch never learns what a `ClientException` is. Two representations of the same
+four reasons is the cost; a fifth exception with no copy resolves to `mailer` instead of failing to
+compile is the risk that buys.
+
+**Nothing renders `DispatchReceipt.statusCode` yet.** It is on the seam because it exists there and
+was previously discarded, not because the page shows it. Putting it on `ContactState` would add a
+field with no reader.

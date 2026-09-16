@@ -31,3 +31,6 @@ migrate_working_dir/
 /node_modules/
 /.wrangler/
 .dev.vars
+
+# Dart
+*.g.dart
