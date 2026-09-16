@@ -60,10 +60,7 @@ void main() {
       value: getIt(),
       child: Router(
         routes: routes,
-        redirect: (context, state) {
-          print('Redirect: $state');
-          return state.location != '/' ? '/' : null;
-        },
+        redirect: (context, state) => state.location != '/' ? '/' : null,
       ),
     ),
   );
