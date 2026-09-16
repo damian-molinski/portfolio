@@ -13,20 +13,20 @@ unnamed constructor, `CopyCubit` as a factory, `.app-container`'s padding longha
 ## Design system
 
 **D3 — the frontmatter palette wins.** `DESIGN.md`'s YAML frontmatter is the source of truth, not
-its prose and not the Tailwind config embedded in `docs/reference/landing-page.html`. The reference
-render uses a materially darker surface ramp; that difference is deliberate and must not be
-"corrected" by darkening the surfaces in `theme.dart`.
+its prose. The design was originally delivered as a Tailwind render whose config carried a
+materially darker surface ramp; the built site is lighter than that on purpose, and the surfaces in
+`theme.dart` must not be darkened to close a gap with a render that no longer exists here.
 
-**D4 — translucency comes from the role colours.** The reference reaches for Tailwind's
+**D4 — translucency comes from the role colours.** The original render reached for Tailwind's
 `cyan-500/40`, `slate-900/60` and the like. Those collapse onto Kinetic Slate roles at the same
 alpha — `AppColors.tertiary.alpha(0.4)` replaces `cyan-500/40` — rather than a second literal
 palette being kept alive alongside the first.
 
-**Corner radii.** Also from the frontmatter. The reference render's Tailwind config carries a
+**Corner radii.** Also from the frontmatter. The original render's Tailwind config carried a
 different, mangled set (its `full` is `0.75rem`); the frontmatter values win.
 
-**A1 — breakpoints are Tailwind's.** `sm` 640, `md` 768, `lg` 1024, which is what the reference
-markup actually keys off. `DESIGN.md`'s prose describes only 640 and 1024.
+**A1 — breakpoints are Tailwind's.** `sm` 640, `md` 768, `lg` 1024, which is what the design's
+markup keyed off. `DESIGN.md`'s prose describes only 640 and 1024.
 
 **A3 — type steps are mobile-first.** The 56px display step overflows a 360px viewport, so the
 mobile variant is the base rule and the desktop step arrives at the breakpoint. Applies to the hero
@@ -76,8 +76,7 @@ differ: `link` renders an `<a>`, `action` and `submit` render a `<button>`. A si
 taking an optional `onPressed` would compile a handler into the pre-rendered page that nothing can
 ever fire, unless the caller sits inside a `@client` boundary.
 
-**The submit button fills its panel** (`docs/reference/landing-page.html:584`); every other button
-is shrink-to-fit.
+**The submit button fills its panel**; every other button is shrink-to-fit.
 
 ## Contact
 

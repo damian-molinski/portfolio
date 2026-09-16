@@ -41,7 +41,6 @@ dart pub get
 | `lib/content/site_content.dart` | Every user-visible string, as typed `const` data. Nothing else declares copy. |
 | `lib/constants/theme.dart` | The `DESIGN.md` tokens as Dart, plus the global CSS declared via `@css`. |
 | `web/` | Static assets copied into the build: favicon, PWA icons and manifest, the emblem. |
-| `docs/reference/` | The frozen render of the design the site was built from, with a README recording where it came from and where it is now wrong. |
 
 Two components are annotated `@client` and are the only code running in the browser:
 `CopyEmailButton` and `ContactForm`. Everything else — the ambient glow, the entrance animations,
@@ -62,10 +61,6 @@ before adding UI.
 `lib/constants/theme.dart` now declares those tokens — `AppColors`, `AppType`, `AppSpacing`,
 `AppRadius`, `AppBreakpoints` — so UI code takes them from there rather than restating hex values.
 Translucent variants come from the `Color.alpha()` extension in the same file.
-
-`docs/reference/landing-page.html` is the design as it was rendered, kept for layout and spacing.
-Do not take colours from it: its Tailwind config overrides the frontmatter with a darker surface
-ramp, and `DESIGN.md`'s frontmatter is what this site is built on.
 
 ## Status
 

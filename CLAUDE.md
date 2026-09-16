@@ -52,8 +52,7 @@ axes emit the `padding` shorthand, which would overwrite the utility's longhands
 `lib/constants/theme.dart` declares them verbatim (`AppColors`, `AppType`, `AppSpacing`, …). Never
 restate a hex value in a component; translucent variants come from `Color.alpha()`.
 **Known conflict — the frontmatter wins.** It sets `primary: '#9ecaff'`, the prose names `#0175C2`;
-both roles exist, `primary` for text accents and `primary-container` for button fills. And
-`docs/reference/landing-page.html`, the archived render, is for layout — **never for colour**.
+both roles exist, `primary` for text accents and `primary-container` for button fills.
 
 ## All copy lives in one file
 
