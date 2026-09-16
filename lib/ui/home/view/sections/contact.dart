@@ -5,10 +5,12 @@ import '../../../../domain/models/site_content.dart';
 import '../../../../utils/markup.dart';
 import '../../../contact/view/contact_form.dart';
 import '../../../copy_email/view/copy_email_button.dart';
+import '../../../core/binding/bloc_builder.dart';
 import '../../../core/components/section_heading.dart';
 import '../../../core/components/section_shell.dart';
 import '../../../core/theme.dart';
-import '../../../core/view_model/site_content_builder.dart';
+import '../../view_model/home_state.dart';
+import '../../view_model/home_view_model.dart';
 
 class Contact extends StatelessComponent {
   const Contact({super.key});
@@ -37,10 +39,12 @@ class Contact extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(builder: (context, content) => _section(content));
+    return BlocBuilder<HomeViewModel, HomeState>(
+      builder: (context, state) => _section(state),
+    );
   }
 
-  Component _section(SiteContent content) {
+  Component _section(HomeState state) {
     return SectionShell(
       siteSection: SiteSection.contact,
       hasDivider: false,
@@ -55,7 +59,7 @@ class Contact extends StatelessComponent {
           div(classes: 'contact__header', [
             SectionHeading.forSection(SiteSection.contact),
             div(classes: 'contact__cards', [
-              for (final card in content.contactCards) _summaryCard(card),
+              for (final card in state.contactCards) _summaryCard(card),
             ]),
           ]),
 

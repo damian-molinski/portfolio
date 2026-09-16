@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:portfolio/data/repositories/site_content_repository.dart';
 import 'package:portfolio/data/services/contact_dispatcher.dart';
 import 'package:portfolio/domain/dispatch_outcome.dart';
 import 'package:portfolio/domain/models/contact_draft.dart';
@@ -36,6 +37,8 @@ extension on ContactViewModel {
 extension on ContactState {
   ContactState reporting(Map<ContactField, FieldProblem> problems) {
     return ContactState(
+      copy: copy,
+      scopeOptions: scopeOptions,
       name: name,
       email: email,
       brief: brief,
@@ -46,12 +49,18 @@ extension on ContactState {
   }
 }
 
+const _repository = ConstSiteContentRepository();
+const _copy = ContactFormContent();
+const _scopeOptions = ScopeOption.values;
+
 final _everyFieldMissing = {
   for (final field in ContactField.values) field: FieldProblem.missing,
 };
 
 ContactState filledState({required DispatchStatus status, DispatchFailure? failure}) {
   return ContactState(
+    copy: _copy,
+    scopeOptions: _scopeOptions,
     name: 'Ada Lovelace',
     email: 'ada@example.com',
     brief: 'A note about the engine.',
@@ -64,6 +73,8 @@ ContactState filledState({required DispatchStatus status, DispatchFailure? failu
 
 ContactState clearedState({required DispatchStatus status}) {
   return ContactState(
+    copy: _copy,
+    scopeOptions: _scopeOptions,
     name: null,
     email: null,
     brief: null,
@@ -79,10 +90,15 @@ void main() {
 
     setUp(() => dispatcher = _FakeContactDispatcher());
 
-    ContactViewModel buildCubit() => ContactViewModel(dispatcher: dispatcher, confirmationDuration: Duration.zero);
+    ContactViewModel buildCubit() => ContactViewModel(
+      repository: _repository,
+      dispatcher: dispatcher,
+      confirmationDuration: Duration.zero,
+    );
 
     ContactViewModel buildRefusingCubit({DispatchException error = const MailerDispatchException()}) =>
         ContactViewModel(
+          repository: _repository,
           dispatcher: _FakeContactDispatcher(error: error),
           confirmationDuration: Duration.zero,
         );
@@ -94,7 +110,17 @@ void main() {
       final cubit = buildCubit();
       addTearDown(cubit.close);
 
-      expect(cubit.state, ContactState.initial());
+      expect(cubit.state, const ContactState.initial(copy: _copy, scopeOptions: _scopeOptions));
+    });
+
+    test('carries the form copy and its scope options through every snapshot it builds', () {
+      final cubit = buildCubit();
+      addTearDown(cubit.close);
+
+      cubit.updateName('Ada Lovelace');
+
+      expect(cubit.state.copy, same(_copy));
+      expect(cubit.state.scopeOptions, same(_scopeOptions));
     });
 
     group('submit', () {

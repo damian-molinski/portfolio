@@ -11,8 +11,6 @@ import '../../core/binding/bloc_builder.dart';
 import '../../core/components/icons.dart';
 import '../../core/components/mono_button.dart';
 import '../../core/theme.dart';
-import '../../core/view_model/site_content_builder.dart';
-import '../../core/view_model/site_content_view_model.dart';
 import '../view_model/contact_state.dart';
 import '../view_model/contact_view_model.dart';
 
@@ -25,14 +23,12 @@ class ContactForm extends StatefulComponent {
 }
 
 class ContactFormState extends State<ContactForm> {
-  late final SiteContentViewModel _siteContent;
   late final ContactViewModel _contact;
 
   @override
   void initState() {
     super.initState();
 
-    _siteContent = getIt<SiteContentViewModel>();
     _contact = getIt<ContactViewModel>();
   }
 
@@ -180,8 +176,8 @@ class ContactFormState extends State<ContactForm> {
     );
   }
 
-  Component _form(SiteContent content, ContactState formState) {
-    final copy = content.contactForm;
+  Component _form(ContactState formState) {
+    final copy = formState.copy;
 
     return form(
       classes: 'contact-form',
@@ -220,7 +216,7 @@ class ContactFormState extends State<ContactForm> {
               onChange: (selected) => _contact.updateScope(ScopeOption.byValue(selected.first)),
               id: copy.scopeFieldId,
               [
-                for (final option_ in content.scopeOptions)
+                for (final option_ in formState.scopeOptions)
                   option(
                     value: option_.value,
                     selected: option_ == formState.scope,
@@ -264,12 +260,9 @@ class ContactFormState extends State<ContactForm> {
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(
-      cubit: _siteContent,
-      builder: (context, content) => BlocBuilder<ContactViewModel, ContactState>(
-        bloc: _contact,
-        builder: (context, formState) => _form(content, formState),
-      ),
+    return BlocBuilder<ContactViewModel, ContactState>(
+      bloc: _contact,
+      builder: (context, formState) => _form(formState),
     );
   }
 

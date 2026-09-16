@@ -3,13 +3,15 @@ import 'package:jaspr/jaspr.dart';
 
 import '../../../../domain/models/site_content.dart';
 import '../../../../utils/markup.dart';
+import '../../../core/binding/bloc_builder.dart';
 import '../../../core/components/icons.dart';
 import '../../../core/components/section_heading.dart';
 import '../../../core/components/section_shell.dart';
 import '../../../core/components/spec_card.dart';
 import '../../../core/components/tag_pill.dart';
 import '../../../core/theme.dart';
-import '../../../core/view_model/site_content_builder.dart';
+import '../../view_model/home_state.dart';
+import '../../view_model/home_view_model.dart';
 
 class Projects extends StatelessComponent {
   const Projects({super.key});
@@ -57,16 +59,18 @@ class Projects extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(builder: (context, content) => _section(content));
+    return BlocBuilder<HomeViewModel, HomeState>(
+      builder: (context, state) => _section(state),
+    );
   }
 
-  Component _section(SiteContent content) {
+  Component _section(HomeState state) {
     return SectionShell(
       siteSection: SiteSection.projects,
       children: [
         SectionHeading.forSection(SiteSection.projects),
         div(classes: 'project-grid', [
-          for (final project in content.projects) _card(project, content.projectLabels),
+          for (final project in state.projects) _card(project, state.projectLabels),
         ]),
       ],
     );

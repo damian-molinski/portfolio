@@ -8,7 +8,8 @@ import 'di/injector.dart';
 import 'main.server.options.dart';
 import 'ui/core/binding/bloc_provider.dart';
 import 'ui/core/view/app_shell.dart';
-import 'ui/core/view_model/site_content_view_model.dart';
+import 'ui/core/view_model/app_shell_view_model.dart';
+import 'ui/home/view_model/home_view_model.dart';
 
 void main() {
   Jaspr.initializeApp(
@@ -55,10 +56,14 @@ void main() {
       meta(name: 'twitter:description', content: siteMeta.ogDescription),
       meta(name: 'twitter:image', content: siteMeta.ogImage),
     ],
-    // `.value`, not `create:`: the ViewModel is a get_it singleton, and `create:` would make the
-    // provider its owner and close it on dispose.
-    body: BlocProvider<SiteContentViewModel>.value(
-      value: getIt(),
+    // `.value`, not `create:`: the ViewModels are get_it singletons, and `create:` would make the
+    // provider their owner and close them on dispose.
+    body: MultiBlocProvider(
+      providers: [
+        (child) => BlocProvider<AppShellViewModel>.value(value: getIt(), child: child),
+        // Provided here only until the route table exists; the page's route builder provides it.
+        (child) => BlocProvider<HomeViewModel>.value(value: getIt(), child: child),
+      ],
       child: const AppShell(),
     ),
   );

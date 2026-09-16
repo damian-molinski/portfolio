@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:portfolio/data/repositories/site_content_repository.dart';
 import 'package:portfolio/data/services/clipboard.dart';
 import 'package:portfolio/ui/copy_email/view_model/copy_state.dart';
 import 'package:portfolio/ui/copy_email/view_model/copy_view_model.dart';
@@ -19,47 +20,75 @@ final class _FakeClipboard implements Clipboard {
 
 void main() {
   group(CopyViewModel, () {
-    const email = 'someone@example.test';
-
-    blocTest<CopyViewModel, CopyState>(
-      'confirms the copy, then reverts once the confirmation window passes',
-      build: () => CopyViewModel(clipboard: _FakeClipboard(), confirmationDuration: Duration.zero),
-      act: (cubit) => cubit.copy(email),
-      wait: const Duration(milliseconds: 10),
-      expect: () => const [CopyState.copied(), CopyState.idle()],
+    const repository = ConstSiteContentRepository();
+    final content = repository.load();
+    final idle = CopyState.idle(
+      email: content.identity.email,
+      label: content.hero.copyCta,
+      successLabel: content.hero.copyCtaSuccess,
+      ariaLabel: content.hero.copyCtaAriaLabel,
     );
 
-    blocTest<CopyViewModel, CopyState>(
-      'says nothing when the write did not happen',
-      build: () => CopyViewModel(
-        clipboard: _FakeClipboard(succeeds: false),
-        confirmationDuration: Duration.zero,
-      ),
-      act: (cubit) => cubit.copy(email),
-      wait: const Duration(milliseconds: 10),
-      expect: () => const <CopyState>[],
-    );
-
-    test('writes the address it was handed', () async {
-      final clipboard = _FakeClipboard();
-      final cubit = CopyViewModel(clipboard: clipboard, confirmationDuration: Duration.zero);
+    test('carries the address and the three labels the button renders', () {
+      final cubit = CopyViewModel(repository: repository, clipboard: _FakeClipboard());
       addTearDown(cubit.close);
 
-      await cubit.copy(email);
-
-      expect(clipboard.writes, [email]);
+      expect(cubit.state, idle);
+      expect(cubit.state.email, content.identity.email);
+      expect(cubit.state.isCopied, isFalse);
     });
 
-    test('cancelling on close leaves no timer to fire into a closed cubit', () async {
-      final cubit = CopyViewModel(
-        clipboard: _FakeClipboard(),
-        confirmationDuration: const Duration(seconds: 30),
+    group('copy', () {
+      blocTest<CopyViewModel, CopyState>(
+        'confirms the copy, then reverts once the confirmation window passes',
+        build: () => CopyViewModel(
+          repository: repository,
+          clipboard: _FakeClipboard(),
+          confirmationDuration: Duration.zero,
+        ),
+        act: (cubit) => cubit.copy(),
+        wait: const Duration(milliseconds: 10),
+        expect: () => [idle.confirmed(), idle.reverted()],
       );
 
-      await cubit.copy(email);
-      await cubit.close();
+      blocTest<CopyViewModel, CopyState>(
+        'says nothing when the write did not happen',
+        build: () => CopyViewModel(
+          repository: repository,
+          clipboard: _FakeClipboard(succeeds: false),
+          confirmationDuration: Duration.zero,
+        ),
+        act: (cubit) => cubit.copy(),
+        wait: const Duration(milliseconds: 10),
+        expect: () => const <CopyState>[],
+      );
 
-      expect(cubit.state, const CopyState.copied());
+      test('writes the address the content declares, without being handed one', () async {
+        final clipboard = _FakeClipboard();
+        final cubit = CopyViewModel(
+          repository: repository,
+          clipboard: clipboard,
+          confirmationDuration: Duration.zero,
+        );
+        addTearDown(cubit.close);
+
+        await cubit.copy();
+
+        expect(clipboard.writes, [content.identity.email]);
+      });
+
+      test('cancelling on close leaves no timer to fire into a closed cubit', () async {
+        final cubit = CopyViewModel(
+          repository: repository,
+          clipboard: _FakeClipboard(),
+          confirmationDuration: const Duration(seconds: 30),
+        );
+
+        await cubit.copy();
+        await cubit.close();
+
+        expect(cubit.state, idle.confirmed());
+      });
     });
   });
 }

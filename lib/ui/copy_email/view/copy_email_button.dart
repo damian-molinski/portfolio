@@ -2,13 +2,10 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 import '../../../di/injector.dart';
-import '../../../domain/models/site_content.dart';
 import '../../core/binding/bloc_builder.dart';
 import '../../core/components/icons.dart';
 import '../../core/components/mono_button.dart';
 import '../../core/theme.dart';
-import '../../core/view_model/site_content_builder.dart';
-import '../../core/view_model/site_content_view_model.dart';
 import '../view_model/copy_state.dart';
 import '../view_model/copy_view_model.dart';
 
@@ -25,14 +22,12 @@ class CopyEmailButton extends StatefulComponent {
 }
 
 class CopyEmailButtonState extends State<CopyEmailButton> {
-  late final SiteContentViewModel _siteContent;
   late final CopyViewModel _copy;
 
   @override
   void initState() {
     super.initState();
 
-    _siteContent = getIt<SiteContentViewModel>();
     _copy = getIt<CopyViewModel>();
   }
 
@@ -42,15 +37,14 @@ class CopyEmailButtonState extends State<CopyEmailButton> {
     super.dispose();
   }
 
-  Component _button(SiteContent content, CopyState copyState) {
-    final hero = content.hero;
-    void onCopy() => _copy.copy(content.identity.email);
+  Component _button(CopyState copyState) {
+    void onCopy() => _copy.copy();
 
     if (component.isIconOnly) {
       return button(
         classes: 'copy-icon-button',
         type: .button,
-        attributes: {'aria-label': hero.copyCtaAriaLabel},
+        attributes: {'aria-label': copyState.ariaLabel},
         events: events(onClick: onCopy),
         [
           if (copyState.isCopied)
@@ -63,21 +57,18 @@ class CopyEmailButtonState extends State<CopyEmailButton> {
     }
 
     return MonoButton.action(
-      label: copyState.isCopied ? hero.copyCtaSuccess : hero.copyCta,
+      label: copyState.isCopied ? copyState.successLabel : copyState.label,
       onPressed: onCopy,
       icon: copyState.isCopied ? AppIcon.check : AppIcon.contentCopy,
-      ariaLabel: hero.copyCtaAriaLabel,
+      ariaLabel: copyState.ariaLabel,
     );
   }
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(
-      cubit: _siteContent,
-      builder: (context, content) => BlocBuilder<CopyViewModel, CopyState>(
-        bloc: _copy,
-        builder: (context, copyState) => _button(content, copyState),
-      ),
+    return BlocBuilder<CopyViewModel, CopyState>(
+      bloc: _copy,
+      builder: (context, copyState) => _button(copyState),
     );
   }
 

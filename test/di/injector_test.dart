@@ -5,7 +5,8 @@ import 'package:portfolio/data/services/contact_dispatcher.dart';
 import 'package:portfolio/di/injector.dart';
 import 'package:portfolio/ui/contact/view_model/contact_view_model.dart';
 import 'package:portfolio/ui/copy_email/view_model/copy_view_model.dart';
-import 'package:portfolio/ui/core/view_model/site_content_view_model.dart';
+import 'package:portfolio/ui/core/view_model/app_shell_view_model.dart';
+import 'package:portfolio/ui/home/view_model/home_view_model.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -20,7 +21,8 @@ void main() {
     test('registers the stateless collaborators as singletons', () {
       expect(getIt<SiteContentRepository>(), same(getIt<SiteContentRepository>()));
       expect(getIt<Clipboard>(), same(getIt<Clipboard>()));
-      expect(getIt<SiteContentViewModel>(), same(getIt<SiteContentViewModel>()));
+      expect(getIt<AppShellViewModel>(), same(getIt<AppShellViewModel>()));
+      expect(getIt<HomeViewModel>(), same(getIt<HomeViewModel>()));
       expect(getIt<http.Client>(), same(getIt<http.Client>()));
       expect(getIt<ContactDispatcher>(), same(getIt<ContactDispatcher>()));
     });

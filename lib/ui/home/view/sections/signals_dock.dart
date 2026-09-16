@@ -1,31 +1,34 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../../../../domain/models/site_content.dart';
 import '../../../../utils/markup.dart';
+import '../../../core/binding/bloc_builder.dart';
 import '../../../core/components/icons.dart';
 import '../../../core/components/node_link.dart';
 import '../../../core/theme.dart';
-import '../../../core/view_model/site_content_builder.dart';
+import '../../view_model/home_state.dart';
+import '../../view_model/home_view_model.dart';
 
 class SignalsDock extends StatelessComponent {
   const SignalsDock({super.key});
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(builder: (context, content) => _section(content));
+    return BlocBuilder<HomeViewModel, HomeState>(
+      builder: (context, state) => _section(state),
+    );
   }
 
-  Component _section(SiteContent content) {
+  Component _section(HomeState state) {
     return section(
       classes: 'signals-dock',
       id: 'signals',
-      attributes: {'aria-label': content.signals.title},
+      attributes: {'aria-label': state.signals.title},
       [
         div(classes: 'app-container', [
           div(classes: 'signals-dock__panel animate-fade-in-up delay-100', [
             div(classes: 'signals-dock__heading', [
-              span(classes: 'signals-dock__title', [.text(content.signals.title)]),
+              span(classes: 'signals-dock__title', [.text(state.signals.title)]),
               span(
                 classes: 'signals-dock__separator',
                 attributes: const {'aria-hidden': 'true'},
@@ -33,24 +36,24 @@ class SignalsDock extends StatelessComponent {
                   .text('•'),
                 ],
               ),
-              span(classes: 'signals-dock__subtitle', [.text(content.signals.subtitle)]),
+              span(classes: 'signals-dock__subtitle', [.text(state.signals.subtitle)]),
             ]),
 
             a(
               classes: 'signals-dock__pgp',
-              href: content.signals.pgpHref,
+              href: state.signals.pgpHref,
               target: .blank,
-              attributes: externalLinkAttributes(ariaLabel: content.signals.pgpAriaLabel),
+              attributes: externalLinkAttributes(ariaLabel: state.signals.pgpAriaLabel),
               [
                 AppIcon.fingerprint(classes: 'signals-dock__pgp-glyph'),
-                span(classes: 'signals-dock__fingerprint', [.text(content.signals.pgpFingerprint)]),
-                span(classes: 'signals-dock__algorithm', [.text(content.signals.pgpAlgorithm)]),
+                span(classes: 'signals-dock__fingerprint', [.text(state.signals.pgpFingerprint)]),
+                span(classes: 'signals-dock__algorithm', [.text(state.signals.pgpAlgorithm)]),
                 AppIcon.northEast(classes: 'signals-dock__pgp-trailing'),
               ],
             ),
 
             div(classes: 'signals-dock__grid', [
-              for (final node in content.identityNodes) NodeLink(node),
+              for (final node in state.identityNodes) NodeLink(node),
             ]),
           ]),
         ]),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 
+import '../../../data/repositories/site_content_repository.dart';
 import '../../../data/services/contact_dispatcher.dart';
 import '../../../domain/models/contact_draft.dart';
 import '../../../domain/models/site_content.dart';
@@ -10,9 +11,10 @@ import 'contact_state.dart';
 
 final class ContactViewModel extends Cubit<ContactState> {
   ContactViewModel({
+    required SiteContentRepository repository,
     required this._dispatcher,
     this._confirmationDuration = const Duration(seconds: 3),
-  }) : super(ContactState.initial());
+  }) : super(_seed(repository.load()));
 
   final ContactDispatcher _dispatcher;
   final Duration _confirmationDuration;
@@ -21,6 +23,13 @@ final class ContactViewModel extends Cubit<ContactState> {
 
   bool _isValidated = false;
   Timer? _confirmation;
+
+  static ContactState _seed(SiteContent content) {
+    return ContactState.initial(
+      copy: content.contactForm,
+      scopeOptions: content.scopeOptions,
+    );
+  }
 
   void updateName(String value) {
     _draft.name = value;
@@ -81,6 +90,8 @@ final class ContactViewModel extends Cubit<ContactState> {
     if (isValidated != null) _isValidated = isValidated;
 
     final snapshot = ContactState(
+      copy: state.copy,
+      scopeOptions: state.scopeOptions,
       name: _draft.name,
       email: _draft.email,
       brief: _draft.brief,

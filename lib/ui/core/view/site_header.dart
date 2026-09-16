@@ -1,40 +1,43 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../../../domain/models/site_content.dart';
+import '../binding/bloc_builder.dart';
 import '../theme.dart';
-import '../view_model/site_content_builder.dart';
+import '../view_model/app_shell_state.dart';
+import '../view_model/app_shell_view_model.dart';
 
 class SiteHeader extends StatelessComponent {
   const SiteHeader({super.key});
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(builder: (context, content) => _header(content));
+    return BlocBuilder<AppShellViewModel, AppShellState>(
+      builder: (context, state) => _header(state),
+    );
   }
 
-  Component _header(SiteContent content) {
+  Component _header(AppShellState state) {
     return header(classes: 'site-header', [
       div(classes: 'site-header__bar app-container', [
         div(classes: 'site-header__brand', [
           img(
-            alt: content.identity.emblemAlt,
-            src: content.identity.emblem,
+            alt: state.identity.emblemAlt,
+            src: state.identity.emblem,
             classes: 'site-header__emblem',
           ),
           div(classes: 'site-header__wordmark', [
-            span(classes: 'site-header__name', [.text(content.identity.name)]),
-            span(classes: 'site-header__role', [.text(content.identity.role)]),
+            span(classes: 'site-header__name', [.text(state.identity.name)]),
+            span(classes: 'site-header__role', [.text(state.identity.role)]),
           ]),
         ]),
 
         nav(classes: 'site-header__nav', [
-          for (final section in content.sections)
+          for (final section in state.sections)
             a(classes: 'site-header__link', href: section.anchor, [.text(section.navLabel)]),
         ]),
         img(
-          alt: content.identity.portraitAlt,
-          src: content.identity.portrait,
+          alt: state.identity.portraitAlt,
+          src: state.identity.portrait,
           classes: 'site-header__avatar',
         ),
       ]),

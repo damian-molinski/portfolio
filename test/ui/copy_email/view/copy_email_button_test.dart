@@ -16,7 +16,6 @@ void main() {
   useAppOptions();
 
   const hero = HeroContent();
-  const identity = SiteIdentity();
 
   late CopyViewModel copy;
 
@@ -26,7 +25,7 @@ void main() {
     getIt.unregister<Clipboard>();
     getIt.registerSingleton<Clipboard>(_FakeClipboard());
 
-    copy = CopyViewModel(clipboard: getIt());
+    copy = CopyViewModel(repository: getIt(), clipboard: getIt());
     getIt.unregister<CopyViewModel>();
     getIt.registerSingleton<CopyViewModel>(copy);
   });
@@ -56,7 +55,7 @@ void main() {
     });
 
     testServer('swaps the label once a write has landed', (tester) async {
-      await copy.copy(identity.email);
+      await copy.copy();
 
       final rendered = await tester.render(const CopyEmailButton(isIconOnly: false));
 
@@ -65,7 +64,7 @@ void main() {
     });
 
     testServer('swaps the glyph once a write has landed', (tester) async {
-      await copy.copy(identity.email);
+      await copy.copy();
 
       final rendered = await tester.render(const CopyEmailButton(isIconOnly: true));
 

@@ -6,7 +6,8 @@ import '../data/services/clipboard.dart';
 import '../data/services/contact_dispatcher.dart';
 import '../ui/contact/view_model/contact_view_model.dart';
 import '../ui/copy_email/view_model/copy_view_model.dart';
-import '../ui/core/view_model/site_content_view_model.dart';
+import '../ui/core/view_model/app_shell_view_model.dart';
+import '../ui/home/view_model/home_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -20,9 +21,14 @@ void configureDependencies() {
     ..registerLazySingleton<ContactDispatcher>(() {
       return HttpContactDispatcher(client: getIt(), base: Uri.base);
     })
-    ..registerLazySingleton<SiteContentViewModel>(() => SiteContentViewModel(getIt()))
-    ..registerFactory<ContactViewModel>(() => ContactViewModel(dispatcher: getIt()))
+    ..registerLazySingleton<AppShellViewModel>(() => AppShellViewModel(getIt()))
+    ..registerLazySingleton<HomeViewModel>(() => HomeViewModel(getIt()))
+    ..registerFactory<ContactViewModel>(() {
+      return ContactViewModel(repository: getIt(), dispatcher: getIt());
+    })
     // A factory, not a singleton: the page renders `CopyEmailButton` twice, and a shared instance
     // would make both confirm on a single click.
-    ..registerFactory<CopyViewModel>(() => CopyViewModel(clipboard: getIt()));
+    ..registerFactory<CopyViewModel>(() {
+      return CopyViewModel(repository: getIt(), clipboard: getIt());
+    });
 }

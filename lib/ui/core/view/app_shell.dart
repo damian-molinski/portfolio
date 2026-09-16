@@ -8,8 +8,10 @@ import '../../home/view/sections/pillars.dart';
 import '../../home/view/sections/projects.dart';
 import '../../home/view/sections/signals_dock.dart';
 import '../../home/view/sections/skills.dart';
+import '../binding/bloc_builder.dart';
 import '../theme.dart';
-import '../view_model/site_content_builder.dart';
+import '../view_model/app_shell_state.dart';
+import '../view_model/app_shell_view_model.dart';
 import 'site_footer.dart';
 import 'site_header.dart';
 
@@ -18,7 +20,9 @@ class AppShell extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(builder: (context, content) => _page(content.chrome));
+    return BlocBuilder<AppShellViewModel, AppShellState>(
+      builder: (context, state) => _page(state.chrome),
+    );
   }
 
   Component _page(ChromeContent chrome) {

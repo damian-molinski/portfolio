@@ -30,6 +30,8 @@ enum DispatchFailure {
 
 final class ContactState extends Equatable {
   const ContactState({
+    required this.copy,
+    required this.scopeOptions,
     required this.name,
     required this.email,
     required this.brief,
@@ -39,15 +41,19 @@ final class ContactState extends Equatable {
     this.failure,
   });
 
-  const ContactState.initial()
-    : name = null,
-      email = null,
-      brief = null,
-      scope = ScopeOption.initial,
-      status = DispatchStatus.idle,
-      problems = const {},
-      failure = null;
+  const ContactState.initial({
+    required this.copy,
+    required this.scopeOptions,
+  }) : name = null,
+       email = null,
+       brief = null,
+       scope = ScopeOption.initial,
+       status = DispatchStatus.idle,
+       problems = const {},
+       failure = null;
 
+  final ContactFormContent copy;
+  final List<ScopeOption> scopeOptions;
   final String? name;
   final String? email;
   final String? brief;
@@ -58,6 +64,8 @@ final class ContactState extends Equatable {
 
   @override
   List<Object?> get props => [
+    copy,
+    scopeOptions,
     name,
     email,
     brief,

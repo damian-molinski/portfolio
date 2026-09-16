@@ -1,25 +1,33 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../../../domain/models/site_content.dart';
+import '../binding/bloc_builder.dart';
 import '../theme.dart';
-import '../view_model/site_content_builder.dart';
+import '../view_model/app_shell_state.dart';
+import '../view_model/app_shell_view_model.dart';
 
 class SiteFooter extends StatelessComponent {
   const SiteFooter({super.key});
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(builder: (context, content) => _footer(content));
+    return BlocBuilder<AppShellViewModel, AppShellState>(
+      builder: (context, state) => _footer(state),
+    );
   }
 
-  Component _footer(SiteContent content) {
+  Component _footer(AppShellState state) {
     return footer(classes: 'site-footer', [
       div(classes: 'site-footer__bar app-container', [
         nav(classes: 'site-footer__links', [
-          for (final link in content.footerLinks) a(classes: 'site-footer__link', href: link.href, [.text(link.label)]),
+          for (final link in state.footerLinks)
+            a(
+              classes: 'site-footer__link',
+              href: link.href,
+              [.text(link.label)],
+            ),
         ]),
-        span(classes: 'site-footer__copyright', [.text(content.identity.copyright)]),
+        span(classes: 'site-footer__copyright', [.text(state.identity.copyright)]),
       ]),
     ]);
   }

@@ -3,18 +3,22 @@ import 'package:jaspr/jaspr.dart';
 
 import '../../../../domain/models/site_content.dart';
 import '../../../copy_email/view/copy_email_button.dart';
+import '../../../core/binding/bloc_builder.dart';
 import '../../../core/components/icons.dart';
 import '../../../core/components/mono_button.dart';
 import '../../../core/components/status_dot.dart';
 import '../../../core/theme.dart';
-import '../../../core/view_model/site_content_builder.dart';
+import '../../view_model/home_state.dart';
+import '../../view_model/home_view_model.dart';
 
 class Hero extends StatelessComponent {
   const Hero({super.key});
 
   @override
   Component build(BuildContext context) {
-    return SiteContentBuilder(builder: (context, content) => _section(content.hero));
+    return BlocBuilder<HomeViewModel, HomeState>(
+      builder: (context, state) => _section(state.hero),
+    );
   }
 
   Component _section(HeroContent hero) {
