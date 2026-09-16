@@ -112,6 +112,9 @@ jobs:
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
+        env:
+          COMMIT_HASH: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -119,4 +122,5 @@ jobs:
             pages deploy build/jaspr
             --project-name=portfolio
             --branch=main
-            --commit-hash=${{ github.sha }}
+            --commit-hash="$COMMIT_HASH"
+            --commit-message="$COMMIT_MESSAGE"
