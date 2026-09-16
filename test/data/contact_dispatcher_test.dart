@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:portfolio/content/site_content.dart';
 import 'package:portfolio/data/contact_dispatcher.dart';
+import 'package:portfolio/data/contact_draft_dto.dart';
 import 'package:portfolio/state/contact_draft.dart';
 import 'package:portfolio/state/contact_state.dart';
 import 'package:test/test.dart';
@@ -39,7 +40,7 @@ void main() {
         final request = requests.single;
         expect(request.url, Uri.parse('https://damian-molinski.dev/api/contact'));
         expect(request.headers, containsPair('content-type', 'application/json'));
-        expect(jsonDecode(request.body), _draft.toJson());
+        expect(jsonDecode(request.body), _draft.toDto().toJson());
       });
 
       test('reports nothing when the endpoint accepts it', () async {

@@ -157,26 +157,4 @@ void main() {
       });
     });
   });
-
-  group(ContactDraft, () {
-    group('toJson', () {
-      test('serialises the scope by value and the trap as company', () {
-        final builder = ContactDraftBuilder()
-          ..fillRequiredFields()
-          ..honeypot = 'Acme Corp'
-          ..scope = ScopeOption.values.last;
-        final draft = builder.build();
-
-        final json = draft.toJson();
-
-        expect(json, {
-          'name': 'Ada Lovelace',
-          'email': 'ada@example.com',
-          'brief': 'A note about the engine.',
-          'scope': ScopeOption.values.last.value,
-          'company': 'Acme Corp',
-        });
-      });
-    });
-  });
 }

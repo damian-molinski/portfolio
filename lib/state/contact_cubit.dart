@@ -9,11 +9,9 @@ import 'contact_state.dart';
 
 final class ContactCubit extends Cubit<ContactState> {
   ContactCubit({
-    required ContactDispatcher dispatcher,
-    Duration confirmationDuration = const Duration(seconds: 3),
-  }) : _dispatcher = dispatcher,
-       _confirmationDuration = confirmationDuration,
-       super(ContactState.initial());
+    required this._dispatcher,
+    this._confirmationDuration = const Duration(seconds: 3),
+  }) : super(ContactState.initial());
 
   final ContactDispatcher _dispatcher;
   final Duration _confirmationDuration;

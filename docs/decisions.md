@@ -78,6 +78,25 @@ ever fire, unless the caller sits inside a `@client` boundary.
 
 **The submit button fills its panel**; every other button is shrink-to-fit.
 
+## Toolchain
+
+**Dart 3.13, but not primary constructors.** The SDK floor moved from `^3.10.0` to `^3.13.0` to
+match the version CI already pinned. The 3.13 headline feature was the point of the bump and it
+turned out to be unreachable: `jaspr_builder` caps `analyzer` at 12.x, where the feature has no
+release version, and nothing in `jaspr build` can pass build_runner the experiment flag. Forcing
+`analyzer: ^14` through `dependency_overrides` resolves but breaks `dart_style`'s AST visitors, and
+the override cascade would reach every builder in the graph. So the enforced default is the half
+that does work — private named parameters, with `prefer_initializing_formals` promoted to an error
+in `analysis_options.yaml`. The constraint, and the symptom it produces, is in `docs/constraints.md`;
+revisit when `jaspr_builder` moves off analyzer 12.
+
+**The wire format is a DTO, not a method on the state class.** `ContactDraft.toJson()` put the shape
+of `functions/api/contact.ts` inside `lib/state/`. `ContactDraftDto` carries it in `lib/data/`
+instead, next to the dispatcher that posts it, and `json_serializable` generates the encoder. The
+DTO is five `String`s — `ScopeOption` is resolved to its value by the mapping extension, so the
+generator never learns the enum and the DTO matches the TypeScript `ContactBody` field for field.
+No `fromJson`: the endpoint answers with a status and no body, so `createFactory: false`.
+
 ## Contact
 
 **The honeypot is weak, and deliberately so.** It catches a scraper that fills every input in the

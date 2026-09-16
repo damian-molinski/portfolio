@@ -1,6 +1,10 @@
 include: package:lints/recommended.yaml
 
 analyzer:
+  errors:
+    # Dart 3.13 private named parameters: `required this._client` is still called as `client:`,
+    # so a private field needs no initializer list. Gated, not advisory.
+    prefer_initializing_formals: error
 
 plugins:
   jaspr_lints:

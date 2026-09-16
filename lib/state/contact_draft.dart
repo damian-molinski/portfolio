@@ -22,13 +22,6 @@ final class ContactDraft extends Equatable {
   final String brief;
   final ScopeOption scope;
   final String honeypot;
-  Map<String, Object?> toJson() => {
-    'name': name,
-    'email': email,
-    'brief': brief,
-    'scope': scope.value,
-    'company': honeypot,
-  };
 
   @override
   List<Object?> get props => [name, email, brief, scope, honeypot];

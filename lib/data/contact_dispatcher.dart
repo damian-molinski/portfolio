@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../state/contact_draft.dart';
 import '../state/contact_state.dart';
+import 'contact_draft_dto.dart';
 
 abstract interface class ContactDispatcher {
   /// Posts [draft], answering with the reason it did not arrive — or null when it did.
@@ -13,12 +14,10 @@ abstract interface class ContactDispatcher {
 
 final class HttpContactDispatcher implements ContactDispatcher {
   const HttpContactDispatcher({
-    required http.Client client,
-    required Uri base,
-    Duration timeout = const Duration(seconds: 20),
-  }) : _client = client,
-       _base = base,
-       _timeout = timeout;
+    required this._client,
+    required this._base,
+    this._timeout = const Duration(seconds: 20),
+  });
 
   final http.Client _client;
   final Uri _base;
@@ -26,7 +25,8 @@ final class HttpContactDispatcher implements ContactDispatcher {
 
   @override
   Future<DispatchFailure?> send(ContactDraft draft) async {
-    final body = jsonEncode(draft.toJson());
+    final payload = draft.toDto();
+    final body = jsonEncode(payload.toJson());
     final http.Response response;
 
     try {
