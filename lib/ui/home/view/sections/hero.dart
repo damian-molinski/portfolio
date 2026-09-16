@@ -11,6 +11,8 @@ import '../../../core/theme.dart';
 import '../../view_model/home_state.dart';
 import '../../view_model/home_view_model.dart';
 
+const _ambientFade = 'linear-gradient(to bottom, #000 60%, transparent 100%)';
+
 class Hero extends StatelessComponent {
   const Hero({super.key});
 
@@ -85,6 +87,12 @@ class Hero extends StatelessComponent {
       css('.hero__ambient').styles(
         position: .absolute(top: .zero, left: .zero, right: .zero, bottom: .zero),
         pointerEvents: .none,
+        // `.hero` clips to its own box, so on a short viewport the blurred glows end in a straight
+        // line at the section edge; fading the layer out first puts the cut where nothing is left.
+        raw: {
+          '-webkit-mask-image': _ambientFade,
+          'mask-image': _ambientFade,
+        },
       ),
 
       css('.hero__glow').styles(
