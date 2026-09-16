@@ -10,7 +10,7 @@ final class SiteIdentity {
 
   String get name => 'Damian Moliński';
   String get role => 'Team Lead & Flutter Software Engineer';
-  String get copyright => '© Damian Moliński • Build with Flutter';
+  String get copyright => '© Damian Moliński • Built with Dart&Jaspr';
   String get email => _contactEmail;
   String get avatarAlt => 'Portrait photo';
   String get emblem => '/images/emblem.png';
