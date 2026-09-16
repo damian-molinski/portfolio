@@ -41,6 +41,18 @@ function isFilled(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+/**
+ * Whether the parsed body is something field access can be attempted on at all.
+ *
+ * `Request.json<T>()` asserts rather than checks, so the parse result is `unknown` until this says
+ * otherwise. `JSON.parse("null")` succeeds and yields `null`, which throws on the first property
+ * read — and an uncaught throw here is a `500`, which the form reports as "mail delivery is down"
+ * rather than as the malformed body it is.
+ */
+function isRecord(body: unknown): body is Partial<ContactBody> {
+  return typeof body === "object" && body !== null && !Array.isArray(body);
+}
+
 function isWellFormed(body: Partial<ContactBody>): body is ContactBody {
   return (
     isFilled(body.name) &&
@@ -97,13 +109,19 @@ function bodyFor(body: ContactBody): string {
  * the whole diagnosis anyway.
  */
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  let body: Partial<ContactBody>;
+  let parsed: unknown;
 
   try {
-    body = await context.request.json();
+    parsed = await context.request.json<unknown>();
   } catch {
     return new Response(null, { status: 400 });
   }
+
+  if (!isRecord(parsed)) {
+    return new Response(null, { status: 400 });
+  }
+
+  const body = parsed;
 
   // Before validation: a bot that filled the trap gets no signal about what else was wrong.
   if (isFilled(body.company)) {
