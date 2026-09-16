@@ -13,6 +13,8 @@ final class SiteIdentity {
   String get email => _contactEmail;
   String get emblem => '/images/emblem.png';
   String get emblemAlt => 'Logo';
+  String get portrait => '/images/portrait.jpg';
+  String get portraitAlt => 'Damian Moliński';
 }
 
 final class SiteMeta {
@@ -27,7 +29,6 @@ final class SiteMeta {
       'Multi-platform product engineering from one codebase — mobile, web, desktop and backend.';
   String get ogImage => 'https://damian-molinski.dev/images/og-cover.jpg';
   String get canonical => 'https://damian-molinski.dev/';
-  String get twitterSite => '@DamianMoliski12';
   String get themeColor => '#0175c2';
   String get manifest => '/manifest.json';
   String get locale => 'en';
@@ -50,7 +51,7 @@ enum SiteSection {
     ariaLabel: 'Skills & Tech Stack',
     navLabel: 'Skills',
     lead: 'True multi-platform Flutter development, from mobile to web and desktop — plus backend behind it.',
-    note: 'This site was built with Flutter.',
+    note: 'This site is Dart — Jaspr, pre-rendered, hydrated as WASM.',
   ),
   projects(
     ordinal: '03',
@@ -59,9 +60,7 @@ enum SiteSection {
     title: 'Projects',
     ariaLabel: 'Projects',
     navLabel: 'Projects',
-    lead:
-        'Production audio & video pipelines, cryptography, fintech, enterprise systems architecture and web3 '
-        'platforms.',
+    lead: 'Cryptography, fintech and web3 platforms — mobile, web and desktop from one codebase.',
   ),
   contact(
     ordinal: '04',
@@ -70,6 +69,9 @@ enum SiteSection {
     title: 'Let\'s Talk',
     ariaLabel: 'Contact',
     navLabel: 'Contact',
+    lead:
+        'I lead a Flutter team at FiveDotTwelve. Briefs that need a team rather than one engineer go that route '
+        '— tell me what you\'re building and I\'ll say which it is.',
   );
 
   const SiteSection({
@@ -112,11 +114,11 @@ final class HeroContent {
       'profiling and CI holding the line — one codebase, every platform.';
 
   String get primaryCta => '[ lets_talk() ]';
-  String get primaryCtaAriaLabel => 'Let\'t talk, jump to contact section';
+  String get primaryCtaAriaLabel => 'Let\'s talk, jump to contact section';
   String get copyCta => 'copy $_contactEmail';
   String get copyCtaAriaLabel => 'Copy email address $_contactEmail to clipboard';
   String get copyCtaSuccess => 'copied!';
-  String get availability => 'Status: contact FiveDotTwelve';
+  String get availability => 'Team Lead @ FiveDotTwelve';
   String get locations => 'Remote / PL';
 }
 
@@ -147,14 +149,6 @@ enum IdentityNode {
     handle: 'in/damian-moliński',
     href: 'https://www.linkedin.com/in/damian-moliński-54624713a',
     ariaLabel: 'Damian Moliński on LinkedIn (in/damian-moliński)',
-  ),
-  x(
-    icon: AppIcon.tag,
-    trailing: AppIcon.northEast,
-    name: 'X',
-    handle: '@DamianMoliski12',
-    href: 'https://x.com/DamianMoliski12',
-    ariaLabel: 'Damian Moliński on X (@DamianMoliski12)',
   ),
   ssh(
     icon: AppIcon.key,
@@ -315,7 +309,7 @@ enum Project {
     category: '03 // Fintech SDK & Mobile',
     title: 'Autenti',
     body: 'Signing and verifying documents with native Android SDK and mobile application',
-    telemetry: '100% secure and verifiable signatures · Documents trust',
+    telemetry: 'Cryptographic signature verification on device · SDK embedded by third-party apps',
     tags: ['Fintech', 'eSign', 'Android', 'SDK'],
     href: 'https://autenti.com/pl/',
   );
@@ -342,7 +336,7 @@ enum Project {
 final class ProjectContent {
   const ProjectContent();
 
-  String get telemetryLabel => 'Telemetry & Target';
+  String get telemetryLabel => 'Telemetry';
   String get viewLabel => 'View Project';
 }
 
@@ -485,6 +479,4 @@ final class ChromeContent {
   String get skipLink => 'Skip to main content';
   String get mainId => 'main-content';
   String get mainAnchor => '#$mainId';
-  String get avatarAriaLabel => 'About Damian Moliński';
-  String get avatarPlaceholder => '?';
 }

@@ -179,7 +179,7 @@ class SignalsDock extends StatelessComponent {
     css.media(AppBreakpoints.fromLg, [
       css('.signals-dock .signals-dock__panel').styles(padding: .all(AppSpacing.lg)),
       css('.signals-dock .signals-dock__grid').styles(
-        gridTemplate: AppGrid.fourColumns,
+        gridTemplate: AppGrid.threeColumns,
       ),
     ]),
   ];

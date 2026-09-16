@@ -50,7 +50,6 @@ void main() {
       meta(content: siteMeta.ogImage, attributes: const {'property': 'og:image'}),
       meta(content: siteMeta.canonical, attributes: const {'property': 'og:url'}),
       meta(name: 'twitter:card', content: 'summary_large_image'),
-      meta(name: 'twitter:site', content: siteMeta.twitterSite),
       meta(name: 'twitter:title', content: siteMeta.ogTitle),
       meta(name: 'twitter:description', content: siteMeta.ogDescription),
       meta(name: 'twitter:image', content: siteMeta.ogImage),

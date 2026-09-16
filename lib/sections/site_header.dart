@@ -32,12 +32,10 @@ class SiteHeader extends StatelessComponent {
           for (final section in content.sections)
             a(classes: 'site-header__link', href: section.anchor, [.text(section.navLabel)]),
         ]),
-        div(
+        img(
+          alt: content.identity.portraitAlt,
+          src: content.identity.portrait,
           classes: 'site-header__avatar',
-          attributes: {'role': 'img', 'aria-label': content.chrome.avatarAriaLabel},
-          [
-            .text(content.chrome.avatarPlaceholder),
-          ],
         ),
       ]),
     ]);
@@ -124,31 +122,27 @@ class SiteHeader extends StatelessComponent {
         color: AppColors.tertiary,
       ),
 
-      css('.site-header__avatar')
-          .combine(AppType.labelMd)
-          .styles(
-            display: .inlineFlex,
-            width: 32.px,
-            height: 32.px,
-            border: Border.all(
-              style: .dashed,
-              color: AppColors.tertiary.alpha(0.4),
-              width: 1.px,
-            ),
-            radius: .all(.circular(AppRadius.pill)),
-            shadow: BoxShadow(
-              offsetX: .zero,
-              offsetY: .zero,
-              blur: 10.px,
-              color: AppColors.tertiary.alpha(0.2),
-            ),
-            transition: AppMotion.ease('all', duration: AppMotion.slow),
-            justifyContent: .center,
-            alignItems: .center,
-            flex: const Flex(grow: 0, shrink: 0, basis: .auto),
-            color: AppColors.tertiary,
-            backgroundColor: AppColors.surfaceContainerHigh,
-          ),
+      css('.site-header__avatar').styles(
+        display: .block,
+        width: 32.px,
+        height: 32.px,
+        border: Border.all(
+          style: .dashed,
+          color: AppColors.tertiary.alpha(0.4),
+          width: 1.px,
+        ),
+        radius: .all(.circular(AppRadius.pill)),
+        overflow: .hidden,
+        shadow: BoxShadow(
+          offsetX: .zero,
+          offsetY: .zero,
+          blur: 10.px,
+          color: AppColors.tertiary.alpha(0.2),
+        ),
+        transition: AppMotion.ease('all', duration: AppMotion.slow),
+        flex: const Flex(grow: 0, shrink: 0, basis: .auto),
+        raw: {'object-fit': 'cover'},
+      ),
       css('.site-header__avatar:hover').styles(
         border: AppBorders.hairline(AppColors.tertiary),
         transform: .scale(1.05),
