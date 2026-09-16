@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
 import '../state/contact_draft.dart';
 import '../state/contact_state.dart';
+import '../utils/json_extensions.dart';
 import 'contact_draft_dto.dart';
 
 abstract interface class ContactDispatcher {
@@ -26,7 +26,7 @@ final class HttpContactDispatcher implements ContactDispatcher {
   @override
   Future<DispatchFailure?> send(ContactDraft draft) async {
     final payload = draft.toDto();
-    final body = jsonEncode(payload.toJson());
+    final body = payload.toJson().encodeJson();
     final http.Response response;
 
     try {
