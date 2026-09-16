@@ -6,18 +6,11 @@ import 'package:http/http.dart' as http;
 import '../state/contact_draft.dart';
 import '../state/contact_state.dart';
 
-/// Sends a completed enquiry to the site's own contact endpoint.
 abstract interface class ContactDispatcher {
   /// Posts [draft], answering with the reason it did not arrive — or null when it did.
-  ///
-  /// Unlike [Clipboard.write], a refusal here **is** shown to the visitor: a copy that did not
-  /// happen leaves the address on screen beside the button, but a message that did not arrive
-  /// leaves nothing, so the form says so, says which of the four things went wrong, and keeps what
-  /// was typed.
   Future<DispatchFailure?> send(ContactDraft draft);
 }
 
-/// Posts the draft as JSON to a Cloudflare Pages Function on the site's own origin.
 final class HttpContactDispatcher implements ContactDispatcher {
   const HttpContactDispatcher({
     required http.Client client,
@@ -57,8 +50,8 @@ final class HttpContactDispatcher implements ContactDispatcher {
     >= 200 && < 300 => null,
     400 => DispatchFailure.rejected,
     429 => DispatchFailure.rateLimited,
-    // 502 and 503 from the function, and anything else the edge answers with: a 404 means the
-    // function is not deployed, which is as far outside the visitor's control as Resend being down.
+    // Also a 404, which means the function is not deployed — as far outside the visitor's control
+    // as Resend being down.
     _ => DispatchFailure.mailer,
   };
 }

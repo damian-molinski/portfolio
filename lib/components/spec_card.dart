@@ -4,24 +4,11 @@ import 'package:jaspr/jaspr.dart';
 import '../constants/theme.dart';
 import '../utils/markup.dart';
 
-/// The card shell shared by the pillars, skills and projects grids.
-///
-/// It owns the whole treatment — the frosted fill, the hairline that brightens across the top edge on
-/// hover, the lift and the cyan glow — so a section supplies only its contents. Sections that need to
-/// react to the card's hover state key off `.spec-card:hover` from their own rules rather than
-/// passing styling in.
-///
-/// The top hairline is a `::before` rather than a child element: it is decoration, and it has no
-/// business in the accessibility tree.
 class SpecCard extends StatelessComponent {
   const SpecCard({required this.children, this.minHeight, this.classes, super.key});
 
   final List<Component> children;
-
-  /// Defaults to the 300px the pillars and skills grids use. The projects grid passes 360px.
   final Unit? minHeight;
-
-  /// An extra class for the section to hang its own rules on.
   final String? classes;
 
   @override

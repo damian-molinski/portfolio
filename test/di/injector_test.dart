@@ -38,7 +38,6 @@ void main() {
       addTearDown(heroCubit.close);
       addTearDown(contactCardCubit.close);
 
-      // A singleton here would make both buttons confirm on a single click.
       expect(heroCubit, isNot(same(contactCardCubit)));
     });
 

@@ -11,11 +11,6 @@ import '../data/site_content_repository.dart';
 import '../state/site_content_builder.dart';
 import '../utils/markup.dart';
 
-/// Section `04` — the consultation panel.
-///
-/// One panel rather than a section of loose blocks: a header strip carrying the heading and three
-/// summary cards, then the form console beneath it on a lighter ground. The form posts to
-/// `/api/contact`; [ContactForm] owns the draft and the request, and says how.
 class Contact extends StatelessComponent {
   const Contact({super.key});
 

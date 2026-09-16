@@ -4,13 +4,6 @@ import 'package:jaspr/jaspr.dart';
 import '../constants/theme.dart';
 import '../content/site_content.dart';
 
-/// The heading block that opens each of the four numbered sections.
-///
-/// An eyebrow over an `h2`, with an optional standfirst beneath and an optional status note pushed to
-/// the right on wide viewports. The note drops below 640px, where there is no room to set it beside
-/// the heading — the design hides it rather than stacking it.
-///
-/// It carries the page's entrance animation, which every section heading in the design has.
 class SectionHeading extends StatelessComponent {
   const SectionHeading({
     required this.eyebrow,
@@ -20,22 +13,15 @@ class SectionHeading extends StatelessComponent {
     super.key,
   });
 
-  /// The heading [section] declares, so the four sections do not each unpack the same four fields.
   SectionHeading.forSection(SiteSection section, {super.key})
     : eyebrow = section.eyebrowLine,
       title = section.title,
       lead = section.lead,
       note = section.note;
-
-  /// The small uppercase line above the heading, e.g. the section's ordinal and label.
   final String eyebrow;
 
   final String title;
-
-  /// A single line of setup beneath the heading. Two of the four sections have one.
   final String? lead;
-
-  /// A right-aligned status note. Hidden below 640px.
   final String? note;
 
   @override
@@ -72,8 +58,7 @@ class SectionHeading extends StatelessComponent {
             textTransform: .upperCase,
             letterSpacing: 0.1.em,
           ),
-      // A3: `headline-lg-mobile` exists in the frontmatter for exactly this, so it is the base and
-      // the 36px step arrives at 640px.
+      // Mobile step is the base; the 36px step arrives at 640px.
       css('.section-heading__title')
           .combine(AppType.headlineLgMobile)
           .styles(
@@ -95,13 +80,11 @@ class SectionHeading extends StatelessComponent {
           ),
     ]),
 
-    // From 640px the note has room to sit beside the heading, and the heading takes its full size.
     css.media(AppBreakpoints.fromSm, [
       css('.section-heading .section-heading__title').combine(AppType.headlineLg),
       css('.section-heading .section-heading__note').styles(display: .block),
     ]),
 
-    // From 768px the heading and its note share a baseline-aligned row.
     css.media(AppBreakpoints.fromMd, [
       css('.section-heading').styles(flexDirection: .row, alignItems: .end),
     ]),

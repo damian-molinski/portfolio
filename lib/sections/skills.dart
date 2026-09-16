@@ -9,10 +9,6 @@ import '../content/site_content.dart';
 import '../data/site_content_repository.dart';
 import '../state/site_content_builder.dart';
 
-/// Section `02` — the four capability groups.
-///
-/// The same card as [Pillars], with five tags apiece; the bordered pill variant is what keeps five of
-/// them legible as a group rather than a smear.
 class Skills extends StatelessComponent {
   const Skills({super.key});
 

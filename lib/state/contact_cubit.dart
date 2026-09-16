@@ -43,13 +43,7 @@ final class ContactCubit extends Cubit<ContactState> {
     _emitDraft();
   }
 
-  /// Records the trap field, and emits nothing.
-  ///
-  /// The trap is not part of [ContactState] — no person sees it and nothing re-renders because of
-  /// it — so there is no snapshot to take. It reaches the wire through [ContactDraftBuilder.build].
   void updateHoneypot(String value) => _draft.honeypot = value;
-
-  /// Sends the form, or reports the fields that block it.
   Future<void> submit() async {
     if (state.status.blocksSubmit) return;
 
@@ -65,8 +59,7 @@ final class ContactCubit extends Cubit<ContactState> {
     if (isClosed) return;
 
     if (failure case final failure?) {
-      // What the visitor typed stays in the fields. Losing it to a failed send would cost them the
-      // whole message.
+      // What the visitor typed stays in the fields.
       _emitDraft(status: DispatchStatus.failed, failure: failure);
       return;
     }

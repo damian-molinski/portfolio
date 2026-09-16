@@ -3,7 +3,6 @@ import 'package:portfolio/state/contact_draft.dart';
 import 'package:test/test.dart';
 
 extension on ContactDraftBuilder {
-  /// Fills every required field with something plausible.
   void fillRequiredFields() {
     name = 'Ada Lovelace';
     email = 'ada@example.com';
@@ -11,7 +10,6 @@ extension on ContactDraftBuilder {
   }
 }
 
-/// Every field blank, which is what an untouched builder reports.
 final _everyFieldMissing = {
   for (final field in ContactField.values) field: FieldProblem.missing,
 };
@@ -52,8 +50,6 @@ void main() {
         expect(builder.problems, {ContactField.email: FieldProblem.malformed});
       });
 
-      // The browser's own `type="email"` check accepts this one, so the form is the only thing
-      // between a visitor's typo and a reply that goes nowhere.
       test('marks a dotless domain malformed', () {
         final builder = ContactDraftBuilder()
           ..fillRequiredFields()

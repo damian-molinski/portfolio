@@ -3,11 +3,6 @@ import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
 
-/// A live-status indicator: a solid dot with a second ring expanding out of it.
-///
-/// Decorative — whatever it is signalling is said in the text beside it, so it stays out of the
-/// accessibility tree. The ring stops under `prefers-reduced-motion`, which leaves the dot visible
-/// and simply still.
 class StatusDot extends StatelessComponent {
   const StatusDot({super.key});
 

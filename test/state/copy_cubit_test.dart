@@ -4,8 +4,6 @@ import 'package:portfolio/state/copy_cubit.dart';
 import 'package:portfolio/state/copy_state.dart';
 import 'package:test/test.dart';
 
-/// Stands in for [BrowserClipboard], which reports a failed write on the VM because its `kIsWeb`
-/// guard is false there.
 final class _FakeClipboard implements Clipboard {
   _FakeClipboard({this.succeeds = true});
 

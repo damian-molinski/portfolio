@@ -4,7 +4,6 @@ import '../components/icons.dart';
 
 const _contactEmail = 'contact@damian-molinski.dev';
 
-/// Identity in the header and the footer.
 final class SiteIdentity {
   const SiteIdentity();
 
@@ -16,7 +15,6 @@ final class SiteIdentity {
   String get emblemAlt => 'Logo';
 }
 
-/// `<head>` metadata.
 final class SiteMeta {
   const SiteMeta();
 
@@ -30,17 +28,11 @@ final class SiteMeta {
   String get ogImage => 'https://damian-molinski.dev/images/og-cover.jpg';
   String get canonical => 'https://damian-molinski.dev/';
   String get twitterSite => '@DamianMoliski12';
-
-  /// Structural, not copy: taken from the manifest archived out of the design.
   String get themeColor => '#0175c2';
   String get manifest => '/manifest.json';
   String get locale => 'en';
 }
 
-/// The four numbered sections, in the order they appear.
-///
-/// Anchors and ordinals are structural and real; every heading is a marker. The header nav and the
-/// footer both link here rather than repeating the hrefs.
 enum SiteSection {
   pillars(
     ordinal: '01',
@@ -104,7 +96,6 @@ enum SiteSection {
   String get id => anchor.substring(1);
 }
 
-/// The hero, section `00`.
 final class HeroContent {
   const HeroContent();
 
@@ -129,7 +120,6 @@ final class HeroContent {
   String get locations => 'Remote / PL';
 }
 
-/// The frosted identity dock that overlaps the bottom of the hero.
 final class SignalsContent {
   const SignalsContent();
   String get title => 'Identity & Signals';
@@ -201,7 +191,6 @@ abstract interface class SpecEntry {
   List<String> get tags;
 }
 
-/// Section `01` — the four competency cards.
 enum Pillar implements SpecEntry {
   first(
     icon: AppIcon.database,
@@ -254,7 +243,6 @@ enum Pillar implements SpecEntry {
   final List<String> tags;
 }
 
-/// Section `02` — the four capability groups, five tags each.
 enum SkillGroup implements SpecEntry {
   first(
     icon: AppIcon.terminal,
@@ -305,7 +293,6 @@ enum SkillGroup implements SpecEntry {
   final List<String> tags;
 }
 
-/// Section `03` — the three case-study cards.
 enum Project {
   first(
     category: '01 // Web3 & Decentralization',
@@ -352,7 +339,6 @@ enum Project {
   String get linkAriaLabel => '${const ProjectContent().viewLabel}: $title';
 }
 
-/// Copy shared by the projects section's cards.
 final class ProjectContent {
   const ProjectContent();
 
@@ -360,7 +346,6 @@ final class ProjectContent {
   String get viewLabel => 'View Project';
 }
 
-/// Section `04` — the three summary cards above the form.
 enum ContactCard {
   directMail(
     icon: AppIcon.mail,
@@ -388,16 +373,9 @@ enum ContactCard {
   final String? href;
 
   bool get isCopyable => this == directMail;
-
-  /// Whether [href] leaves the site, and so needs a new tab and `rel="noopener noreferrer"`.
   bool get isExternal => href?.startsWith('http') ?? false;
 }
 
-/// The dispatch form's text controls.
-///
-/// Ids and input types are structural — they wire `<label for>` to its control and pick the mobile
-/// keyboard — so they carry their real values. So are the enum identifiers: each one is the `name`
-/// the control submits under, read back through `Enum.name`.
 enum ContactField {
   name(
     id: 'contact-name',
@@ -443,19 +421,9 @@ enum ContactField {
   bool get isEmail => type == ContactFieldType.email;
 
   bool get isMultiline => type == ContactFieldType.multiline;
-
-  /// The id of the paragraph naming what is wrong with this field, for `aria-describedby`.
-  ///
-  /// Structural, like [id] it is derived from, and it must be unique per field: pointing every
-  /// blocked control at one shared paragraph would have a screen reader read the other fields'
-  /// problems as this one's.
   String get errorId => '$id-error';
 }
 
-/// What kind of control a [ContactField] renders, and so how it is validated.
-///
-/// Structural rather than copy. [email] is what gives a phone the `@` key and what asks
-/// [ContactDraftBuilder] to check the shape of the value; [multiline] is a `<textarea>`.
 enum ContactFieldType { text, email, multiline }
 
 enum ScopeOption {
@@ -466,8 +434,6 @@ enum ScopeOption {
 
   const ScopeOption(this.label);
 
-  /// The selection an untouched form carries. Named rather than `values.first`, so the default is a
-  /// decision instead of a consequence of declaration order.
   static const ScopeOption initial = audit;
 
   final String label;
@@ -477,7 +443,6 @@ enum ScopeOption {
   static ScopeOption byValue(String value) => ScopeOption.values.byName(value);
 }
 
-/// The dispatch form's own chrome.
 final class ContactFormContent {
   const ContactFormContent();
 
@@ -488,9 +453,6 @@ final class ContactFormContent {
   String get submitLabel => '[ dispatch_message() ]';
   String get submittingLabel => 'Transmitting...';
   String get submittedLabel => '[ sent_successfully ]';
-
-  /// Named by [ContactField.noun] rather than [ContactField.label], which is a heading above the
-  /// control and reads wrong mid-clause.
   String missingMessage(String noun) => 'Add $noun.';
 
   String get malformedEmailMessage => "That email address doesn't look right.";
@@ -504,7 +466,6 @@ final class ContactFormContent {
   String get honeypotFieldId => 'contact-company';
 }
 
-/// The footer's link row.
 enum FooterLink {
   about(label: 'About', href: '#'),
   focus(label: 'Focus', href: '#pillars'),
@@ -518,7 +479,6 @@ enum FooterLink {
   final String href;
 }
 
-/// Strings that belong to the page frame rather than to any one section.
 final class ChromeContent {
   const ChromeContent();
 

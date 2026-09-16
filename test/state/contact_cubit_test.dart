@@ -6,7 +6,6 @@ import 'package:portfolio/state/contact_draft.dart';
 import 'package:portfolio/state/contact_state.dart';
 import 'package:test/test.dart';
 
-/// Accepts whatever it is handed, or refuses it for [failure], and keeps it for inspection.
 final class _FakeContactDispatcher implements ContactDispatcher {
   _FakeContactDispatcher({this.failure});
 
@@ -21,7 +20,6 @@ final class _FakeContactDispatcher implements ContactDispatcher {
 }
 
 extension on ContactCubit {
-  /// Fills every required field, which is what the submit sequence needs before it will run.
   void fillRequiredFields() {
     updateName('Ada Lovelace');
     updateEmail('ada@example.com');
@@ -30,7 +28,6 @@ extension on ContactCubit {
 }
 
 extension on ContactState {
-  /// The same state, reporting [problems].
   ContactState reporting(Map<ContactField, FieldProblem> problems) {
     return ContactState(
       name: name,
@@ -43,12 +40,10 @@ extension on ContactState {
   }
 }
 
-/// Every field blank, which is what a press on an untouched form reports.
 final _everyFieldMissing = {
   for (final field in ContactField.values) field: FieldProblem.missing,
 };
 
-/// The state a filled form is in.
 ContactState filledState({required DispatchStatus status, DispatchFailure? failure}) {
   return ContactState(
     name: 'Ada Lovelace',
@@ -61,7 +56,6 @@ ContactState filledState({required DispatchStatus status, DispatchFailure? failu
   );
 }
 
-/// The state an empty form is in, at whatever point in the sequence.
 ContactState clearedState({required DispatchStatus status}) {
   return ContactState(
     name: null,
@@ -86,7 +80,6 @@ void main() {
       confirmationDuration: Duration.zero,
     );
 
-    /// One emit per required field, which the sequence tests skip past.
     final fillEmits = ContactField.values.length;
     const settle = Duration(milliseconds: 10);
 
@@ -130,9 +123,6 @@ void main() {
         'reports no problems after a send that followed a rejected press',
         build: buildCubit,
         act: (cubit) async {
-          // The first press turns validation on. It has to stay on for the fields the visitor then
-          // fixes — and go off again once the send clears the draft, or the empty form reports a
-          // problem per field beside its own success message.
           await cubit.submit();
           cubit.fillRequiredFields();
           await cubit.submit();
@@ -181,9 +171,7 @@ void main() {
           filledState(status: DispatchStatus.failed, failure: DispatchFailure.mailer),
         ],
         verify: (cubit) {
-          // Losing the message to a failed send would cost the visitor the whole thing.
           expect(cubit.state.brief, 'A note about the engine.');
-          // And the button is pressable again, which a blocking status would not allow.
           expect(cubit.state.status.blocksSubmit, isFalse);
         },
       );

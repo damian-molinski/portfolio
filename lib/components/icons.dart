@@ -1,16 +1,6 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-/// The icon set, as inline SVG rather than a webfont.
-///
-/// The design drives its icons from Material Symbols Outlined ligatures
-/// (`<span class="material-symbols-outlined">send</span>`). Decision D7 replaces that with these
-/// components: the variable font is a heavy download for twenty-five glyphs, and the ligature-in-a-span
-/// pattern fights both `prefer_html_components` and the type-safe styling API.
-///
-/// The geometry is Material Symbols' own, on its `0 -960 960 960` viewBox (Apache 2.0). Glyphs paint
-/// with `currentColor` and size to `1em`, so they inherit colour and scale from surrounding text
-/// exactly as the font-based originals did.
 enum AppIcon {
   send(
     'M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z',
@@ -164,16 +154,7 @@ enum AppIcon {
 
   const AppIcon(this.data);
 
-  /// The SVG path geometry, on the `0 -960 960 960` viewBox.
   final String data;
-
-  /// This icon as a component.
-  ///
-  /// Decorative by default — hidden from assistive technology, because the icons in this design
-  /// always sit beside a text label that already says what they mean. Pass [label] only for an icon
-  /// that carries meaning on its own, and it becomes an `img` role with that accessible name.
-  ///
-  /// [size] overrides the inherited `1em`; pass it for an icon that must not track its text.
   Component call({Unit? size, String? label, String? classes}) {
     final className = classes == null ? 'icon' : 'icon $classes';
     final semantics = label == null
@@ -190,8 +171,6 @@ enum AppIcon {
   }
 }
 
-/// Sizing for every glyph. Kept global rather than per-section: an icon behaves the same everywhere,
-/// and `1em` is what makes it track the text it sits beside.
 @css
 List<StyleRule> get iconStyles => [
   css('.icon').styles(

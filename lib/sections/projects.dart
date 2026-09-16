@@ -12,10 +12,6 @@ import '../data/site_content_repository.dart';
 import '../state/site_content_builder.dart';
 import '../utils/markup.dart';
 
-/// Section `03` — the three case-study cards.
-///
-/// Taller than the pillars and skills cards because each carries a telemetry readout between its
-/// body and its tags, and a link out below them.
 class Projects extends StatelessComponent {
   const Projects({super.key});
 

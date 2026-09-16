@@ -3,23 +3,13 @@ import 'package:jaspr/jaspr.dart';
 
 import '../constants/theme.dart';
 
-/// Which of the two pill treatments the design uses.
 enum TagPillVariant {
-  /// Borderless until hovered. Used on the pillars and projects cards, where the pills sit under a
-  /// heading that is already doing the work of separating them.
   accent,
-
-  /// Carries a hairline at rest and fills with cyan on hover. Used on the skills cards, where five
-  /// pills per card need edges to stay legible as a group.
   neutral;
 
   String get className => 'tag-pill tag-pill--$name';
 }
 
-/// A technology tag.
-///
-/// Not interactive — `cursor: default` and no focus behaviour, matching the design. These are labels
-/// that happen to be pill-shaped, not filters.
 class TagPill extends StatelessComponent {
   const TagPill(this.label, {this.variant = TagPillVariant.accent, super.key});
 

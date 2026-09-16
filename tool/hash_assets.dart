@@ -29,8 +29,9 @@ void main() {
     _fail('$_buildDir holds no $_programName. `jaspr build` ran without `--experimental-wasm`.');
   }
 
-  // The loader is the only file that names the other two, so they are renamed first, and the loader
-  // itself last — its hash has to cover the rewritten names.
+  // The loader names the other two, so they are renamed first and the loader last — its own hash
+  // has to cover the rewritten names. `main.client.wasm.map` stays unhashed: its name is written
+  // into the program's `sourceMappingURL` section.
   final renames = {
     _programName: _hashInPlace(File('$_buildDir/$_programName')),
     _moduleName: _hashInPlace(File('$_buildDir/$_moduleName')),
@@ -43,11 +44,6 @@ void main() {
   stdout.writeln('Hashed $hashedLoaderName, ${renames.values.join(' and ')}.');
 }
 
-/// Renames [file] to carry the hash of its own bytes, and returns the new name.
-///
-/// The hash goes before the last extension, so `main.client.wasm` becomes
-/// `main.client.<hash>.wasm` and every name still begins `main.client.` — which is what lets
-/// `web/_headers` cover the set with one glob per extension.
 String _hashInPlace(File file) {
   final currentName = _nameOf(file);
   if (!file.existsSync()) {
@@ -64,10 +60,6 @@ String _hashInPlace(File file) {
   return hashedName;
 }
 
-/// Points the loader at the renamed module it imports and program it fetches.
-///
-/// `main.client.wasm.map` is deliberately not among them: its name is written into the program's
-/// own `sourceMappingURL` section, so it ships unhashed and revalidates instead.
 void _rewriteLoaderReferences(File loaderFile, Map<String, String> renames) {
   var source = loaderFile.readAsStringSync();
 
@@ -87,7 +79,6 @@ void _rewriteLoaderReferences(File loaderFile, Map<String, String> renames) {
   loaderFile.writeAsStringSync(source);
 }
 
-/// Points every pre-rendered page at the renamed loader.
 void _rewriteMarkupReferences(Directory buildDirectory, String hashedLoaderName) {
   final children = buildDirectory.listSync(recursive: true);
   final markupFiles = children.whereType<File>().where((file) => _nameOf(file).endsWith(_htmlSuffix));
@@ -106,7 +97,6 @@ void _rewriteMarkupReferences(Directory buildDirectory, String hashedLoaderName)
   }
 }
 
-/// A second run over an already-hashed build is a no-op; anything else is a broken build.
 void _reportAlreadyHashedOrFail(Directory buildDirectory) {
   final children = buildDirectory.listSync();
   final isHashed = children.whereType<File>().any((file) => _hashedLoaderPattern.hasMatch(_nameOf(file)));

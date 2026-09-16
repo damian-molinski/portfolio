@@ -8,9 +8,6 @@ import 'package:portfolio/content/site_content.dart';
 
 import 'render.dart';
 
-/// The two shells every section is built out of, rendered on their own.
-///
-/// Neither reads a cubit, so these need no container — they take what they render as arguments.
 void main() {
   group(SectionShell, () {
     testServer('emits a named landmark on the page container', (tester) async {
@@ -23,7 +20,6 @@ void main() {
 
       expect(landmark.id, siteSection.id);
       expect(landmark.attributes, containsPair('aria-label', siteSection.ariaLabel));
-      // The page's one horizontal measure, shared with the header, hero, dock and footer.
       expect(rendered.querySelector('section > div')!.classes, contains('app-container'));
     });
 

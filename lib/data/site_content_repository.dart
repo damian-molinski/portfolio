@@ -2,11 +2,6 @@ import 'package:equatable/equatable.dart';
 
 import '../content/site_content.dart';
 
-/// Every string and list the page renders, as one value.
-///
-/// The holders in `lib/content/site_content.dart` are `const`-constructible so they can travel
-/// through a bloc state; the nine enums are already values and are carried here as their `.values`
-/// lists so a section never reaches for a static.
 final class SiteContent extends Equatable {
   const SiteContent({
     required this.identity,
@@ -62,17 +57,11 @@ final class SiteContent extends Equatable {
   ];
 }
 
-/// Where the page's copy comes from.
 abstract interface class SiteContentRepository {
-  /// The whole of the site's content.
-  ///
-  /// Synchronous, and returns no failure: there is no I/O behind it. Wrapping `const` data in a
-  /// `Future` would buy a loading state the page can never actually be in, and this repo has
-  /// already refused that once — see [ContactFormContent] and the no-op dispatch it documents.
+  /// The whole of the site's content. Synchronous, and returns no failure: there is no I/O behind it.
   SiteContent load();
 }
 
-/// Reads the content straight out of `lib/content/site_content.dart`.
 final class ConstSiteContentRepository implements SiteContentRepository {
   const ConstSiteContentRepository();
 

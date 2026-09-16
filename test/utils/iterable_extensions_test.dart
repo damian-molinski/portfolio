@@ -3,8 +3,6 @@ import 'package:portfolio/utils/iterable_extensions.dart';
 import 'package:test/test.dart';
 
 void main() {
-  // Named by string rather than by the extension, which is not an expression and cannot be passed
-  // here the way a class can.
   group('IterableFirstOrNullExtension', () {
     group('firstOrNull', () {
       test('is null for nothing', () {
@@ -19,8 +17,6 @@ void main() {
         expect(ContactField.values.map((field) => field.noun).firstOrNull, 'your name');
       });
 
-      // How `_focusFirstProblem` picks the control to focus: the map is built by mapping over
-      // `ContactField.values`, so its keys stay in the order the controls appear.
       test('keeps a map\'s key order', () {
         final problems = {ContactField.email: 1, ContactField.brief: 2};
 

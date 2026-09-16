@@ -3,16 +3,11 @@ import 'package:equatable/equatable.dart';
 import '../content/site_content.dart';
 import '../utils/iterable_extensions.dart';
 
-/// What is wrong with one field's value.
 enum FieldProblem {
-  /// Required, and blank.
   missing,
-
-  /// Filled, but not in a shape the field accepts.
   malformed,
 }
 
-/// A completed consultation enquiry, ready to post.
 final class ContactDraft extends Equatable {
   const ContactDraft({
     required this.name,
@@ -27,9 +22,6 @@ final class ContactDraft extends Equatable {
   final String brief;
   final ScopeOption scope;
   final String honeypot;
-
-  /// The request body the contact endpoint reads. The trap goes over the wire as `company`, which
-  /// is what it is called in the markup.
   Map<String, Object?> toJson() => {
     'name': name,
     'email': email,
@@ -42,11 +34,11 @@ final class ContactDraft extends Equatable {
   List<Object?> get props => [name, email, brief, scope, honeypot];
 }
 
-/// Collects what the visitor types until it amounts to a [ContactDraft].
 final class ContactDraftBuilder {
   ContactDraftBuilder();
 
-  /// Deliberately loose: an `@` with something either side of it and a dot in the domain.
+  // Deliberately loose, and matched by `functions/api/contact.ts` so a 400 means the same thing on
+  // both sides of the wire.
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   String? name;
@@ -54,14 +46,10 @@ final class ContactDraftBuilder {
   String? brief;
   String? honeypot;
   ScopeOption scope = ScopeOption.initial;
-
-  /// What blocks the submit, by field. Empty when the draft is ready to post.
   Map<ContactField, FieldProblem> get problems =>
       ContactField.values.map(_entryFor).whereType<MapEntry<ContactField, FieldProblem>>().toMap();
 
   bool get isComplete => problems.isEmpty;
-
-  /// The draft as it stands.
   ContactDraft build() {
     final blockingFields = problems;
 
@@ -79,7 +67,6 @@ final class ContactDraftBuilder {
     );
   }
 
-  /// Returns the builder to the state an untouched form is in.
   void clear() {
     name = null;
     email = null;
@@ -103,8 +90,6 @@ final class ContactDraftBuilder {
     return null;
   }
 
-  /// The one place the enum and the named fields meet. Exhaustive, so a new [ContactField] member is
-  /// a compile error here rather than a field that silently never blocks a submit.
   String? _valueOf(ContactField field) => switch (field) {
     ContactField.name => name,
     ContactField.email => email,

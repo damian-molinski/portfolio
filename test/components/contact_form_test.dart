@@ -9,20 +9,11 @@ import 'package:portfolio/state/contact_state.dart';
 
 import 'render.dart';
 
-/// Accepts whatever it is handed. The real dispatcher would post to `Uri.base`, which is a `file:`
-/// URI on the VM.
 final class _AcceptingDispatcher implements ContactDispatcher {
   @override
   Future<DispatchFailure?> send(ContactDraft draft) async => null;
 }
 
-/// These assert the **pre-rendered** markup, which is what a visitor gets before — and without —
-/// hydration, and what every accessibility affordance on the form is carried by.
-///
-/// They cannot assert a re-render: `BlocBuilder` hands `StreamBuilder` a null stream off the web
-/// (`kIsWeb` is a compile-time constant, false on the VM), so the tree renders once from the state
-/// the cubit is already in. That is why the blocked case drives [ContactCubit] *before* rendering.
-/// The sequencing itself is covered in `test/state/contact_cubit_test.dart`.
 void main() {
   const copy = ContactFormContent();
 
@@ -34,8 +25,6 @@ void main() {
     getIt.unregister<ContactDispatcher>();
     getIt.registerSingleton<ContactDispatcher>(_AcceptingDispatcher());
 
-    // The form resolves its own cubit from `get_it`, which registers a factory — so re-registering
-    // one instance as a singleton is the only way for a test to hold what the form will render.
     contact = getIt<ContactCubit>();
     getIt.unregister<ContactCubit>();
     getIt.registerSingleton<ContactCubit>(contact);
@@ -62,8 +51,6 @@ void main() {
       final rendered = await tester.render(const ContactForm());
       final form = rendered.querySelector('form')!;
 
-      // Native constraint validation runs before the `submit` event and cancels it, which would
-      // disable every message the form renders. The semantics stay; the browser's own UI does not.
       expect(form.attributes, contains('novalidate'));
       expect(rendered.querySelector('#${ContactField.email.id}')!.attributes, containsPair('type', 'email'));
       for (final field in ContactField.values) {
@@ -77,7 +64,6 @@ void main() {
 
       expect(trap.attributes, containsPair('name', copy.honeypotName));
       expect(trap.attributes, containsPair('tabindex', '-1'));
-      // Off-screen rather than hidden — a bot worth catching skips inputs it can tell are hidden.
       expect(rendered.querySelector('.contact-form__honeypot'), isNotNull);
     });
 
@@ -91,8 +77,6 @@ void main() {
 
         expect(control.classes, contains('contact-form__control--invalid'));
         expect(control.attributes, containsPair('aria-invalid', 'true'));
-        // Its own paragraph, not a shared one: a screen reader must not read another field's
-        // problem as this one's.
         expect(control.attributes, containsPair('aria-describedby', field.errorId));
         expect(rendered.querySelector('#${field.errorId}'), isNotNull);
       }
@@ -106,7 +90,6 @@ void main() {
     });
 
     testServer('reports no problem beside the message that says it sent', (tester) async {
-      // The regression: a blocked press turns validation on, and a later success empties the draft.
       await contact.submit();
       contact.updateName('Ada Lovelace');
       contact.updateEmail('ada@example.com');

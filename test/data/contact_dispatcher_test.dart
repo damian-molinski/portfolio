@@ -18,7 +18,6 @@ const _draft = ContactDraft(
   honeypot: '',
 );
 
-/// A dispatcher whose endpoint always answers [statusCode].
 HttpContactDispatcher _answering(int statusCode) {
   final client = MockClient((_) async => http.Response('', statusCode));
 
@@ -67,8 +66,6 @@ void main() {
         expect(await _answering(503).send(_draft), DispatchFailure.mailer);
       });
 
-      // A 404 means the function is not deployed at all, which is as far outside the visitor's
-      // control as Resend being down — and there is nothing else useful to tell them.
       test('falls back to delivery being down for anything else', () async {
         expect(await _answering(404).send(_draft), DispatchFailure.mailer);
         expect(await _answering(500).send(_draft), DispatchFailure.mailer);

@@ -16,6 +16,16 @@ just markers      # the deploy gate
 `just` and the Jaspr CLI are global installs, not repo dependencies; each recipe is one line of the
 `justfile`. `just dev` rebuilds first because `wrangler pages dev` serves the *built* output.
 
+## Comments record constraints, nothing else
+
+A comment in `lib/`, `test/`, `tool/` or `functions/` exists to stop a reader breaking something the
+code cannot show them — a server-only assertion, a codegen rule, an emission order, an API whose
+units are not what they look like. One or two lines, at the line it explains.
+
+**Why a decision went the way it did belongs in `docs/decisions.md`**, which supersedes the deleted
+`docs/landing-page-plan.md` the `D`/`A` identifiers were minted in. Do not restate this file in a doc
+comment, and do not open a test file with a paragraph about what it asserts.
+
 ## Code runs in two environments
 
 `lib/app.dart` and every file it imports compile **twice** — server (pre-rendering) and client. A

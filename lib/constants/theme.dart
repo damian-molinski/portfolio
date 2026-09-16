@@ -1,13 +1,6 @@
 import 'package:jaspr/dom.dart';
 
-/// The Kinetic Slate colour roles, taken verbatim from the YAML frontmatter of `DESIGN.md`.
-///
-/// The frontmatter is the source of truth, not the prose beneath it and not the Tailwind config
-/// embedded in `docs/reference/landing-page.html` — see decision D3 in `docs/landing-page-plan.md`.
-/// The reference render uses a materially darker surface ramp than these values; that difference is
-/// deliberate and must not be "corrected" by darkening the surfaces here.
 abstract final class AppColors {
-  // Surfaces.
   static const surface = Color('#0f131c');
   static const surfaceDim = Color('#0f131c');
   static const surfaceBright = Color('#353942');
@@ -20,18 +13,15 @@ abstract final class AppColors {
   static const surfaceTint = Color('#9ecaff');
   static const background = Color('#0f131c');
 
-  // Content on surfaces.
   static const onSurface = Color('#dfe2ee');
   static const onSurfaceVariant = Color('#c0c7d3');
   static const onBackground = Color('#dfe2ee');
   static const inverseSurface = Color('#dfe2ee');
   static const inverseOnSurface = Color('#2c3039');
 
-  // Lines.
   static const outline = Color('#8a919c');
   static const outlineVariant = Color('#404751');
 
-  // Primary — text accents and the wordmark. `primaryContainer` carries the button gradient.
   static const primary = Color('#9ecaff');
   static const onPrimary = Color('#003258');
   static const primaryContainer = Color('#0175c2');
@@ -42,7 +32,6 @@ abstract final class AppColors {
   static const onPrimaryFixed = Color('#001d36');
   static const onPrimaryFixedVariant = Color('#00497c');
 
-  // Secondary.
   static const secondary = Color('#7ad0ff');
   static const onSecondary = Color('#003549');
   static const secondaryContainer = Color('#00a9e3');
@@ -52,7 +41,6 @@ abstract final class AppColors {
   static const onSecondaryFixed = Color('#001e2c');
   static const onSecondaryFixedVariant = Color('#004c69');
 
-  // Tertiary — the cyan telemetry accent the design leans on hardest.
   static const tertiary = Color('#00daf3');
   static const onTertiary = Color('#00363d');
   static const tertiaryContainer = Color('#007d8c');
@@ -62,26 +50,15 @@ abstract final class AppColors {
   static const onTertiaryFixed = Color('#001f24');
   static const onTertiaryFixedVariant = Color('#004f58');
 
-  // Error.
   static const error = Color('#ffb4ab');
   static const onError = Color('#690005');
   static const errorContainer = Color('#93000a');
   static const onErrorContainer = Color('#ffdad6');
 }
 
-/// Produces the translucent variants of a role colour that the design uses everywhere — hairline
-/// borders, frosted fills, and glow shadows.
-///
-/// The reference reaches for Tailwind's `cyan-500/40`, `slate-900/60` and the like. Decision D4
-/// collapses those onto Kinetic Slate roles at the same alpha, so `AppColors.tertiary.alpha(0.4)`
-/// replaces `cyan-500/40` rather than a second literal palette being kept alive alongside the first.
 extension AppColorAlpha on Color {
   static final _hexPattern = RegExp(r'^#[0-9a-fA-F]{6}$');
 
-  /// This colour at [opacity], as an `rgba()` value.
-  ///
-  /// Only defined for the `#rrggbb` literals in [AppColors]; anything else throws rather than
-  /// silently rendering an invalid colour into the stylesheet.
   Color alpha(double opacity) {
     final hex = value;
     if (!_hexPattern.hasMatch(hex)) {
@@ -94,23 +71,12 @@ extension AppColorAlpha on Color {
   }
 }
 
-/// The 1px lines the design draws everywhere — card edges, section rules, control borders.
-///
-/// Only the colour varies between them, which is the whole reason this is a function rather than a
-/// constant: the width and the style never do.
 abstract final class AppBorders {
-  /// A hairline on all four sides, in [color].
   static Border hairline(Color color) => Border.all(style: .solid, color: color, width: 1.px);
 
-  /// One side of a hairline, for [Border.only] and [Border.symmetric].
   static BorderSide hairlineSide(Color color) => BorderSide.solid(color: color, width: 1.px);
 }
 
-/// The keyboard focus ring.
-///
-/// Declared once because it is an accessibility guarantee rather than decoration: the global
-/// `:focus-visible` rule and the contact form's own override have to draw the same thing, and two
-/// copies of it would drift.
 abstract final class AppFocus {
   static const ring = Outline(
     color: AppColors.tertiary,
@@ -120,10 +86,6 @@ abstract final class AppFocus {
   );
 }
 
-/// The equal-column grids the page lays out, one constant per column count.
-///
-/// Four counts is all the design uses — the entry grid runs 1 / 2 / 4 across its breakpoints, the
-/// projects grid 1 / 3, the contact cards 1 / 3, the form's name-and-email row 1 / 2.
 abstract final class AppGrid {
   static const singleColumn = GridTemplate(columns: GridTracks([GridTrack(TrackSize.fr(1))]));
 
@@ -146,7 +108,6 @@ abstract final class AppGrid {
   );
 }
 
-/// The two font stacks. Geist sets prose, JetBrains Mono sets every telemetry readout.
 abstract final class AppFonts {
   static const sans = FontFamily.list([
     FontFamily('Geist'),
@@ -158,15 +119,11 @@ abstract final class AppFonts {
     FontFamilies.uiMonospace,
   ]);
 
-  /// Pulls both families from Google Fonts, at exactly the weights the type scale uses.
   static const stylesheet =
       'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700'
       '&family=JetBrains+Mono:wght@400;500;700&display=swap';
 }
 
-/// The type scale from `DESIGN.md`'s frontmatter, one [Styles] per named step.
-///
-/// Combine rather than restate: `css('.hero__title').combine(AppType.display)`.
 abstract final class AppType {
   static final display = Styles(
     fontFamily: AppFonts.sans,
@@ -265,11 +222,6 @@ abstract final class AppType {
   );
 }
 
-/// The accent ramp the design runs across a row of cards: primary, then secondary, then tertiary,
-/// and round again.
-///
-/// It is decoration keyed to position, not meaning, so a card derives its accent from where it sits
-/// rather than storing one — which is also why the same ramp fits rows of three and rows of four.
 enum AppAccent {
   primary(AppColors.primary),
   secondary(AppColors.secondary),
@@ -278,12 +230,9 @@ enum AppAccent {
   const AppAccent(this.color);
 
   final Color color;
-
-  /// The accent for the card at [position] in its row, wrapping past the end of the ramp.
   static AppAccent atPosition(int position) => values[position % values.length];
 }
 
-/// The 8pt spacing ramp and the container ceiling, from `DESIGN.md`'s frontmatter.
 abstract final class AppSpacing {
   static const xxs = Unit.rem(0.25);
   static const xs = Unit.rem(0.5);
@@ -299,10 +248,6 @@ abstract final class AppSpacing {
   static const containerMax = Unit.rem(72);
 }
 
-/// Corner radii, from `DESIGN.md`'s frontmatter.
-///
-/// The Tailwind config in the reference render carries a different, mangled set (its `full` is
-/// `0.75rem`); these values win.
 abstract final class AppRadius {
   static const sm = Unit.rem(0.125);
   static const base = Unit.rem(0.25);
@@ -312,10 +257,6 @@ abstract final class AppRadius {
   static const pill = Unit.pixels(9999);
 }
 
-/// Viewport widths the layout switches on.
-///
-/// These are Tailwind's `sm` / `md` / `lg`, which is what the reference markup actually keys off —
-/// `DESIGN.md`'s prose describes only 640 and 1024. See assumption A1 in `docs/landing-page-plan.md`.
 abstract final class AppBreakpoints {
   static const sm = Unit.pixels(640);
   static const md = Unit.pixels(768);
@@ -328,40 +269,24 @@ abstract final class AppBreakpoints {
   static final fromMd = MediaQuery.screen(minWidth: md);
   static final fromLg = MediaQuery.screen(minWidth: lg);
 
-  /// Matches when the visitor has asked their system to reduce motion.
   static const reducedMotion = MediaQuery.raw('(prefers-reduced-motion: reduce)');
 }
 
-/// Names of the keyframe animations declared in [styles], so call sites bind to a constant rather
-/// than a loose string.
 abstract final class AppMotion {
   static const ambientGlow = 'ambientGlow';
   static const fadeInUp = 'fadeInUp';
-
-  /// The design's entrance easing — a hard decelerate, `cubic-bezier(0.16, 1, 0.3, 1)`.
   static const entrance = Curve.cubicBezier(0.16, 1, 0.3, 1);
 
-  /// The design's ambient pulse easing — `cubic-bezier(0.4, 0, 0.6, 1)`.
   static const ambient = Curve.cubicBezier(0.4, 0, 0.6, 1);
 
-  /// Hover and focus feedback — colour, border, glow.
   static const fast = Duration(milliseconds: 200);
 
-  /// The card lift and the tile rotation, which travel further and so take longer.
   static const slow = Duration(milliseconds: 300);
 
-  /// A transition on [property] at the design's shared `ease-out`.
-  ///
-  /// Every transition on the site is this curve; only the property and, for the two above, the
-  /// duration differ.
   static Transition ease(String property, {Duration duration = fast}) =>
       Transition(property, duration: duration, curve: .easeOut);
 }
 
-/// The global stylesheet: font import, element reset, the two shared keyframes, the utilities that
-/// more than one section needs, and the reduced-motion kill switch.
-///
-/// Everything section-specific lives in that section's own `@css` getter instead.
 @css
 List<StyleRule> get styles => [
   css.import(AppFonts.stylesheet),
@@ -386,7 +311,6 @@ List<StyleRule> get styles => [
       )
       .combine(AppType.bodyMd),
 
-  // The reference leans on Tailwind's preflight for these; written out because we have no preflight.
   css('h1, h2, h3, h4, h5, h6, p, figure, blockquote').styles(margin: .zero),
   css('ul, ol').styles(padding: .zero, margin: .zero, listStyle: .none),
   css('a').styles(
@@ -409,21 +333,16 @@ List<StyleRule> get styles => [
     backgroundColor: AppColors.primaryContainer,
   ),
 
-  // A visible default so nothing is ever keyboard-invisible; sections override with their own ring.
   css(':focus-visible').styles(outline: AppFocus.ring),
 
-  // The page's one horizontal measure: the header bar, the hero, the dock, every section and the
-  // footer sit on the same gutter and the same ceiling. Only the horizontal padding is declared
-  // here, so a caller is free to add its own vertical padding — but it must do so with
-  // `Spacing.symmetric(vertical:)` alone, since passing both axes emits the `padding` shorthand and
-  // would take these longhands with it.
+  // Horizontal longhands only. A caller adding vertical padding must pass
+  // `Spacing.symmetric(vertical:)` alone — both axes emit the `padding` shorthand over these.
   css('.app-container').styles(
     maxWidth: AppSpacing.containerMax,
     padding: .symmetric(horizontal: AppSpacing.gutterMobile),
     margin: .symmetric(horizontal: Unit.auto),
   ),
 
-  // Screen-reader-only text: present in the accessibility tree, absent from the page.
   css('.sr-only').styles(
     position: .absolute(),
     width: 1.px,
@@ -436,7 +355,6 @@ List<StyleRule> get styles => [
     raw: {'clip-path': 'inset(50%)'},
   ),
 
-  // The skip link is screen-reader-only until it takes focus, then it becomes the first thing shown.
   css('.skip-link', [
     css('&').styles(
       position: .absolute(),
@@ -463,7 +381,6 @@ List<StyleRule> get styles => [
         ),
   ]),
 
-  // The hero's background blob breathes on this; nothing else uses it.
   css.keyframes(AppMotion.ambientGlow, {
     '0%, 100%': Styles(
       opacity: 0.55,
@@ -476,20 +393,19 @@ List<StyleRule> get styles => [
     ),
   }),
 
-  // The entrance every above-the-fold block uses, staggered by the delay utilities below.
   css.keyframes(AppMotion.fadeInUp, {
     'from': Styles(opacity: 0, transform: .translate(y: 16.px)),
     'to': Styles(opacity: 1, transform: .translate(y: 0.px)),
   }),
 
   css('.animate-ambient-pulse').styles(
-    // `Animation` has no infinite option, and the shorthand it emits would reset the count to 1,
-    // so the longhand follows it — `raw` is rendered last, which is what makes that work.
     animation: Animation(
       name: AppMotion.ambientGlow,
       duration: 8.seconds,
       curve: AppMotion.ambient,
     ),
+    // `Animation` has no infinite option and its shorthand resets the count to 1, so the longhand
+    // follows it — `raw` is rendered last, which is what makes that work.
     raw: {'animation-iteration-count': 'infinite'},
   ),
   css('.animate-fade-in-up').styles(
@@ -509,7 +425,6 @@ List<StyleRule> get styles => [
     css('.app-container').styles(padding: .symmetric(horizontal: AppSpacing.gutterDesktop)),
   ]),
 
-  // Stop every continuous animation, entrance and transform for visitors who asked for less motion.
   // Colour feedback survives on purpose — it is the only hover cue left once the lifts are gone.
   css.media(AppBreakpoints.reducedMotion, [
     css('*, *::before, *::after').styles(

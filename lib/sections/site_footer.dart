@@ -5,10 +5,6 @@ import '../constants/theme.dart';
 import '../data/site_content_repository.dart';
 import '../state/site_content_builder.dart';
 
-/// The page footer.
-///
-/// Its link row is also the only route between sections below 768px, where A2 hides the header nav,
-/// so it is a `<nav>` rather than a plain row of anchors.
 class SiteFooter extends StatelessComponent {
   const SiteFooter({super.key});
 
@@ -41,7 +37,7 @@ class SiteFooter extends StatelessComponent {
 
       css('.site-footer__bar').styles(
         display: .flex,
-        // Vertical only — `.app-container` owns the horizontal gutter. See the note in `hero.dart`.
+        // Vertical only — `.app-container` owns the horizontal gutter as longhands.
         padding: .symmetric(vertical: AppSpacing.xl),
         flexDirection: .column,
         justifyContent: .spaceBetween,
@@ -75,7 +71,6 @@ class SiteFooter extends StatelessComponent {
           ),
     ]),
 
-    // From 768px the links and the copyright share a row.
     css.media(AppBreakpoints.fromMd, [
       css('.site-footer .site-footer__bar').styles(flexDirection: .row),
     ]),

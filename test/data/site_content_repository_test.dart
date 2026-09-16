@@ -2,7 +2,6 @@ import 'package:portfolio/content/site_content.dart';
 import 'package:portfolio/data/site_content_repository.dart';
 import 'package:test/test.dart';
 
-/// The placeholder spelling the deploy gate greps `lib/` for.
 const _todoMarker = '[[TODO:';
 
 void main() {

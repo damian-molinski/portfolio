@@ -8,12 +8,6 @@ import '../data/site_content_repository.dart';
 import '../state/site_content_builder.dart';
 import '../utils/markup.dart';
 
-/// The frosted identity dock that overlaps the bottom of the hero.
-///
-/// The design renders the PGP chip twice — once in the header row for wide viewports, once as a full
-/// width row below the grid for narrow ones — with one of the two hidden at any width. This renders
-/// it once and reorders it, so a screen reader hears the fingerprint a single time. The chip is a
-/// link out to the public key, so the fingerprint on screen can be checked against the key itself.
 class SignalsDock extends StatelessComponent {
   const SignalsDock({super.key});
 
@@ -115,8 +109,8 @@ class SignalsDock extends StatelessComponent {
         '.signals-dock__subtitle',
       ).combine(AppType.labelSm).styles(color: AppColors.tertiary, fontFamily: AppFonts.mono),
 
-      // Below 640px this drops to its own full-width row beneath the grid; from 640px it moves back
-      // up beside the heading. One element, two positions — see the class doc.
+      // The design draws the PGP chip twice and hides one; this is one element reordered, so a
+      // screen reader hears the fingerprint once. Below 640px it takes its own row under the grid.
       css('.signals-dock__pgp').styles(
         display: .flex,
         width: 100.percent,
@@ -171,7 +165,6 @@ class SignalsDock extends StatelessComponent {
     ]),
 
     css.media(AppBreakpoints.fromSm, [
-      // The chip rejoins the heading row and stops claiming a line of its own.
       css('.signals-dock .signals-dock__pgp').styles(
         width: .auto,
         radius: .all(.circular(AppRadius.pill)),

@@ -9,12 +9,6 @@ import '../constants/theme.dart';
 import '../content/site_content.dart';
 import '../state/site_content_builder.dart';
 
-/// The opening screen.
-///
-/// Three decorative layers sit behind a single centred column: a wide gradient blob that breathes on
-/// [AppMotion.ambientGlow], a static secondary blob under it, and a radial vignette that pulls the
-/// edges back down to `surface`. None of them take pointer events, and none of them are in the
-/// accessibility tree.
 class Hero extends StatelessComponent {
   const Hero({super.key});
 
@@ -93,7 +87,6 @@ class Hero extends StatelessComponent {
         pointerEvents: .none,
       ),
 
-      // Centred by the keyframe's own `translate(-50%, -10%)`, which is why no transform is set here.
       css('.hero__glow').styles(
         position: .absolute(top: (-8).rem, left: 50.percent),
         width: 920.px,
@@ -125,10 +118,9 @@ class Hero extends StatelessComponent {
         },
       ),
 
-      // Vertical only: `.app-container` owns the horizontal gutter as longhands, and passing both
-      // axes here would emit the `padding` shorthand over them.
       css('.hero__container').styles(
         position: .relative(),
+        // Vertical only — `.app-container` owns the horizontal gutter as longhands.
         padding: .symmetric(vertical: AppSpacing.xxl),
       ),
 
@@ -172,8 +164,8 @@ class Hero extends StatelessComponent {
         gap: Gap(row: AppSpacing.xs),
       ),
 
-      // A3: the 56px display step would overflow a 360px viewport, so the mobile variant is the base
-      // and the desktop one arrives at 640px.
+      // The 56px display step overflows a 360px viewport, so the mobile variant is the base and the
+      // desktop one arrives at 640px.
       css('.hero__title').combine(AppType.displayMobile).styles(color: AppColors.onSurface, lineHeight: 1.05.em),
       css('.hero__title-accent').styles(
         color: Colors.transparent,
@@ -228,9 +220,8 @@ class Hero extends StatelessComponent {
       css('.hero .hero__container').styles(padding: .symmetric(vertical: AppSpacing.xxxl)),
     ]),
 
-    // The global reduced-motion rule zeroes every transform, and this blob is centred by its
-    // keyframe's `translate(-50%, -10%)`. With the animation stopped it has to be centred by layout,
-    // or it hangs off the right of the viewport. Half its width, and 10% of its height.
+    // The global reduced-motion rule zeroes every transform, including the keyframe's
+    // `translate(-50%, -10%)` that centres this blob — so layout has to centre it instead.
     css.media(AppBreakpoints.reducedMotion, [
       css('.hero .hero__glow').styles(
         margin: .only(top: (-50).px, left: (-460).px),

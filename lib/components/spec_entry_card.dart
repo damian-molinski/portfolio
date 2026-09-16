@@ -6,20 +6,11 @@ import '../content/site_content.dart';
 import 'spec_card.dart';
 import 'tag_pill.dart';
 
-/// A card for one [SpecEntry] — one pillar, or one skill group.
-///
-/// The design draws both sections with the same card and varies only the data and the pill
-/// treatment, so this draws both. It also owns the grid the cards sit in, because the two sections
-/// lay them out identically: one column, two from 768px, four from 1024px.
 class SpecEntryCard extends StatelessComponent {
   const SpecEntryCard(this.entry, {required this.tagVariant, super.key});
 
   final SpecEntry entry;
-
-  /// Pillars carry three borderless pills; skills carry five, which need edges to read as a group.
   final TagPillVariant tagVariant;
-
-  /// The tile takes its colour from where the card sits in the row, not from what it says.
   String get _tileClasses {
     final accent = AppAccent.atPosition(entry.index);
     return 'spec-entry__tile spec-entry__tile--${accent.name}';
@@ -83,8 +74,6 @@ class SpecEntryCard extends StatelessComponent {
         backgroundColor: AppColors.surfaceContainerHigh,
       ),
       for (final accent in AppAccent.values) css('.spec-entry__tile--${accent.name}').styles(color: accent.color),
-      // The design drives these off Tailwind's `group-hover`; `@css` is globalised, so the card's own
-      // hover state is the selector instead.
       css('&:hover .spec-entry__tile').styles(
         transform: .rotate(6.deg),
         color: AppColors.tertiary,

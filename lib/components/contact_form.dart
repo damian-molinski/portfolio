@@ -17,14 +17,6 @@ import '../utils/iterable_extensions.dart';
 import 'icons.dart';
 import 'mono_button.dart';
 
-/// The consultation form.
-///
-/// [ContactCubit] owns the draft and the request; this only renders it and reports back what the
-/// visitor typed. The one thing here the visitor never sees is the trap input — see [_honeypot].
-///
-/// Like [CopyEmailButton], this hydrates as its own component tree and so cannot see the
-/// [BlocProvider] above `App`. It resolves both cubits from `get_it` instead, and owns the
-/// [ContactCubit] it is given — a factory registration, closed in [dispose].
 @client
 class ContactForm extends StatefulComponent {
   const ContactForm({super.key});
@@ -106,8 +98,6 @@ class ContactFormState extends State<ContactForm> {
     ]);
   }
 
-  /// The control's share of the rejection: it is marked, and it points at the line beneath it that
-  /// says what is wrong, so a screen reader hears the reason on focus.
   Map<String, String> _problemAttributes(ContactField field, FieldProblem? problem) {
     if (problem == null) return const {};
 
@@ -166,9 +156,8 @@ class ContactFormState extends State<ContactForm> {
             ..._problemAttributes(field, problem),
           },
         ),
-      // Beneath the control it belongs to rather than pooled above the button, and deliberately not
-      // a live region: three of these appearing at once would be read as three interruptions. The
-      // focus move in `_focusFirstProblem` is what announces them, one at a time.
+      // Deliberately not a live region: three of these at once would be read as three
+      // interruptions. `_focusFirstProblem` is what announces them, one at a time.
       if (problem case final problem?)
         p(classes: 'contact-form__error', id: field.errorId, [
           .text(_fieldMessage(copy, field, problem)),
@@ -176,13 +165,6 @@ class ContactFormState extends State<ContactForm> {
     ]);
   }
 
-  /// A field no person sees, and no person fills.
-  ///
-  /// It is uncontrolled — its value is recorded on the draft but never enters [ContactState], so
-  /// typing into it re-renders nothing and the text a bot enters stays put. What it catches is the
-  /// scraper that fills every input in the rendered HTML and replays it; a bot posting straight to
-  /// the endpoint never sees it. That is the limit of it, and the answer if abuse arrives anyway is
-  /// a challenge at the edge, not more of this.
   Component _honeypot(ContactFormContent copy) {
     return div(
       classes: 'contact-form__honeypot',
@@ -261,8 +243,8 @@ class ContactFormState extends State<ContactForm> {
 
         _honeypot(copy),
 
-        // Why the send failed, which is no field's fault and so belongs beside the button rather
-        // than under a control. Nothing focuses it, so `role="alert"` is the only way it is heard.
+        // A failed send is no field's fault, so it sits beside the button. Nothing focuses it, so
+        // `role="alert"` is the only way it is heard.
         if (formState.failure case final failure?)
           p(
             classes: 'contact-form__error',
@@ -348,21 +330,16 @@ class ContactFormState extends State<ContactForm> {
         position: .relative(),
         width: 100.percent,
       ),
-      // Room for the chevron, so a long option label cannot run under it.
       css('.contact-form__control--select').styles(
         padding: .only(right: AppSpacing.xl),
         appearance: .none,
       ),
-      // Centred by auto margins rather than a translate: the global reduced-motion rule drops every
-      // transform, and this one would take the chevron with it.
       css('.contact-form__select-chevron').styles(
         position: .absolute(top: .zero, bottom: .zero, right: AppSpacing.sm),
         margin: .symmetric(vertical: .auto),
         pointerEvents: .none,
         color: AppColors.onSurfaceVariant,
       ),
-      // The design's `outline/70` measures 3.53:1 on this ground. Full opacity is 6.08:1 and the
-      // placeholder still reads as secondary to the value beside it.
       css('.contact-form__control::placeholder').styles(color: AppColors.outline),
       css('.contact-form__control:focus').styles(
         border: AppBorders.hairline(AppColors.tertiary),
@@ -370,15 +347,14 @@ class ContactFormState extends State<ContactForm> {
         shadow: BoxShadow(offsetX: .zero, offsetY: .zero, blur: 16.px, color: AppColors.tertiary.alpha(0.15)),
       ),
 
-      // `:focus` drops the outline for the design's border-and-glow treatment, which would take the
+      // `:focus` above drops the outline for the border-and-glow treatment, which would take the
       // ring away from keyboard users too. This puts it back for them alone.
       css('.contact-form__control:focus-visible').styles(
         outline: AppFocus.ring,
       ),
 
-      // Both rules, because `.contact-form__control:focus` above is a pseudo-class and outranks a
-      // plain class: focusing a field the summary named must not make it look accepted. The second
-      // matches that specificity and wins on source order.
+      // Both rules: `:focus` is a pseudo-class and outranks a plain class, so a blocked field must
+      // not look accepted on focus. The second matches that specificity and wins on source order.
       css('.contact-form__control--invalid').styles(
         border: AppBorders.hairline(AppColors.error),
       ),
@@ -389,8 +365,8 @@ class ContactFormState extends State<ContactForm> {
 
       css('.contact-form__error').combine(AppType.labelMd).styles(color: AppColors.error),
 
-      // Off-screen rather than `display: none`: a bot worth catching skips inputs it can tell are
-      // hidden, and this one is only worth having if it gets filled.
+      // Off-screen rather than `display: none` — a bot worth catching skips inputs it can tell are
+      // hidden.
       css('.contact-form__honeypot').styles(
         position: .absolute(left: (-9999).px),
         width: 1.px,
@@ -399,7 +375,6 @@ class ContactFormState extends State<ContactForm> {
       ),
     ]),
 
-    // From 768px the name and email fields share a row.
     css.media(AppBreakpoints.fromMd, [
       css('.contact-form .contact-form__row').styles(
         gridTemplate: AppGrid.twoColumns,

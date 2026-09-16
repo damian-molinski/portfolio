@@ -5,26 +5,14 @@ import '../constants/theme.dart';
 import '../utils/markup.dart';
 import 'icons.dart';
 
-/// The two button treatments in the design.
 enum MonoButtonVariant {
-  /// Solid blue gradient. One per view — the hero's inquiry call to action and the form's submit.
   primary,
-
-  /// Glass fill with a cyan hairline. Everything else.
   ghost;
 
   String get className => 'mono-button mono-button--$name';
 }
 
-/// A monospaced action in the design's `[ label() ]` form.
-///
-/// Three constructors rather than one with a nullable callback, because the element has to differ:
-/// [MonoButton.link] renders an `<a>`, [MonoButton.action] and [MonoButton.submit] render `<button>`.
-/// A single component taking an optional `onPressed` would compile a handler into the pre-rendered
-/// page that nothing can ever fire — the static build has no client to attach it to unless the caller
-/// is inside a `@client` boundary.
 class MonoButton extends StatelessComponent {
-  /// A navigation action. Renders an `<a href>`, so it works without JavaScript.
   const MonoButton.link({
     required this.label,
     required String this.href,
@@ -35,9 +23,6 @@ class MonoButton extends StatelessComponent {
   }) : onPressed = null,
        isSubmit = false,
        isDisabled = false;
-
-  /// An in-page action. Only meaningful inside a `@client` component — nothing hydrates the handler
-  /// otherwise.
   const MonoButton.action({
     required this.label,
     required VoidCallback this.onPressed,
@@ -48,8 +33,6 @@ class MonoButton extends StatelessComponent {
     super.key,
   }) : href = null,
        isSubmit = false;
-
-  /// A form's submit control.
   const MonoButton.submit({
     required this.label,
     this.icon,
@@ -65,8 +48,6 @@ class MonoButton extends StatelessComponent {
   final String? href;
   final VoidCallback? onPressed;
   final AppIcon? icon;
-
-  /// Overrides the accessible name when [label] alone does not say where the action goes.
   final String? ariaLabel;
 
   final MonoButtonVariant variant;
@@ -117,8 +98,6 @@ class MonoButton extends StatelessComponent {
       css('&:active').styles(transform: .scale(0.98)),
       css('&:disabled').styles(opacity: 0.55, cursor: .notAllowed, transform: .none),
 
-      // The design's submit fills its panel and centres its content
-      // (`docs/reference/landing-page.html:584`); every other button is shrink-to-fit.
       css('&.mono-button--block').styles(width: 100.percent, justifyContent: .center),
 
       css('&.mono-button--primary').styles(
@@ -129,8 +108,6 @@ class MonoButton extends StatelessComponent {
           blur: 20.px,
           color: AppColors.primaryContainer.alpha(0.35),
         ),
-        // `on-primary-container`, not `on-primary`: the fill is the primary *container* gradient, and
-        // the design's darker pairing measured 2.71:1 against it. See amendment A9.
         color: AppColors.onPrimaryContainer,
         raw: {
           'background-image':

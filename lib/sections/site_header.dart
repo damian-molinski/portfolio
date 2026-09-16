@@ -5,11 +5,6 @@ import '../constants/theme.dart';
 import '../data/site_content_repository.dart';
 import '../state/site_content_builder.dart';
 
-/// The fixed page header.
-///
-/// Sits above everything at `z-index: 50` on a translucent `surface` ground that blurs whatever
-/// scrolls beneath it. The nav disappears below 768px with nothing replacing it: assumption A2
-/// mirrors the design, which has no mobile menu, rather than inventing one here.
 class SiteHeader extends StatelessComponent {
   const SiteHeader({super.key});
 

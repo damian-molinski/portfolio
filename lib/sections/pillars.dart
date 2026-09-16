@@ -9,10 +9,6 @@ import '../content/site_content.dart';
 import '../data/site_content_repository.dart';
 import '../state/site_content_builder.dart';
 
-/// Section `01` — the four competency cards.
-///
-/// Everything visual lives in [SectionShell] and [SpecEntryCard]; this only says which entries go in
-/// and which pill treatment they take.
 class Pillars extends StatelessComponent {
   const Pillars({super.key});
 

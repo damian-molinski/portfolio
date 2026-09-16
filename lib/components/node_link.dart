@@ -5,11 +5,6 @@ import '../constants/theme.dart';
 import '../content/site_content.dart';
 import '../utils/markup.dart';
 
-/// One tile in the identity dock: a leading glyph, the service and handle stacked beside it, and an
-/// outbound arrow in the corner. Every node leaves the site, so every tile carries the same arrow.
-///
-/// Opens in a new tab with `rel="noopener noreferrer"`, and takes its accessible name from the node
-/// rather than from the visible text, which reads as "GitHub @handle" out of context.
 class NodeLink extends StatelessComponent {
   const NodeLink(this.node, {super.key});
 

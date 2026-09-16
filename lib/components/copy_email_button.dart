@@ -12,29 +12,12 @@ import '../state/site_content_cubit.dart';
 import 'icons.dart';
 import 'mono_button.dart';
 
-/// Writes an address to the clipboard and confirms it in place for two seconds.
-///
-/// One of only two components on the site that ship JavaScript. [isIconOnly] is its only parameter
-/// and it is a `bool`, because a `@client` component is reconstructed on the client from values the
-/// pre-rendered markup carries as attributes — an [AppIcon] or a content object could not make that
-/// crossing. For the same reason this takes a single unnamed constructor: Jaspr's hydration codegen
-/// calls the unnamed one, so named constructors compile but fail the client build.
-///
-/// Its copy does not cross the boundary either. An island hydrates as its own component tree and
-/// cannot see the [BlocProvider] above `App`, so it resolves [SiteContentCubit] from `get_it`
-/// instead. That is safe only because the content is `const`-backed and deterministic: server and
-/// client read the same literals and produce the same markup. A runtime content source would break
-/// hydration here, and this is the decision that would have to change first.
-///
-/// The design uses it twice, and the two differ only in whether they show a text label: the hero's
-/// carries one and swaps it on success, the contact card's is a bare glyph that becomes a tick. Each
-/// gets its own [CopyCubit] from `get_it`, which registers it as a factory — a shared instance would
-/// make both confirm on a single click.
 @client
 class CopyEmailButton extends StatefulComponent {
+  // Unnamed, because that is the constructor Jaspr's hydration codegen calls. A named one analyzes
+  // clean and pre-renders correctly, then fails the client build.
   const CopyEmailButton({required this.isIconOnly, super.key});
 
-  /// Whether this renders as a bare glyph rather than a labelled button.
   final bool isIconOnly;
 
   @override
@@ -55,8 +38,6 @@ class CopyEmailButtonState extends State<CopyEmailButton> {
 
   @override
   void dispose() {
-    // Only the cubit this island owns. [SiteContentCubit] is a lazy singleton shared with the rest
-    // of the page.
     _copy.close();
     super.dispose();
   }

@@ -7,15 +7,11 @@ import 'package:portfolio/state/copy_cubit.dart';
 
 import 'render.dart';
 
-/// Stands in for [BrowserClipboard], which reports a failed write on the VM because its `kIsWeb`
-/// guard is false there — so nothing would ever reach the confirmed state.
 final class _FakeClipboard implements Clipboard {
   @override
   Future<bool> write(String text) async => true;
 }
 
-/// Like `contact_form_test.dart`, these assert the pre-rendered markup for a state the cubit is put
-/// into before pumping; the confirm-and-revert timing is covered in `test/state/copy_cubit_test.dart`.
 void main() {
   const hero = HeroContent();
   const identity = SiteIdentity();
@@ -28,8 +24,6 @@ void main() {
     getIt.unregister<Clipboard>();
     getIt.registerSingleton<Clipboard>(_FakeClipboard());
 
-    // A factory in production, deliberately — the page renders this twice. A test needs the one
-    // instance the button will render from.
     copy = CopyCubit(clipboard: getIt());
     getIt.unregister<CopyCubit>();
     getIt.registerSingleton<CopyCubit>(copy);
@@ -55,7 +49,6 @@ void main() {
       final control = rendered.querySelector('button')!;
 
       expect(control.classes, contains('copy-icon-button'));
-      // The glyph is the whole control, so its name cannot come from visible text.
       expect(control.text.trim(), isEmpty);
       expect(control.attributes, containsPair('aria-label', hero.copyCtaAriaLabel));
     });
