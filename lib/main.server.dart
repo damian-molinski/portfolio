@@ -3,12 +3,12 @@ library;
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/server.dart';
 
-import 'app.dart';
-import 'data/site_content_repository.dart';
+import 'data/repositories/site_content_repository.dart';
 import 'di/injector.dart';
 import 'main.server.options.dart';
-import 'state/bloc_provider.dart';
-import 'state/site_content_cubit.dart';
+import 'ui/core/binding/bloc_provider.dart';
+import 'ui/core/view/app_shell.dart';
+import 'ui/core/view_model/site_content_view_model.dart';
 
 void main() {
   Jaspr.initializeApp(
@@ -55,9 +55,11 @@ void main() {
       meta(name: 'twitter:description', content: siteMeta.ogDescription),
       meta(name: 'twitter:image', content: siteMeta.ogImage),
     ],
-    body: BlocProvider<SiteContentCubit>(
-      create: (context) => getIt(),
-      child: const App(),
+    // `.value`, not `create:`: the ViewModel is a get_it singleton, and `create:` would make the
+    // provider its owner and close it on dispose.
+    body: BlocProvider<SiteContentViewModel>.value(
+      value: getIt(),
+      child: const AppShell(),
     ),
   );
 

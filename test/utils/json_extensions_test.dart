@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:portfolio/content/site_content.dart';
-import 'package:portfolio/data/contact_draft_dto.dart';
-import 'package:portfolio/state/contact_draft.dart';
+import 'package:portfolio/data/dto/contact_draft_dto.dart';
+import 'package:portfolio/domain/models/contact_draft.dart';
+import 'package:portfolio/domain/models/site_content.dart';
 import 'package:portfolio/utils/json_extensions.dart';
 import 'package:test/test.dart';
 

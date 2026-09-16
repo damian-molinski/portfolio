@@ -6,9 +6,9 @@
 
 import 'package:jaspr/client.dart';
 
-import 'package:portfolio/components/contact_form.dart'
+import 'package:portfolio/ui/contact/view/contact_form.dart'
     deferred as _contact_form;
-import 'package:portfolio/components/copy_email_button.dart'
+import 'package:portfolio/ui/copy_email/view/copy_email_button.dart'
     deferred as _copy_email_button;
 
 /// Default [ClientOptions] for use with your Jaspr project.

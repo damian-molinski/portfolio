@@ -1,12 +1,12 @@
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
-import '../data/clipboard.dart';
-import '../data/contact_dispatcher.dart';
-import '../data/site_content_repository.dart';
-import '../state/contact_cubit.dart';
-import '../state/copy_cubit.dart';
-import '../state/site_content_cubit.dart';
+import '../data/repositories/site_content_repository.dart';
+import '../data/services/clipboard.dart';
+import '../data/services/contact_dispatcher.dart';
+import '../ui/contact/view_model/contact_view_model.dart';
+import '../ui/copy_email/view_model/copy_view_model.dart';
+import '../ui/core/view_model/site_content_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -20,9 +20,9 @@ void configureDependencies() {
     ..registerLazySingleton<ContactDispatcher>(() {
       return HttpContactDispatcher(client: getIt(), base: Uri.base);
     })
-    ..registerLazySingleton<SiteContentCubit>(() => SiteContentCubit(getIt()))
-    ..registerFactory<ContactCubit>(() => ContactCubit(dispatcher: getIt()))
+    ..registerLazySingleton<SiteContentViewModel>(() => SiteContentViewModel(getIt()))
+    ..registerFactory<ContactViewModel>(() => ContactViewModel(dispatcher: getIt()))
     // A factory, not a singleton: the page renders `CopyEmailButton` twice, and a shared instance
     // would make both confirm on a single click.
-    ..registerFactory<CopyCubit>(() => CopyCubit(clipboard: getIt()));
+    ..registerFactory<CopyViewModel>(() => CopyViewModel(clipboard: getIt()));
 }

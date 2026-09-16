@@ -1,4 +1,4 @@
-import 'package:portfolio/content/site_content.dart';
+import 'package:portfolio/domain/models/site_content.dart';
 import 'package:portfolio/utils/iterable_extensions.dart';
 import 'package:test/test.dart';
 

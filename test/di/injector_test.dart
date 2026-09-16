@@ -1,11 +1,11 @@
 import 'package:http/http.dart' as http;
-import 'package:portfolio/data/clipboard.dart';
-import 'package:portfolio/data/contact_dispatcher.dart';
-import 'package:portfolio/data/site_content_repository.dart';
+import 'package:portfolio/data/repositories/site_content_repository.dart';
+import 'package:portfolio/data/services/clipboard.dart';
+import 'package:portfolio/data/services/contact_dispatcher.dart';
 import 'package:portfolio/di/injector.dart';
-import 'package:portfolio/state/contact_cubit.dart';
-import 'package:portfolio/state/copy_cubit.dart';
-import 'package:portfolio/state/site_content_cubit.dart';
+import 'package:portfolio/ui/contact/view_model/contact_view_model.dart';
+import 'package:portfolio/ui/copy_email/view_model/copy_view_model.dart';
+import 'package:portfolio/ui/core/view_model/site_content_view_model.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -20,7 +20,7 @@ void main() {
     test('registers the stateless collaborators as singletons', () {
       expect(getIt<SiteContentRepository>(), same(getIt<SiteContentRepository>()));
       expect(getIt<Clipboard>(), same(getIt<Clipboard>()));
-      expect(getIt<SiteContentCubit>(), same(getIt<SiteContentCubit>()));
+      expect(getIt<SiteContentViewModel>(), same(getIt<SiteContentViewModel>()));
       expect(getIt<http.Client>(), same(getIt<http.Client>()));
       expect(getIt<ContactDispatcher>(), same(getIt<ContactDispatcher>()));
     });
@@ -33,8 +33,8 @@ void main() {
     });
 
     test('hands each copy button its own cubit', () {
-      final heroCubit = getIt<CopyCubit>();
-      final contactCardCubit = getIt<CopyCubit>();
+      final heroCubit = getIt<CopyViewModel>();
+      final contactCardCubit = getIt<CopyViewModel>();
       addTearDown(heroCubit.close);
       addTearDown(contactCardCubit.close);
 
@@ -42,8 +42,8 @@ void main() {
     });
 
     test('hands each form its own cubit', () {
-      final first = getIt<ContactCubit>();
-      final second = getIt<ContactCubit>();
+      final first = getIt<ContactViewModel>();
+      final second = getIt<ContactViewModel>();
       addTearDown(first.close);
       addTearDown(second.close);
 
